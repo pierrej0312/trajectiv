@@ -1,0 +1,74 @@
+<div class="sign-up-step" [formGroup]="form()">
+  <div class="sign-up-step__header">
+    <h2>Créer ton compte</h2>
+    <p>Commence par les informations essentielles pour accéder à ton cockpit.</p>
+  </div>
+
+  <div class="sign-up-step__grid">
+    <div class="form-field">
+      <label for="firstName">Prénom</label>
+      <input
+        id="firstName"
+        pInputText
+        formControlName="firstName"
+        autocomplete="given-name"
+        placeholder="John"
+      />
+    </div>
+
+    <div class="form-field">
+      <label for="lastName">Nom</label>
+      <input
+        id="lastName"
+        pInputText
+        formControlName="lastName"
+        autocomplete="family-name"
+        placeholder="Doe"
+      />
+    </div>
+
+    <div class="form-field form-field--full">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        pInputText
+        type="email"
+        formControlName="email"
+        autocomplete="email"
+        placeholder="you@example.com"
+      />
+    </div>
+
+    <div class="form-field">
+      <label for="password">Mot de passe</label>
+      <p-password
+        inputId="password"
+        formControlName="password"
+        autocomplete="new-password"
+        [toggleMask]="true"
+        [feedback]="true"
+        styleClass="w-full"
+        inputStyleClass="w-full"
+        placeholder="Minimum 8 caractères"
+      />
+    </div>
+
+    <div class="form-field">
+      <label for="confirmPassword">Confirmer</label>
+      <p-password
+        inputId="confirmPassword"
+        formControlName="confirmPassword"
+        autocomplete="new-password"
+        [toggleMask]="true"
+        [feedback]="false"
+        styleClass="w-full"
+        inputStyleClass="w-full"
+        placeholder="Répète ton mot de passe"
+      />
+
+      @if (form().hasError('passwordsMismatch') && form().controls.confirmPassword.touched) {
+        <small class="form-error">Les mots de passe ne correspondent pas.</small>
+      }
+    </div>
+  </div>
+</div>

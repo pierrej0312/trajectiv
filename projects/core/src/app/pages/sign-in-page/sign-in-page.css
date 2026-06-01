@@ -1,0 +1,41 @@
+@reference "tailwindcss";
+
+:host {
+  @apply block min-h-dvh flex flex-col justify-center items-center;
+}
+
+.auth-page {
+  @apply h-fit m-auto w-full flex flex-col lg:flex-row justify-center items-stretch gap-20 px-8 md:py-20;
+}
+
+.auth-page__form-panel {
+  @apply flex justify-self-stretch;
+}
+
+.auth-page__form-wrapper {
+  @apply w-full max-w-[520px];
+}
+
+/* PrimeNG Card local styling */
+:host ::ng-deep {
+  --p-card-border-radius: 3rem;
+  --p-card-shadow: 5px 7px 31px 1px rgba(0, 0, 0, 0.05);
+}
+
+:host ::ng-deep .p-card-content {
+  @apply mt-5 flex-1;
+}
+
+:host ::ng-deep .p-card-title {
+  --p-card-title-font-size: clamp(2rem, 4vw, 2rem);
+}
+
+:host ::ng-deep .p-card-body {
+  @apply p-20 self-stretch h-full flex flex-col justify-stretch;
+}
+
+@media (max-width: 650px) {
+  :host ::ng-deep .p-card-body {
+    @apply p-10;
+  }
+}

@@ -1,0 +1,158 @@
+@reference "tailwindcss";
+
+:host {
+  display: block;
+  min-height: 100dvh;
+  position: relative;
+  overflow: hidden;
+
+  --bg-base-start: 182 24% 72%;
+  --bg-base-middle: 155 30% 88%;
+  --bg-base-end: 66 42% 93%;
+
+  --gradient-lime: 84 100% 62%;
+  --gradient-mint: 165 75% 72%;
+  --gradient-blue: 205 80% 76%;
+  --gradient-violet: 260 72% 78%;
+
+  --grain-opacity: 0.4;
+  --vignette-opacity: 0.8;
+}
+
+:host-context(.dark) {
+  --bg-base-start: 160 18% 7%;
+  --bg-base-middle: 165 16% 9%;
+  --bg-base-end: 140 14% 6%;
+
+  --gradient-lime: 84 100% 58%;
+  --gradient-mint: 165 72% 52%;
+  --gradient-blue: 205 78% 58%;
+  --gradient-violet: 260 70% 62%;
+
+  --grain-opacity: 0.5;
+  --vignette-opacity: 0.22;
+}
+
+.app-background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  filter: brightness(1.2);
+
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      hsl(var(--gradient-lime) / 0.08) 0%,
+      hsl(var(--gradient-lime) / 0.05) 22%,
+      hsl(var(--gradient-lime) / 0.035) 44%,
+      hsl(var(--gradient-lime) / 0.012) 62%,
+      transparent 82%
+    ),
+    radial-gradient(
+      circle at 85% 12%,
+      hsl(var(--gradient-mint) / 0.18) 0%,
+      hsl(var(--gradient-mint) / 0.10) 24%,
+      hsl(var(--gradient-mint) / 0.05) 46%,
+      hsl(var(--gradient-mint) / 0.01) 64%,
+      transparent 84%
+    ),
+    radial-gradient(
+      circle at 72% 88%,
+      hsl(var(--gradient-blue) / 0.25) 0%,
+      hsl(var(--gradient-blue) / 0.20) 26%,
+      hsl(var(--gradient-blue) / 0.15) 48%,
+      hsl(var(--gradient-blue) / 0.01) 66%,
+      transparent 86%
+    ),
+    radial-gradient(
+      circle at 18% 92%,
+      hsl(var(--gradient-violet) / 0.25) 0%,
+      hsl(var(--gradient-violet) / 0.18) 28%,
+      hsl(var(--gradient-violet) / 0.01) 50%,
+      transparent 82%
+    ),
+    linear-gradient(
+      135deg,
+      hsl(var(--bg-base-start)) 0%,
+      hsl(var(--bg-base-middle)) 52%,
+      hsl(var(--bg-base-end)) 100%
+    );
+}
+
+:host-context(.dark) .app-background {
+  filter: brightness(0.5);
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      hsl(var(--gradient-lime) / 0.085) 0%,
+      hsl(var(--gradient-lime) / 0.04) 26%,
+      hsl(var(--gradient-lime) / 0.016) 50%,
+      transparent 78%
+    ),
+    radial-gradient(
+      circle at 85% 12%,
+      hsl(var(--gradient-mint) / 0.075) 0%,
+      hsl(var(--gradient-mint) / 0.035) 28%,
+      hsl(var(--gradient-mint) / 0.014) 52%,
+      transparent 82%
+    ),
+    radial-gradient(
+      circle at 72% 88%,
+      hsl(var(--gradient-blue) / 0.25) 0%,
+      hsl(var(--gradient-blue) / 0.12) 30%,
+      hsl(var(--gradient-blue) / 0.012) 56%,
+      transparent 86%
+    ),
+    radial-gradient(
+      circle at 18% 92%,
+      hsl(var(--gradient-violet) / 0.25) 0%,
+      hsl(var(--gradient-violet) / 0.05) 32%,
+      transparent 78%
+    ),
+    linear-gradient(
+      135deg,
+      hsl(var(--bg-base-start)) 0%,
+      hsl(var(--bg-base-middle)) 52%,
+      hsl(var(--bg-base-end)) 100%
+    );
+}
+
+.app-background::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--vignette-opacity);
+
+  background:
+    radial-gradient(
+      circle at center,
+      transparent 0%,
+      rgb(0 0 0 / 0.16) 100%
+    );
+}
+
+.app-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+
+  opacity: var(--grain-opacity);
+  mix-blend-mode: soft-light;
+
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.6' numOctaves='1' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='discrete' tableValues='0 0 0 1 1'/%3E%3CfeFuncG type='discrete' tableValues='0 0 0 1 1'/%3E%3CfeFuncB type='discrete' tableValues='0 0 0 1 1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='1'/%3E%3C/svg%3E");
+
+  background-size: 220px 220px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-background,
+  .app-background::before,
+  .app-background::after {
+    transform: none;
+  }
+}

@@ -1,0 +1,7 @@
+@if (field().invalid() && field().touched()) {
+  <ul class="mt-2">
+    @for (error of field().errors(); track error.kind) {
+      <p-message severity="error" variant="simple" size="small">{{ error.message }}</p-message>
+    }
+  </ul>
+}

@@ -1,0 +1,31 @@
+<section class="auth-hero" aria-labelledby="auth-hero-title">
+  <kc-trajectiv-logo
+    variant="horizontal"
+    [size]="logoSize()"
+    class="auth-hero__logo"
+  />
+
+  <div class="auth-hero__content">
+    <p class="auth-hero__eyebrow">
+      {{ eyebrow() }}
+    </p>
+
+    <h1 id="auth-hero-title" class="auth-hero__title">
+      {{ title() }}
+    </h1>
+
+    <p class="auth-hero__description">
+      {{ description() }}
+    </p>
+  </div>
+
+  <div class="auth-hero__features">
+    @for (feature of features(); track feature.title) {
+      <kc-feature-highlight
+        [icon]="feature.icon"
+        [title]="feature.title"
+        [description]="feature.description"
+      />
+    }
+  </div>
+</section>

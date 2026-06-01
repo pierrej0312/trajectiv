@@ -1,0 +1,104 @@
+<form class="sign-up-form" [formGroup]="form" (ngSubmit)="submit()">
+  <p-stepper
+    [value]="currentStep()"
+    [linear]="true"
+    class="sign-up-stepper"
+  >
+    <p-step-list>
+      <p-step [value]="1">Compte</p-step>
+      <p-step [value]="2">Objectif</p-step>
+      <p-step [value]="3">Confirmation</p-step>
+    </p-step-list>
+
+    <p-step-panels>
+      <p-step-panel [value]="1">
+        <ng-template #content>
+          <app-sign-up-account-step [form]="form.controls.account" />
+          <p-divider type="solid" />
+
+          <div class="sign-up-form__actions">
+            <p-button
+              label="Continuer"
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              type="button"
+              fluid class="w-full"
+              [disabled]="form.controls.account.invalid"
+              (onClick)="next()"
+              size="large"
+            />
+          </div>
+        </ng-template>
+      </p-step-panel>
+
+      <p-step-panel [value]="2">
+        <ng-template #content>
+          <app-sign-up-target-step [form]="form.controls.target" />
+          <p-divider type="solid" />
+
+          <div class="sign-up-form__actions">
+            <p-button
+              label="Retour"
+              severity="secondary"
+              variant="text"
+              type="button"
+              icon="pi pi-arrow-left"
+              (onClick)="previous()"
+              fluid class="w-full"
+              size="large"
+            />
+
+            <p-button
+              label="Continuer"
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              type="button"
+              [disabled]="form.controls.target.invalid"
+              (onClick)="next()"
+              fluid class="w-full"
+              size="large"
+            />
+          </div>
+        </ng-template>
+      </p-step-panel>
+
+      <p-step-panel [value]="3">
+        <ng-template #content>
+          <app-sign-up-confirm-step
+            [form]="form"
+            [accountForm]="form.controls.account"
+            [targetForm]="form.controls.target"
+            [consentForm]="form.controls.consent"
+          />
+          <p-divider type="solid" />
+
+          <div class="sign-up-form__actions">
+            <p-button
+              label="Retour"
+              severity="secondary"
+              variant="text"
+              type="button"
+              icon="pi pi-arrow-left"
+              (onClick)="previous()"
+              fluid class="w-full"
+              size="large"
+            />
+
+            <p-button
+              label="Créer mon compte"
+              icon="pi pi-check"
+              type="submit"
+              fluid class="w-full"
+              size="large"
+              [disabled]="form.invalid"
+            />
+          </div>
+        </ng-template>
+      </p-step-panel>
+    </p-step-panels>
+  </p-stepper>
+</form>
+<div class="flex justify-center gap-3 mt-10">
+  <p>Already have an account ?</p>
+  <a [routerLink]="['/sign-In']" class="text-primary">Sign In</a>
+</div>

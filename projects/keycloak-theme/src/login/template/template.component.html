@@ -1,0 +1,185 @@
+@let realm = kcContext.realm;
+@let message = kcContext.message;
+@let auth = kcContext.auth;
+@let isAppInitiatedAction = kcContext.isAppInitiatedAction;
+@let url = kcContext.url;
+@let isReadyToRender = isReadyToRender$ | async;
+
+@if (isReadyToRender) {
+  <div class="tr-auth-background" aria-hidden="true"></div>
+
+  <main class="tr-auth-page relative z-[1] flex min-h-dvh items-stretch justify-center gap-20 px-8 py-10 text-[var(--tr-text)] lg:items-center md:py-20">
+    <section class="tr-auth-hero hidden md:block">
+      <kc-auth-hero />
+    </section>
+
+
+    <section class="tr-auth-form-panel">
+      <div class="tr-auth-form-wrapper">
+        <div [kcClass]="'kcLoginClass'" class="tr-auth-kc-root">
+          <div class="tr-auth-card" [kcClass]="'kcFormCardClass'">
+            <header [kcClass]="'kcFormHeaderClass'" class="tr-auth-card__header">
+              @if (i18n.enabledLanguages.length > 1) {
+                <div id="kc-locale" [kcClass]="'kcLocaleMainClass'">
+                  <div id="kc-locale-wrapper" [kcClass]="'kcLocaleWrapperClass'">
+                    <div
+                      id="kc-locale-dropdown"
+                      class="menu-button-links"
+                      [kcClass]="'kcLocaleDropDownClass'"
+                    >
+                      <button
+                        tabindex="1"
+                        id="kc-current-locale-link"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        aria-controls="language-switch1"
+                        [attr.aria-label]="i18n.msgStr('languages')"
+                      >
+                        {{ i18n.currentLanguage.label }}
+                      </button>
+
+                      <ul
+                        role="menu"
+                        tabindex="-1"
+                        aria-labelledby="kc-current-locale-link"
+                        aria-activedescendant=""
+                        id="language-switch1"
+                        [kcClass]="'kcLocaleListClass'"
+                      >
+                        @for (entry of i18n.enabledLanguages; track entry; let idx = $index) {
+                          <li role="none" [kcClass]="'kcLocaleListItemClass'">
+                            <a
+                              role="menuitem"
+                              tabindex="-1"
+                              [href]="entry.href"
+                              [kcClass]="'kcLocaleItemClass'"
+                              [id]="'language-' + idx"
+                            >
+                              {{ entry.label }}
+                            </a>
+                          </li>
+                        }
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <ng-template #node>
+                @if (auth && !auth.showUsername && !auth.showResetCredentials) {
+                  <h1 id="kc-page-title" class="tr-auth-card__title">
+                    @let header = headerNode && headerNode();
+                    @if (header) {
+                      <ng-container [ngTemplateOutlet]="header" />
+                    }
+                  </h1>
+                } @else {
+                  <div id="kc-username" [kcClass]="'kcFormGroupClass'">
+                    <label id="kc-attempted-username">{{ auth?.attemptedUsername }}</label>
+                    <a
+                      id="reset-login"
+                      [href]="url?.loginRestartFlowUrl"
+                      [attr.aria-label]="i18n.msgStr('restartLoginTooltip')"
+                    >
+                      <div class="kc-login-tooltip">
+                        <i [kcClass]="'kcResetFlowIcon'"></i>
+                        <span class="kc-tooltip-text">
+                          {{ i18n.msgStr('restartLoginTooltip') }}
+                        </span>
+                      </div>
+                    </a>
+                  </div>
+                }
+              </ng-template>
+
+              @if (displayRequiredFields) {
+                <div [kcClass]="'kcContentWrapperClass'">
+                  <div class="subtitle" [kcClass]="'kcLabelWrapperClass'">
+                    <span class="subtitle">
+                      <span class="required">*</span>
+                      {{ i18n.msgStr('requiredFields') }}
+                    </span>
+                  </div>
+                  <div class="col-md-10">
+                    <ng-container [ngTemplateOutlet]="node" />
+                  </div>
+                </div>
+              } @else {
+                <ng-container [ngTemplateOutlet]="node" />
+              }
+            </header>
+
+            <div id="kc-content" class="tr-auth-card__content">
+              <div id="kc-content-wrapper">
+                @if (displayMessage && message && (message.type !== 'warning' || !isAppInitiatedAction)) {
+                  <div
+                    [kcClass]="'kcAlertClass'"
+                    [ngClass]="message.type === 'error' ? 'pf-m-danger' : 'pf-m-' + message.type"
+                    [class]="'alert-' + message.type"
+                  >
+                    <div class="pf-c-alert__icon">
+                      @switch (message.type) {
+                        @case ('success') {
+                          <span [kcClass]="'kcFeedbackSuccessIcon'"></span>
+                        }
+                        @case ('warning') {
+                          <span [kcClass]="'kcFeedbackWarningIcon'"></span>
+                        }
+                        @case ('info') {
+                          <span [kcClass]="'kcFeedbackInfoIcon'"></span>
+                        }
+                        @case ('error') {
+                          <span [kcClass]="'kcFeedbackErrorIcon'"></span>
+                        }
+                      }
+                    </div>
+
+                    <span
+                      [kcClass]="'kcAlertTitleClass'"
+                      [innerHTML]="message.summary | kcSanitize: 'html'"
+                    ></span>
+                  </div>
+                }
+
+                <ng-template #pageRef></ng-template>
+
+                @if (!!auth && auth?.showTryAnotherWayLink) {
+                  <form
+                    id="kc-select-try-another-way-form"
+                    method="post"
+                    [action]="url?.loginAction"
+                  >
+                    <div [kcClass]="'kcFormGroupClass'">
+                      <div [kcClass]="'kcFormGroupClass'">
+                        <input type="hidden" name="tryAnotherWay" value="on" />
+                        <a id="try-another-way" (click)="tryAnotherWay()">
+                          {{ i18n.msgStr('doTryAnotherWay') }}
+                        </a>
+                      </div>
+                    </div>
+                  </form>
+                }
+
+                @let socialProviders = socialProvidersNode && socialProvidersNode();
+                @if (socialProviders) {
+                  <ng-container [ngTemplateOutlet]="socialProviders" />
+                }
+
+                @if (displayInfo) {
+                  <div id="kc-info" [kcClass]="'kcSignUpClass'">
+                    <div id="kc-info-wrapper" [kcClass]="'kcInfoAreaWrapperClass'">
+                      @let info = infoNode && infoNode();
+                      @if (info) {
+                        <ng-container [ngTemplateOutlet]="info" />
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+}

@@ -1,0 +1,73 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  --tr-logo-size: 5rem;
+
+  --tr-logo-inactive: #111714;
+  --tr-logo-active: #b8f85a;
+  --tr-logo-text: #111714;
+  --tr-logo-accent: #b8f85a;
+
+  --tr-logo-gradient-1: #24351e;
+  --tr-logo-gradient-2: #3f7a2b;
+  --tr-logo-gradient-3: #75b82f;
+  --tr-logo-gradient-4: #2fa98b;
+}
+
+:host.tr-logo--mark {
+  width: var(--tr-logo-size);
+  height: var(--tr-logo-size);
+}
+
+:host.tr-logo--horizontal {
+  width: var(--tr-logo-size);
+  height: auto;
+}
+
+svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+:host.tr-logo--mark svg {
+  width: 100%;
+  height: 100%;
+}
+
+.tr-logo-cell-inactive,
+.tr-logo-wordmark,
+.tr-logo-letter {
+  fill: var(--tr-logo-inactive);
+}
+
+.tr-logo-path-active,
+.tr-logo-wordmark-accent {
+  fill: url(#tr-logo-active-gradient);
+}
+
+:host.tr-logo--mono {
+  --tr-logo-inactive: currentColor;
+  --tr-logo-text: currentColor;
+
+  --tr-logo-gradient-1: currentColor;
+  --tr-logo-gradient-2: currentColor;
+  --tr-logo-gradient-3: currentColor;
+  --tr-logo-gradient-4: currentColor;
+}
+
+@media (prefers-color-scheme: dark) {
+  :host {
+    --tr-logo-inactive: #d6dfd6;
+    --tr-logo-active: #b8f85a;
+    --tr-logo-text: #f7f8f3;
+    --tr-logo-accent: #b8f85a;
+
+    --tr-logo-gradient-1: #f7f8f3;
+    --tr-logo-gradient-2: #dfff8f;
+    --tr-logo-gradient-3: #b8f85a;
+    --tr-logo-gradient-4: #54d3b0;
+  }
+}

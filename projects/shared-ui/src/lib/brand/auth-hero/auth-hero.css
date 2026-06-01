@@ -1,0 +1,38 @@
+@reference "tailwindcss";
+
+:host {
+  @apply hidden md:block;
+  --feature-highlight-primary: var(--p-primary-color, #b8f85a);
+}
+
+.auth-hero {
+  @apply flex flex-col justify-center gap-10;
+}
+
+.auth-hero__logo {
+  @apply self-start;
+}
+
+.auth-hero__content {
+  @apply flex flex-col gap-5;
+}
+
+.auth-hero__eyebrow {
+  @apply m-0 text-sm uppercase;
+  letter-spacing: 0.24em;
+  color: var(--feature-highlight-primary);
+}
+
+.auth-hero__title {
+  @apply m-0 max-w-[520px] text-5xl font-semibold;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+}
+
+.auth-hero__description {
+  @apply m-0 max-w-[500px] text-lg leading-8 opacity-70;
+}
+
+.auth-hero__features {
+  @apply grid gap-4 max-w-[520px];
+}

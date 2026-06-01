@@ -1,0 +1,67 @@
+<div class="sign-up-step" [formGroup]="form()">
+  <div class="sign-up-step__header">
+    <h2>Définir ton objectif</h2>
+    <p>Trajectiv pourra ensuite t’aider à prioriser les bonnes entreprises et préparer les bons arguments.</p>
+  </div>
+
+  <div class="sign-up-step__grid">
+    <div class="form-field form-field--full">
+      <label for="targetRole">Poste visé</label>
+      <input
+        id="targetRole"
+        pInputText
+        formControlName="targetRole"
+        placeholder="Développeur Frontend Angular"
+      />
+    </div>
+
+    <div class="form-field">
+      <label for="level">Niveau</label>
+      <p-select
+        inputId="level"
+        formControlName="level"
+        [options]="levels"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Choisir"
+        fluid
+      />
+    </div>
+
+    <div class="form-field">
+      <label for="contractType">Contrat recherché</label>
+      <p-select
+        inputId="contractType"
+        formControlName="contractType"
+        [options]="contractTypes"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Choisir"
+        fluid
+      />
+    </div>
+
+    <div class="form-field">
+      <label for="location">Localisation</label>
+      <input
+        id="location"
+        pInputText
+        formControlName="location"
+        placeholder="Charleroi, Bruxelles, Remote..."
+      />
+    </div>
+
+    <div class="form-field">
+      <label for="workMode">Mode de travail</label>
+      <p-select
+        inputId="workMode"
+        formControlName="workMode"
+        [options]="workModes"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Choisir"
+        fluid
+      />
+    </div>
+  </div>
+</div>

@@ -1,0 +1,55 @@
+<div class="sign-up-step">
+  <div class="sign-up-step__header">
+    <h2>Confirmer ta trajectoire</h2>
+    <p>Vérifie les informations principales avant de créer ton cockpit.</p>
+  </div>
+
+  <div class="summary-card">
+    <div>
+      <span>Profil</span>
+      <strong>
+        {{ accountForm().controls.firstName.value }}
+        {{ accountForm().controls.lastName.value }}
+      </strong>
+    </div>
+
+    <div>
+      <span>Email</span>
+      <strong>{{ accountForm().controls.email.value }}</strong>
+    </div>
+
+    <div>
+      <span>Objectif</span>
+      <strong>{{ targetForm().controls.targetRole.value }}</strong>
+    </div>
+
+    <div>
+      <span>Localisation</span>
+      <strong>{{ targetForm().controls.location.value }}</strong>
+    </div>
+  </div>
+
+  <div class="consent-block" [formGroup]="consentForm()">
+    <div class="consent-line">
+      <p-checkbox
+        inputId="acceptTerms"
+        formControlName="acceptTerms"
+        [binary]="true"
+      />
+      <label for="acceptTerms">
+        J’accepte les conditions d’utilisation et la politique de confidentialité.
+      </label>
+    </div>
+
+    <div class="consent-line">
+      <p-checkbox
+        inputId="acceptProductEmails"
+        formControlName="acceptProductEmails"
+        [binary]="true"
+      />
+      <label for="acceptProductEmails">
+        Je souhaite recevoir des conseils et nouveautés autour de ma recherche d’emploi.
+      </label>
+    </div>
+  </div>
+</div>
