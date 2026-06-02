@@ -3,18 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "packageManager": "npm@11.7.0",
-  "workspaces": [
-    "projects/keycloak-theme"
-  ],
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "build:keycloak-theme": "npm --workspace projects/keycloak-theme run build-keycloak-theme",
-    "copy:keycloak-theme": "powershell -ExecutionPolicy Bypass -Command \"Copy-Item projects/keycloak-theme/dist_keycloak/keycloak-theme-for-kc-all-other-versions.jar docker/keycloak/providers/trajectiv-theme.jar -Force\"",
-    "deploy:keycloak-theme": "npm run build:keycloak-theme && npm run copy:keycloak-theme"
+    "test": "ng test"
   },
   "dependencies": {
     "@angular-architects/ngrx-toolkit": "^21.0.1",

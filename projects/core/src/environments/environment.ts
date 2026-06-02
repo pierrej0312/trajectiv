@@ -12,5 +12,9 @@ export const environment = {
     },
     redirectUri: 'http://localhost:4200',
     sessionTimeout: 1800000,
+    manager: {
+      client_id: '',
+      secret: '',
+    },
   },
 };

@@ -1,7 +1,7 @@
 import {patchState, signalStore, withComputed, withMethods, withState} from '@ngrx/signals';
 import { computed, effect, inject, linkedSignal, resource, Signal, signal } from '@angular/core';
 import Keycloak from 'keycloak-js';
-import {environment} from '../../../../../../../../primeng-security/projects/core/src/environments/environment';
+import {environment} from '@core/src/environments/environment';
 import {httpResource} from '@angular/common/http';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 
