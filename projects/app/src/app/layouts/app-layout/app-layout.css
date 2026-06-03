@@ -1,0 +1,20 @@
+@reference 'tailwindcss';
+
+.app-layout {
+  @apply flex flex-col h-screen w-screen z-50 overflow-y-scroll relative;
+}
+.app-layout__navbar {
+  @apply sticky top-0 bg-black z-999 block h-15 w-full;
+}
+.app-layout__main {
+  @apply flex flex-1;
+}
+.app-layout__sidebar {
+  @apply hidden md:flex flex-col z-99 bg-red-500 w-30 h-screen p-5 sticky top-15 left-0;
+}
+.app-layout__content {
+  @apply flex-1 min-h-500 z-50 px-5 pt-5;
+}
+.app-layout__bottom-bar {
+  @apply flex md:hidden bg-green-200 z-50;
+}

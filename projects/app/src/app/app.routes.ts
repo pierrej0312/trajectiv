@@ -5,6 +5,7 @@ export const routes: Routes = [
   {
     path: '',
     canActivate: [authKeycloakGuard],
+    loadComponent: () => import('./layouts/app-layout/app-layout').then((m) => m.AppLayout),
     children: [
       {
         path: '',
@@ -12,7 +13,7 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/dashboard-page/dashboard-page').then((m) => m.DashboardPage),
       },
-    ]
+    ],
   },
   {
     path: '**',
