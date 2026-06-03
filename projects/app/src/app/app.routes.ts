@@ -3,16 +3,6 @@ import { authKeycloakGuard } from '@shared/module/keycloak/guards/auth-keycloak.
 
 export const routes: Routes = [
   {
-    path: 'sign-in',
-    data: { showInNav: false },
-    loadComponent: () => import('./pages/sign-in-page/sign-in-page').then((m) => m.SignInPage),
-  },
-  {
-    path: 'sign-Up',
-    data: { showInNav: false },
-    loadComponent: () => import('./pages/sign-up-page/sign-up-page').then((m) => m.SignUpPage),
-  },
-  {
     path: '',
     canActivate: [authKeycloakGuard],
     children: [

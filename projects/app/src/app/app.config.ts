@@ -15,7 +15,7 @@ import { ThemeService } from '@themes/theme.service';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { includeBearerTokenInterceptor } from 'keycloak-angular';
 import { provideKeycloakAngular } from '@shared/module/keycloak/keycloak.provider';
-import { environment } from '@core/src/environments/environment';
+import { environment } from '@app/src/environments/environment';
 
 const localConfig: ApplicationConfig = {
   providers: [

@@ -7,7 +7,7 @@ import {
   UserActivityService,
   withAutoRefreshToken,
 } from 'keycloak-angular';
-import { environment } from '@core/src/environments/environment';
+import { environment } from '@app/src/environments/environment';
 
 export interface KeycloakConfigOptions {
   url: string;

@@ -15,12 +15,13 @@
     "target": "ES2022",
     "module": "preserve",
     "paths": {
-      "@core/*": ["./projects/core/*"],
-      "@features/*": ["./projects/core/src/app/features/*"],
-      "@shared/*": ["./projects/core/src/app/shared/*"],
+      "@app/*": ["./projects/app/*"],
+      "@features/*": ["./projects/app/src/app/features/*"],
+      "@shared/*": ["./projects/app/src/app/shared/*"],
       "@i18n/*": ["./projects/i18n/*"],
       "@themes/*": ["./projects/themes/*"],
-      "@shared-ui": ["./projects/shared-ui/src/public-api.ts"]
+      "@shared-ui": ["./projects/shared-ui/src/public-api.ts"],
+      "@core": ["./projects/core/src/public-api.ts"]
     }
   },
   "angularCompilerOptions": {
@@ -32,16 +33,22 @@
   "files": [],
   "references": [
     {
-      "path": "./projects/core/tsconfig.app.json"
+      "path": "./projects/app/tsconfig.app.json"
     },
     {
-      "path": "./projects/core/tsconfig.spec.json"
+      "path": "./projects/app/tsconfig.spec.json"
     },
     {
       "path": "./projects/shared-ui/tsconfig.lib.json"
     },
     {
       "path": "./projects/shared-ui/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/core/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/core/tsconfig.spec.json"
     }
   ]
 }

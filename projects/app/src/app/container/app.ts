@@ -1,12 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
-import { ThemeService } from '@themes/theme.service';
-import { Card } from 'primeng/card';
 import { CardDesignTokens } from '@primeuix/themes/types/card';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Card],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
