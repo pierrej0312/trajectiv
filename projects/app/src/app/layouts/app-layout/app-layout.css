@@ -1,20 +1,25 @@
 @reference 'tailwindcss';
 
+:host {
+  --app-mobile-navbar-height: 4rem;
+  --app-sidebar-expanded-width: 16rem;
+}
 .app-layout {
-  @apply flex flex-col h-screen w-screen z-50 overflow-y-scroll relative;
+  @apply flex flex-col h-screen w-screen z-50 overflow-y-auto relative;
 }
 .app-layout__navbar {
-  @apply sticky top-0 bg-black z-999 block h-15 w-full;
+  height: var(--app-mobile-navbar-height);
+  @apply sticky top-0  z-999 block md:hidden shrink-0;
 }
 .app-layout__main {
   @apply flex flex-1;
 }
 .app-layout__sidebar {
-  @apply hidden md:flex flex-col z-99 bg-red-500 w-30 h-screen p-5 sticky top-15 left-0;
+  @apply hidden md:flex flex-col z-99 sticky left-0 top-0 h-dvh w-fit;
 }
 .app-layout__content {
   @apply flex-1 min-h-500 z-50 px-5 pt-5;
 }
 .app-layout__bottom-bar {
-  @apply flex md:hidden bg-green-200 z-50;
+  @apply flex md:hidden fixed bottom-0 w-full  z-999 h-20;
 }

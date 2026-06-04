@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { TrajectivLogoTone, TrajectivLogoVariant } from './trajectiv-logo.model';
 
+let trajectivLogoId = 0;
+
 @Component({
   selector: 'lib-trajectiv-logo',
   imports: [],
@@ -19,15 +21,15 @@ import { TrajectivLogoTone, TrajectivLogoVariant } from './trajectiv-logo.model'
   },
 })
 export class TrajectivLogo {
+  private readonly instanceId = ++trajectivLogoId;
+
   readonly variant = input<TrajectivLogoVariant>('horizontal');
   readonly tone = input<TrajectivLogoTone>('auto');
-
-  /**
-   * Exemple: "2rem", "32px", "100%"
-   */
   readonly size = input<string>('10rem');
-
   readonly ariaLabel = input<string>('Trajectiv');
+
+  readonly gradientId = computed(() => `tr-logo-active-gradient-${this.instanceId}`);
+  readonly gradientUrl = computed(() => `url(#${this.gradientId()})`);
 
   readonly isMark = computed(() => this.variant() === 'mark');
   readonly isHorizontal = computed(() => this.variant() === 'horizontal');

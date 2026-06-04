@@ -1,0 +1,621 @@
+@reference "tailwindcss";
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  --tr-primary: var(--p-primary-color);
+  --tr-primary-contrast: var(--p-primary-inverse-color);
+  --tr-icon-background: var(--p-surface-50);
+
+  --sidebar-width: 4.75rem;
+  --sidebar-expanded-width: 16rem;
+}
+
+.sidebar {
+  position: relative;
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  max-width: var(--sidebar-width);
+  height: 100%;
+  overflow: visible;
+  transition:
+    width 220ms ease-in-out,
+    min-width 220ms ease-in-out,
+    max-width 220ms ease-in-out;
+}
+
+.sidebar:hover,
+.sidebar:focus-within {
+  width: var(--sidebar-expanded-width);
+  min-width: var(--sidebar-expanded-width);
+  max-width: var(--sidebar-expanded-width);
+}
+
+:host ::ng-deep .tr-sidebar-menu.p-menu {
+  display: flex;
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  max-width: var(--sidebar-width);
+  height: 100%;
+  flex-direction: column;
+  border: 0;
+  border-radius: 0;
+  color: var(--tr-text);
+  background: transparent;
+  padding: 0.75rem;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition:
+    width 220ms ease-in-out,
+    min-width 220ms ease-in-out,
+    max-width 220ms ease-in-out;
+}
+
+:host ::ng-deep .p-menu-item:not(.p-disabled) .p-menu-item-content:hover,
+:host ::ng-deep .p-menu-item:not(.p-disabled) .p-menu-item-content:focus,
+:host ::ng-deep .p-menu-item.p-focus .p-menu-item-content{
+  background: transparent;
+;
+}
+
+:host ::ng-deep .p-menu {
+  background: transparent;
+}
+
+.sidebar:hover ::ng-deep .tr-sidebar-menu.p-menu,
+.sidebar:focus-within ::ng-deep .tr-sidebar-menu.p-menu {
+  width: var(--sidebar-expanded-width);
+  min-width: var(--sidebar-expanded-width);
+  max-width: var(--sidebar-expanded-width);
+}
+
+:host ::ng-deep .tr-sidebar-menu .p-menu-list {
+  display: grid;
+  gap: 0.35rem;
+}
+
+:host ::ng-deep .tr-sidebar-menu .p-menu-start {
+  margin-bottom: 1rem;
+}
+
+:host ::ng-deep .tr-sidebar-menu .p-menu-end {
+  margin-top: auto;
+}
+
+.sidebar__brand {
+  display: flex;
+  min-height: 3.25rem;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 999px;
+  padding: 0.35rem;
+  color: var(--tr-text);
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.sidebar__brand-label {
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  transition:
+    opacity 180ms ease,
+    max-width 220ms ease,
+    transform 220ms ease;
+  transform: translateX(-0.35rem);
+}
+
+.sidebar:hover .sidebar__brand-label,
+.sidebar:focus-within .sidebar__brand-label {
+  opacity: 1;
+  max-width: 8rem;
+  transform: translateX(0);
+}
+
+.sidebar__section-label {
+  display: block;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0.75rem 0.65rem 0.35rem;
+  color: var(--tr-text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    opacity 180ms ease,
+    max-width 220ms ease;
+}
+
+.sidebar:hover .sidebar__section-label,
+.sidebar:focus-within .sidebar__section-label {
+  max-width: 12rem;
+  opacity: 1;
+}
+
+.sidebar__link {
+  display: flex;
+  min-height: 3.15rem;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 999px;
+  padding: 0.35rem;
+  color: var(--tr-text-muted);
+  text-decoration: none;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.sidebar__link:active {
+  transform: scale(0.985);
+}
+
+.sidebar__link--button {
+  border: 0;
+  font: inherit;
+  width: 100%;
+}
+.sidebar__chevron {
+  display: none;
+  margin-left: auto;
+  color: currentColor;
+  font-size: 0.75rem;
+  opacity: 0;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.sidebar:hover .sidebar__chevron,
+.sidebar:focus-within .sidebar__chevron {
+  display: block;
+  opacity: 0.75;
+}
+
+.sidebar__children {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0.35rem 0 0.45rem;
+  padding: 0;
+  list-style: none;
+  padding-left: 0.75rem;
+}
+
+.sidebar__child-link {
+  display: flex;
+  min-height: 2.65rem;
+  align-items: center;
+  gap: 0.65rem;
+  border-radius: 999px;
+  padding: 0.25rem;
+  color: var(--tr-text-muted);
+  text-decoration: none;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.sidebar__child-link:active {
+  transform: scale(0.985);
+}
+
+.sidebar__child-icon {
+  display: inline-flex;
+  width: 2.15rem;
+  height: 2.15rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: inherit;
+  background: color-mix(in srgb, var(--tr-icon-background) 18%, transparent);
+}
+
+.sidebar__child-icon i {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.sidebar__child-label {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  color: inherit;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  transform: translateX(-0.35rem);
+  transition:
+    opacity 180ms ease,
+    max-width 220ms ease,
+    transform 220ms ease;
+}
+
+.sidebar:hover .sidebar__child-label,
+.sidebar:focus-within .sidebar__child-label {
+  max-width: 10rem;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sidebar__child-badge {
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.sidebar:hover .sidebar__child-badge,
+.sidebar:focus-within .sidebar__child-badge {
+  opacity: 1;
+}
+
+.sidebar__child-link--active {
+  color: var(--tr-primary-contrast);
+  background: color-mix(in srgb, var(--tr-primary) 90%, transparent);
+}
+
+.sidebar__child-link--active .sidebar__child-icon {
+  color: var(--tr-primary);
+  background: var(--tr-icon-background);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sidebar__child-link:hover {
+    color: var(--tr-text);
+    background: color-mix(in srgb, var(--tr-primary) 10%, transparent);
+  }
+
+  .sidebar__child-link:hover .sidebar__child-icon {
+    color: var(--tr-primary-contrast);
+    background: color-mix(in srgb, var(--tr-primary) 90%, transparent);
+  }
+}
+
+.sidebar:not(:hover):not(:focus-within) .sidebar__link--opened {
+  color: var(--tr-text-muted);
+  background: transparent;
+  box-shadow: none;
+}
+
+.sidebar:not(:hover):not(:focus-within) .sidebar__link--opened .sidebar__icon {
+  color: var(--tr-primary-contrast);
+  background: var(--tr-primary);
+}
+
+/* Quand la sidebar est hover/focus :
+   le parent ouvert reprend le style bouton primary complet */
+.sidebar:hover .sidebar__link--opened,
+.sidebar:focus-within .sidebar__link--opened {
+  color: var(--tr-primary-contrast);
+  background: var(--tr-primary);
+}
+
+.sidebar:hover .sidebar__link--opened .sidebar__icon,
+.sidebar:focus-within .sidebar__link--opened .sidebar__icon {
+  color: var(--tr-primary);
+  background: var(--tr-icon-background);
+}
+
+.sidebar__icon {
+  display: inline-flex;
+  width: 2.45rem;
+  height: 2.45rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: inherit;
+  background: color-mix(in srgb, var(--tr-icon-background) 18%, transparent);
+  backdrop-filter: blur(20px);
+}
+
+.sidebar__icon i {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.sidebar__label {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  color: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  transform: translateX(-0.35rem);
+  transition:
+    opacity 180ms ease,
+    max-width 220ms ease,
+    transform 220ms ease;
+}
+
+.sidebar:hover .sidebar__label,
+.sidebar:focus-within .sidebar__label {
+  max-width: 10rem;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sidebar__badge {
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.sidebar:hover .sidebar__badge,
+.sidebar:focus-within .sidebar__badge {
+  opacity: 1;
+}
+
+.sidebar__link--active {
+  color: var(--tr-primary-contrast);
+  background: var(--tr-primary);
+  box-shadow:
+    0 16px 36px color-mix(in srgb, var(--tr-primary) 24%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 0.18);
+}
+
+.sidebar__link--active .sidebar__icon {
+  color: var(--tr-primary);
+  background: var(--tr-icon-background);
+}
+
+.sidebar__profile {
+  display: flex;
+  width: 100%;
+  min-height: 3.25rem;
+  align-items: center;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.35rem;
+  color: var(--tr-text);
+  background: transparent;
+  overflow: hidden;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.sidebar__profile-text {
+  @apply ml-2;
+  display: inline-flex;
+  max-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow: hidden;
+  opacity: 0;
+  white-space: nowrap;
+  transform: translateX(-0.35rem);
+  transition:
+    opacity 180ms ease,
+    max-width 220ms ease,
+    transform 220ms ease;
+}
+
+.sidebar:hover .sidebar__profile-text,
+.sidebar:focus-within .sidebar__profile-text {
+  max-width: 10rem;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sidebar__profile-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.sidebar__profile-role {
+  color: var(--tr-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.1;
+}
+
+/* Hover desktop only */
+@media (hover: hover) and (pointer: fine) {
+  .sidebar__link:hover,
+  .sidebar__profile:hover {
+    color: var(--tr-text);
+    background: color-mix(in srgb, var(--tr-primary) 10%, transparent);
+  }
+
+  .sidebar__link:hover .sidebar__icon {
+    color: var(--tr-primary-contrast);
+    background: color-mix(in srgb, var(--tr-primary) 90%, transparent);
+  }
+}
+
+/* Profile popup */
+:host ::ng-deep .tr-profile-menu.p-menu {
+  border: 1px solid var(--tr-border);
+  border-radius: 1.25rem;
+  background: rgb(255 255 255 / 0.82);
+  color: var(--tr-text);
+  padding: 0.5rem;
+  backdrop-filter: blur(48px);
+  box-shadow: 0 24px 80px rgb(17 23 20 / 0.12);
+}
+
+/* Dark */
+:host-context(.dark) {
+  --tr-icon-background: var(--p-surface-900);
+}
+
+:host-context(.dark) ::ng-deep .tr-profile-menu.p-menu {
+  border-color: rgb(255 255 255 / 0.1);
+  background: rgb(0 0 0 / 0.72);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 0.32);
+}
+
+
+.sidebar__cta-button.p-button {
+  --tr-button-gap: 0;
+
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: 3.15rem;
+  min-height: 3.15rem;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0;
+  border: 0;
+  border-radius: var(--p-button-border-radius);
+  padding: 0.35rem !important;
+  color: var(--p-button-primary-color);
+  background: transparent;
+  box-shadow: none;
+  overflow: hidden;
+  white-space: nowrap;
+  transition:
+    background var(--p-button-transition-duration),
+    color var(--p-button-transition-duration),
+    border-color var(--p-button-transition-duration),
+    box-shadow var(--p-button-transition-duration),
+    transform 160ms ease;
+}
+
+.sidebar__cta-button.p-button:active {
+  transform: scale(0.985);
+}
+
+/* Collapsed: seul l'icône porte le style primary PrimeNG */
+.sidebar__cta-button .p-button-icon,
+.sidebar__cta-button [pButtonIcon] {
+  display: inline-flex !important;
+  width: 2.45rem;
+  min-width: 2.45rem;
+  max-width: 2.45rem;
+  height: 2.45rem;
+  flex: 0 0 2.45rem;
+  align-items: center;
+  justify-content: center;
+  margin: 0 !important;
+  border-radius: var(--p-button-border-radius);
+  color: var(--p-button-primary-color);
+  background: var(--p-button-primary-background);
+  border: 1px solid var(--p-button-primary-border-color);
+  font-size: 1rem;
+  line-height: 1;
+  transition:
+    background var(--p-button-transition-duration),
+    color var(--p-button-transition-duration),
+    border-color var(--p-button-transition-duration),
+    box-shadow var(--p-button-transition-duration);
+}
+
+/* Collapsed: le label ne participe pas au layout */
+.sidebar:not(:hover):not(:focus-within) .sidebar__cta-button .p-button-label,
+.sidebar:not(:hover):not(:focus-within) .sidebar__cta-button [pButtonLabel] {
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  flex: 0 0 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 0;
+  overflow: hidden;
+}
+
+/* Expanded: le bouton entier reprend le style primary PrimeNG */
+.sidebar:hover .sidebar__cta-button.p-button,
+.sidebar:focus-within .sidebar__cta-button.p-button {
+  --tr-button-gap: var(--p-button-gap);
+
+  gap: var(--tr-button-gap);
+  padding: var(--p-button-padding-y) var(--p-button-padding-x) !important;
+  color: var(--p-button-primary-color);
+  background: var(--p-button-primary-background);
+  border: 1px solid var(--p-button-primary-border-color);
+  box-shadow: var(--p-button-raised-shadow, none);
+}
+
+/* Expanded: l'icône redevient neutre, sans background propre */
+.sidebar:hover .sidebar__cta-button .p-button-icon,
+.sidebar:hover .sidebar__cta-button [pButtonIcon],
+.sidebar:focus-within .sidebar__cta-button .p-button-icon,
+.sidebar:focus-within .sidebar__cta-button [pButtonIcon] {
+  width: auto;
+  min-width: auto;
+  max-width: none;
+  height: auto;
+  flex: 0 0 auto;
+  color: currentColor;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+/* Expanded: label visible */
+.sidebar:hover .sidebar__cta-button .p-button-label,
+.sidebar:hover .sidebar__cta-button [pButtonLabel],
+.sidebar:focus-within .sidebar__cta-button .p-button-label,
+.sidebar:focus-within .sidebar__cta-button [pButtonLabel] {
+  display: inline-block !important;
+  min-width: 0;
+  max-width: 11rem;
+  flex: 1 1 auto;
+  margin: 0;
+  padding: 0;
+  opacity: 1;
+  overflow: hidden;
+  color: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Hover du bouton expanded : utilise aussi les tokens PrimeNG */
+@media (hover: hover) and (pointer: fine) {
+  .sidebar:hover .sidebar__cta-button.p-button:hover,
+  .sidebar:focus-within .sidebar__cta-button.p-button:hover {
+    background: var(--p-button-primary-hover-background);
+    border-color: var(--p-button-primary-hover-border-color);
+    color: var(--p-button-primary-hover-color);
+  }
+
+  .sidebar:hover .sidebar__cta-button.p-button:active,
+  .sidebar:focus-within .sidebar__cta-button.p-button:active {
+    background: var(--p-button-primary-active-background);
+    border-color: var(--p-button-primary-active-border-color);
+    color: var(--p-button-primary-active-color);
+  }
+}
+
+.sidebar__item {
+  width: 100%;
+  min-width: 0;
+}
+
+:host ::ng-deep .tr-sidebar-menu .p-menu-item,
+:host ::ng-deep .tr-sidebar-menu .p-menu-item-content {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+:host ::ng-deep .tr-sidebar-menu .p-menu-item-content {
+  overflow: hidden;
+}

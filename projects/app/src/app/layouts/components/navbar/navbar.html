@@ -1,0 +1,201 @@
+<nav class="navbar">
+  <p-menubar
+    [model]="emptyMenuItems()"
+    styleClass="tr-navbar-menubar"
+    ariaLabel="Application actions"
+  >
+    <ng-template #start>
+      <a
+        routerLink="/app/dashboard"
+        class="navbar__brand"
+        aria-label="Trajectiv dashboard"
+      >
+        <lib-trajectiv-logo
+          variant="mark"
+          size="2.35rem"
+        ></lib-trajectiv-logo>
+      </a>
+    </ng-template>
+
+
+    <ng-template #end>
+      <div class="navbar__end">
+        <div class="navbar__search">
+          <i class="pi pi-search"></i>
+          <input
+            type="text"
+            pInputText
+            placeholder="Search"
+            aria-label="Search"
+          />
+        </div>
+
+        <div class="navbar__desktop-actions">
+
+          <button
+            type="button"
+            class="navbar__icon-button"
+            aria-label="Notifications"
+          >
+            <i class="pi pi-bell"></i>
+            <span class="navbar__notification-dot"></span>
+          </button>
+
+          <button
+            type="button"
+            class="navbar__profile-button"
+            aria-label="Open profile menu"
+            (click)="toggleProfileMenu($event)"
+          >
+            <p-avatar
+              image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+              shape="circle"
+            ></p-avatar>
+          </button>
+
+          <p-menu
+            #profileMenu
+            [model]="profileItems()"
+            [popup]="true"
+            appendTo="body"
+            styleClass="tr-profile-menu"
+          >
+            <ng-template
+              #item
+              let-item
+            >
+              @if (item.kind === 'theme-toggle') {
+                <div class="navbar-profile-theme">
+                  <p-togglebutton
+                    styleClass="tr-theme-toggle"
+                    [ngModel]="isDarkTheme()"
+                    (ngModelChange)="setDarkTheme($event)"
+                    onLabel="Dark mode"
+                    offLabel="Light mode"
+                    onIcon="pi pi-moon"
+                    offIcon="pi pi-sun"
+                    fluid
+                    ariaLabel="Toggle light or dark theme"
+                  ></p-togglebutton>
+                </div>
+              } @else {
+                <a
+                  pRipple
+                  class="navbar-profile-menu__item"
+                  [routerLink]="item.routerLink"
+                  (click)="item.command?.({ originalEvent: $event, item })"
+                >
+                  @if (item.icon) {
+                    <i [class]="item.icon"></i>
+                  }
+
+                  <span>{{ item.label }}</span>
+                </a>
+              }
+            </ng-template>
+          </p-menu>
+        </div>
+      </div>
+
+      <div class="navbar__mobile-actions">
+        <button
+          type="button"
+          class="navbar__icon-button"
+          aria-label="Notifications"
+        >
+          <i class="pi pi-bell"></i>
+          <span class="navbar__notification-dot"></span>
+        </button>
+
+        <button
+          pButton
+          type="button"
+          icon="pi pi-bars"
+          severity="secondary"
+          text
+          rounded
+          class="navbar__mobile-button"
+          [attr.aria-controls]="drawerVisible() ? 'navbar-mobile-drawer' : null"
+          [attr.aria-expanded]="drawerVisible()"
+          aria-label="Open navigation menu"
+          (click)="openDrawer()"
+        ></button>
+      </div>
+    </ng-template>
+  </p-menubar>
+</nav>
+
+<p-drawer
+  id="navbar-mobile-drawer"
+  position="right"
+  styleClass="tr-mobile-drawer"
+  [visible]="drawerVisible()"
+  (visibleChange)="drawerVisible.set($event)"
+  [blockScroll]="true"
+  [modal]="true"
+  [dismissible]="true"
+  [showCloseIcon]="true"
+  ariaCloseLabel="Close navigation menu"
+>
+  <ng-template #header>
+    <div class="navbar-drawer__header">
+      <lib-trajectiv-logo
+        variant="mark"
+        size="2.25rem"
+      ></lib-trajectiv-logo>
+      <span>Trajectiv</span>
+    </div>
+  </ng-template>
+
+  <div class="navbar-drawer__content">
+    <div class="navbar-drawer__section">
+      <a
+        class="navbar-drawer__link"
+        routerLink="/app/account"
+        (click)="closeDrawer()"
+      >
+        <i class="pi pi-user"></i>
+        <span>Account</span>
+      </a>
+
+      <a
+        class="navbar-drawer__link"
+        routerLink="/app/settings"
+        (click)="closeDrawer()"
+      >
+        <i class="pi pi-cog"></i>
+        <span>Settings</span>
+      </a>
+    </div>
+
+    <div class="navbar-drawer__section">
+      <div class="navbar-drawer__theme-row">
+        <div class="navbar-drawer__theme-label">
+          <i [class]="themeIcon()"></i>
+          <span>{{ themeLabel() }}</span>
+        </div>
+
+        <p-togglebutton
+          styleClass="tr-theme-toggle"
+          [ngModel]="isDarkTheme()"
+          (ngModelChange)="setDarkTheme($event)"
+          onLabel=""
+          offLabel=""
+          onIcon="pi pi-moon"
+          offIcon="pi pi-sun"
+          ariaLabel="Toggle light or dark theme"
+        ></p-togglebutton>
+      </div>
+    </div>
+
+    <div class="navbar-drawer__section">
+      <button
+        type="button"
+        class="navbar-drawer__link"
+      >
+        <i class="pi pi-sign-out"></i>
+        <span>Logout</span>
+      </button>
+    </div>
+  </div>
+</p-drawer>

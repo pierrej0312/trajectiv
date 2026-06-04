@@ -1,0 +1,208 @@
+<nav class="sidebar" aria-label="Navigation desktop principale">
+  <p-menu
+    [model]="items()"
+    styleClass="tr-sidebar-menu"
+  >
+    <ng-template #start>
+      <a
+        routerLink="/app/pilotage"
+        class="sidebar__brand"
+        aria-label="Trajectiv pilotage"
+      >
+        <lib-trajectiv-logo
+          variant="mark"
+          size="2.35rem"
+        ></lib-trajectiv-logo>
+      </a>
+    </ng-template>
+
+    <ng-template #submenuheader let-item>
+      <span class="sidebar__section-label">
+        {{ item.label }}
+      </span>
+    </ng-template>
+
+    <ng-template #item let-item>
+      <div class="sidebar__item">
+        @if (item.type === 'button') {
+          <button
+            pButton
+            type="button"
+            class="sidebar__cta-button"
+            [attr.aria-label]="item.label"
+            (click)="item.command?.({ originalEvent: $event, item })"
+          >
+            <i
+              [class]="item.icon"
+              pButtonIcon
+            ></i>
+
+            <span pButtonLabel>
+          {{ item.label }}
+        </span>
+          </button>
+        } @else if (item.children?.length) {
+          <button
+            type="button"
+            pRipple
+            class="sidebar__link sidebar__link--button"
+            [class.sidebar__link--opened]="isOpened(item)"
+            [attr.aria-expanded]="isOpened(item)"
+            [attr.aria-label]="'Afficher les sous-pages ' + item.label"
+            (click)="toggle(item)"
+          >
+        <span class="sidebar__icon">
+          <i [class]="item.icon"></i>
+        </span>
+
+            <span class="sidebar__label">
+          {{ item.label }}
+        </span>
+
+            @if (item.badge) {
+              <p-badge
+                class="sidebar__badge"
+                [value]="item.badge"
+                severity="contrast"
+              ></p-badge>
+            }
+
+            <i
+              class="sidebar__chevron pi"
+              [class.pi-angle-down]="isOpened(item)"
+              [class.pi-angle-right]="!isOpened(item)"
+            ></i>
+          </button>
+
+          @if (isOpened(item)) {
+            <ul class="sidebar__children">
+              @for (child of item.children; track child.routerLink) {
+                <li>
+                  <a
+                    pRipple
+                    class="sidebar__child-link"
+                    [routerLink]="child.routerLink"
+                    routerLinkActive="sidebar__child-link--active"
+                    [routerLinkActiveOptions]="{ exact: false }"
+                    ariaCurrentWhenActive="page"
+                    [attr.aria-label]="child.label"
+                  >
+                <span class="sidebar__child-icon">
+                  <i [class]="child.icon"></i>
+                </span>
+
+                    <span class="sidebar__child-label">
+                  {{ child.label }}
+                </span>
+
+                    @if (child.badge) {
+                      <p-badge
+                        class="sidebar__child-badge"
+                        [value]="child.badge"
+                        severity="contrast"
+                      ></p-badge>
+                    }
+                  </a>
+                </li>
+              }
+            </ul>
+          }
+        } @else {
+          <a
+            pRipple
+            class="sidebar__link"
+            [routerLink]="item.routerLink"
+            routerLinkActive="sidebar__link--active"
+            [routerLinkActiveOptions]="{ exact: false }"
+            ariaCurrentWhenActive="page"
+            [attr.aria-label]="item.label"
+          >
+        <span class="sidebar__icon">
+          <i [class]="item.icon"></i>
+        </span>
+
+            <span class="sidebar__label">
+          {{ item.label }}
+        </span>
+
+            @if (item.badge) {
+              <p-badge
+                class="sidebar__badge"
+                [value]="item.badge"
+                severity="contrast"
+              ></p-badge>
+            }
+          </a>
+        }
+      </div>
+    </ng-template>
+
+    <ng-template #end>
+      <button
+        type="button"
+        pRipple
+        class="sidebar__profile"
+        aria-label="Ouvrir le menu profil"
+        (click)="toggleProfileMenu($event)"
+      >
+        <p-avatar
+          image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+          shape="circle"
+        ></p-avatar>
+
+        <span class="sidebar__profile-text">
+          <span class="sidebar__profile-name">Pierre</span>
+          <span class="sidebar__profile-role">B2C</span>
+        </span>
+      </button>
+
+      <p-menu
+        #profileMenu
+        [model]="profileItems()"
+        [popup]="true"
+        appendTo="body"
+        styleClass="tr-profile-menu"
+      >
+        <ng-template #item let-item>
+          @if (item.kind === 'theme-toggle') {
+            <div
+              class="sidebar-profile-theme"
+              (click)="$event.stopPropagation()"
+              (keydown)="$event.stopPropagation()"
+            >
+              <div class="sidebar-profile-theme__label">
+                <i [class]="themeIcon()"></i>
+                <span>{{ themeLabel() }}</span>
+              </div>
+
+              <p-togglebutton
+                styleClass="tr-theme-toggle"
+                [ngModel]="isDarkTheme()"
+                (onChange)="setDarkTheme($event.checked)"
+                onLabel="Dark mode"
+                offLabel="Light mode"
+                onIcon="pi pi-moon"
+                offIcon="pi pi-sun"
+                fluid
+                ariaLabel="Toggle light or dark theme"
+              ></p-togglebutton>
+            </div>
+          } @else {
+            <a
+              pRipple
+              class="sidebar-profile-menu__item"
+              [routerLink]="item.routerLink"
+              (click)="item.command?.({ originalEvent: $event, item })"
+            >
+              @if (item.icon) {
+                <i [class]="item.icon"></i>
+              }
+
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        </ng-template>
+      </p-menu>
+    </ng-template>
+  </p-menu>
+</nav>

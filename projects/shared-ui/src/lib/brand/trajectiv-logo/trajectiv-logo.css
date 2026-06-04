@@ -43,11 +43,6 @@ svg {
   fill: var(--tr-logo-inactive);
 }
 
-.tr-logo-path-active,
-.tr-logo-wordmark-accent {
-  fill: url(#tr-logo-active-gradient);
-}
-
 :host.tr-logo--mono {
   --tr-logo-inactive: currentColor;
   --tr-logo-text: currentColor;

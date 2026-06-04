@@ -141,5 +141,109 @@ export const TrajectivTheme = definePreset(Aura, {
         },
       },
     },
+    menubar: {
+      colorScheme: {
+        light: {
+          root: {
+            background: 'rgba(255, 255, 255, 0.33)',
+            borderColor: 'transparent',
+            borderRadius: '0',
+            color: '#111714',
+            padding: '0 1.25rem',
+            gap: '0.25rem',
+          },
+          item: {
+            color: '#111714',
+            focusColor: '#111714',
+            activeColor: '#111714',
+            focusBackground: 'rgba(184, 248, 90, 0.12)',
+            activeBackground: 'rgba(184, 248, 90, 0.18)',
+            borderRadius: '999px',
+            padding: '0.75rem 1rem',
+            gap: '0.5rem',
+            icon: {
+              color: 'rgba(17, 23, 20, 0.65)',
+              focusColor: '#111714',
+              activeColor: '#111714',
+            },
+          },
+          submenu: {
+            background: 'rgba(255, 255, 255, 0.78)',
+            borderColor: 'rgba(17, 23, 20, 0.08)',
+            borderRadius: '1.25rem',
+            padding: '0.5rem',
+            gap: '0.25rem',
+            shadow: '0 24px 80px rgba(17, 23, 20, 0.12)',
+          },
+          separator: {
+            borderColor: 'rgba(17, 23, 20, 0.08)',
+          },
+          mobileButton: {
+            borderRadius: '999px',
+            color: '#111714',
+            hoverColor: '#111714',
+            hoverBackground: 'rgba(184, 248, 90, 0.12)',
+          },
+        },
+        dark: {
+          root: {
+            background: 'rgba(0, 0, 0, 0.33)',
+            borderColor: 'transparent',
+            borderRadius: '0',
+            color: '#f7f8f3',
+            padding: '0 1.25rem',
+            gap: '0.25rem',
+          },
+          item: {
+            color: '#f7f8f3',
+            focusColor: '#b8f85a',
+            activeColor: '#b8f85a',
+            focusBackground: 'rgba(184, 248, 90, 0.12)',
+            activeBackground: 'rgba(184, 248, 90, 0.18)',
+            borderRadius: '999px',
+            padding: '0.75rem 1rem',
+            gap: '0.5rem',
+            icon: {
+              color: 'rgba(247, 248, 243, 0.65)',
+              focusColor: '#b8f85a',
+              activeColor: '#b8f85a',
+            },
+          },
+          submenu: {
+            background: 'rgba(0, 0, 0, 0.72)',
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '1.25rem',
+            padding: '0.5rem',
+            gap: '0.25rem',
+            shadow: '0 24px 80px rgba(0, 0, 0, 0.32)',
+          },
+          separator: {
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+          },
+          mobileButton: {
+            borderRadius: '999px',
+            color: '#f7f8f3',
+            hoverColor: '#b8f85a',
+            hoverBackground: 'rgba(184, 248, 90, 0.12)',
+          },
+        },
+      },
+    },
+    badge: {
+      colorScheme: {
+        light: {
+          contrast: {
+            background: '{primary.color}',
+            color: '{primary.inverseColor}',
+          },
+        },
+        dark: {
+          contrast: {
+            background: '{primary.color}',
+            color: '{primary.inverseColor}',
+          },
+        },
+      },
+    },
   },
 });

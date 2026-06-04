@@ -1,0 +1,337 @@
+@reference "tailwindcss";
+
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.navbar {
+  @apply h-full w-full;
+}
+
+.navbar__brand {
+  @apply inline-flex items-center justify-center;
+}
+
+.navbar__item {
+  @apply flex cursor-pointer items-center gap-2 px-4 py-3 text-sm font-medium no-underline;
+  color: var(--tr-text);
+}
+
+.navbar__desktop-actions {
+  @apply hidden items-center gap-3 md:flex;
+}
+
+.navbar__mobile-actions {
+  @apply flex md:hidden;
+}
+.navbar__end {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  @apply flex-1 w-full;
+  gap: 0.75rem;
+}
+
+
+.navbar__search {
+  @apply hidden h-10 items-center gap-2 rounded-full border px-4 md:flex;
+  min-width: 14rem;
+  color: var(--tr-text-muted);
+  backdrop-filter: blur(24px);
+}
+
+.navbar__search input {
+  @apply w-full border-0 bg-transparent p-0 text-sm outline-none;
+  color: var(--tr-text);
+  box-shadow: none !important;
+}
+
+.navbar__search input::placeholder {
+  color: var(--tr-text-muted);
+}
+
+.navbar__icon-button,
+.navbar__profile-button {
+  @apply relative inline-flex h-10 w-10 items-center justify-center rounded-full border-0 bg-transparent;
+  color: var(--tr-text);
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.navbar__icon-button:hover,
+.navbar__profile-button:hover {
+  background: color-mix(in srgb, var(--tr-primary) 12%, transparent);
+}
+
+.navbar__profile-button:active,
+.navbar__icon-button:active {
+  transform: scale(0.96);
+}
+
+.navbar__notification-dot {
+  @apply absolute right-2 top-2 h-2 w-2 rounded-full;
+  background: var(--tr-primary);
+}
+
+/* PrimeNG Menubar */
+:host ::ng-deep .tr-navbar-menubar.p-menubar {
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background: rgb(255 255 255 / 0.05);
+  color: var(--tr-text);
+  padding: 0 1.25rem;
+  backdrop-filter: blur(72px);
+  box-shadow: inset 0 -1px 0 rgb(17 23 20 / 0.04);
+  @apply flex items-stretch justify-stretch;
+}
+
+:host ::ng-deep .tr-navbar-menubar.p-menubar .p-menubar-end {
+  @apply flex flex-1 max-w-3/5 items-stretch justify-end;
+}
+
+:host ::ng-deep .tr-navbar-menubar .p-menubar-start {
+  display: flex;
+  align-items: center;
+  margin-right: 1rem;
+}
+
+:host ::ng-deep .tr-navbar-menubar .p-menubar-end {
+  margin-left: auto;
+}
+
+:host ::ng-deep .tr-navbar-menubar .p-menubar-root-list {
+  gap: 0.25rem;
+}
+
+:host ::ng-deep .tr-navbar-menubar .p-menubar-item-content {
+  border-radius: 999px;
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+
+:host ::ng-deep .tr-navbar-menubar .p-menubar-item-content:hover {
+  background: color-mix(in srgb, var(--tr-primary) 12%, transparent);
+}
+
+:host ::ng-deep .tr-navbar-menubar .p-menubar-item-link,
+:host ::ng-deep .tr-navbar-menubar .p-menubar-item-label,
+:host ::ng-deep .tr-navbar-menubar .p-menubar-item-icon {
+  color: var(--tr-text);
+}
+
+:host ::ng-deep .tr-navbar-menubar .p-menubar-submenu {
+  border-radius: 1.25rem;
+  background: rgb(255 255 255 / 0.82);
+  backdrop-filter: blur(48px);
+  box-shadow: 0 24px 80px rgb(17 23 20 / 0.12);
+}
+
+/* Profile menu */
+:host ::ng-deep .tr-profile-menu.p-menu {
+  border-radius: 1.25rem;
+  background: rgb(255 255 255 / 0.82);
+  color: var(--tr-text);
+  padding: 0.5rem;
+  backdrop-filter: blur(48px);
+  box-shadow: 0 24px 80px rgb(17 23 20 / 0.12);
+}
+
+:host ::ng-deep .tr-profile-menu .p-menu-list {
+  display: grid;
+  gap: 0.25rem;
+}
+
+:host ::ng-deep .tr-profile-menu .p-menu-item-content {
+  border-radius: 0.9rem;
+}
+
+:host ::ng-deep .tr-profile-menu .p-menu-item-content:hover {
+  background: color-mix(in srgb, var(--tr-primary) 12%, transparent);
+}
+
+.navbar-profile-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: var(--tr-text);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.navbar-profile-menu__item i {
+  color: var(--tr-text-muted);
+}
+
+.navbar-profile-menu__item:hover i {
+  color: var(--tr-primary);
+}
+
+.navbar-profile-theme {
+  display: flex;
+  min-width: 14rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.navbar-profile-theme__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--tr-text);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.navbar-profile-theme__label i {
+  color: var(--tr-primary);
+}
+
+/* Theme toggle */
+:host ::ng-deep .tr-theme-toggle.p-togglebutton {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-color: var(--tr-border);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.48);
+  color: var(--tr-text);
+  backdrop-filter: blur(24px);
+  box-shadow: none;
+}
+
+:host ::ng-deep .tr-theme-toggle.p-togglebutton:hover {
+  background: color-mix(in srgb, var(--tr-primary) 12%, transparent);
+}
+
+:host ::ng-deep .tr-theme-toggle.p-togglebutton.p-togglebutton-checked {
+  border-color: color-mix(in srgb, var(--tr-primary) 35%, var(--tr-border));
+  background: color-mix(in srgb, var(--tr-primary) 18%, transparent);
+  color: var(--tr-primary);
+}
+
+/* Drawer mobile */
+:host ::ng-deep .tr-mobile-drawer {
+  width: min(88vw, 24rem);
+  border-left: 1px solid var(--tr-border);
+  background: rgb(255 255 255 / 0.76);
+  color: var(--tr-text);
+  backdrop-filter: blur(72px);
+}
+
+:host ::ng-deep .tr-mobile-drawer .p-drawer-header {
+  border-bottom: 1px solid rgb(17 23 20 / 0.06);
+}
+
+:host ::ng-deep .tr-mobile-drawer .p-drawer-content {
+  padding-top: 0;
+}
+
+.navbar-drawer__header {
+  @apply flex items-center gap-3 font-semibold;
+  color: var(--tr-text);
+}
+
+.navbar-drawer__content {
+  @apply flex h-full flex-col gap-6 pt-4;
+}
+
+.navbar-drawer__nav,
+.navbar-drawer__section {
+  @apply grid gap-2;
+}
+
+.navbar-drawer__link {
+  @apply flex w-full items-center gap-3 rounded-2xl border-0 px-4 py-3 text-left text-sm font-medium no-underline;
+  color: var(--tr-text);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.navbar-drawer__link i {
+  color: var(--tr-text-muted);
+}
+
+.navbar-drawer__link:hover {
+  background: color-mix(in srgb, var(--tr-primary) 12%, transparent);
+}
+
+.navbar-drawer__link:hover i {
+  color: var(--tr-primary);
+}
+
+.navbar-drawer__theme-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-radius: 1.25rem;
+  padding: 0.85rem 1rem;
+  background: color-mix(in srgb, var(--tr-primary) 8%, transparent);
+}
+
+.navbar-drawer__theme-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--tr-text);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.navbar-drawer__theme-label i {
+  color: var(--tr-primary);
+}
+
+/* Dark mode controlled by ThemeService through .dark class */
+:host-context(.dark) ::ng-deep .tr-navbar-menubar.p-menubar {
+  background: rgb(0 0 0 / 0.33);
+  box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.08);
+}
+
+:host-context(.dark) ::ng-deep .tr-navbar-menubar .p-menubar-submenu {
+  border-color: rgb(255 255 255 / 0.1);
+  background: rgb(0 0 0 / 0.72);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 0.32);
+}
+
+:host-context(.dark) ::ng-deep .tr-profile-menu.p-menu {
+  border-color: rgb(255 255 255 / 0.1);
+  background: rgb(0 0 0 / 0.72);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 0.32);
+}
+
+:host-context(.dark) ::ng-deep .tr-theme-toggle.p-togglebutton {
+  border-color: rgb(255 255 255 / 0.1);
+  background: rgb(0 0 0 / 0.24);
+  color: var(--tr-text);
+}
+
+:host-context(.dark) ::ng-deep .tr-theme-toggle.p-togglebutton.p-togglebutton-checked {
+  background: color-mix(in srgb, var(--tr-primary) 16%, transparent);
+  color: var(--tr-primary);
+}
+
+:host-context(.dark) ::ng-deep .tr-mobile-drawer {
+  border-left-color: rgb(255 255 255 / 0.1);
+  background: rgb(0 0 0 / 0.72);
+}
+
+:host-context(.dark) ::ng-deep .tr-mobile-drawer .p-drawer-header {
+  border-bottom-color: rgb(255 255 255 / 0.08);
+}
+
+:host-context(.dark) .navbar-drawer__theme-row {
+  background: color-mix(in srgb, var(--tr-primary) 10%, transparent);
+}
