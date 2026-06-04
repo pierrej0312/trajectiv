@@ -18,7 +18,10 @@
   @apply hidden md:flex flex-col z-99 sticky left-0 top-0 h-dvh w-fit;
 }
 .app-layout__content {
-  @apply flex-1 min-h-500 z-50 px-5 pt-5;
+  @apply flex flex-1 min-h-full z-50 px-5 pt-5 justify-center pb-20 h-fit;
+}
+:host ::ng-deep .app-layout__content > router-outlet + * {
+  @apply container;
 }
 .app-layout__bottom-bar {
   @apply flex md:hidden fixed bottom-0 w-full  z-999 h-20;
