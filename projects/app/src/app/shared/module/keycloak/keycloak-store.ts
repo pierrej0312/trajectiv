@@ -4,6 +4,7 @@ import Keycloak from 'keycloak-js';
 import {environment} from '@app/src/environments/environment';
 import {httpResource} from '@angular/common/http';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
+import { KeycloakUtil } from '@shared/module/keycloak/utils/keycloak.util';
 
 const getManagerToken = async () => {
   return fetch(`${environment.keycloak.config.url}/realms/${environment.keycloak.config.realm}/protocol/openid-connect/token`, {
@@ -104,26 +105,43 @@ export const KeycloakStore = signalStore(
   }),
   withMethods((state, $kc = inject(Keycloak)) => ({
     // 6. Auth Actions
-    login: () => $kc.login(),
+    login: async () => {
+      const loginUrl = await KeycloakUtil.buildLoginUrlWithTheme(
+        $kc,
+        `${window.location.origin}/app/pilotage`,
+      );
+
+      window.location.href = loginUrl;
+    },
     loginLocal: (username: string, password: string) => {
-      const loginRes = loginResource(username, password)
+      const loginRes = loginResource(username, password);
       setTimeout(() => {
-        const res = loginRes.value()
-        console.log('loginRes', res)
+        const res = loginRes.value();
+        console.log('loginRes', res);
 
         // patchState(state, { user: ...res })
       }, 2000);
     },
-    logout: () => $kc.logout(),
-    register: () => $kc.register(),
+    logout: () =>
+      $kc.logout({
+        redirectUri: `${window.location.origin}/sign-in`,
+      }),
+    register: async () => {
+      const registerUrl = await KeycloakUtil.buildRegisterUrlWithTheme(
+        $kc,
+        `${window.location.origin}/app/pilotage`,
+      );
+
+      window.location.href = registerUrl;
+    },
 
     // Update state from Keycloak JS
-    sync: async ()=> {
+    sync: async () => {
       if ($kc.authenticated) {
         const user = await $kc.loadUserProfile();
         patchState(state, {
           tokenParsed: $kc.tokenParsed,
-          user: user
+          user: user,
         });
       }
     },
@@ -141,9 +159,11 @@ export const KeycloakStore = signalStore(
     getGroupAttribute: (attribute: string): any[] => {
       const token = state.tokenParsed();
       const groups = token?.groups;
-      const filteredGroup = groups?.filter((group: any) => group.attributes && group.attributes[attribute])
+      const filteredGroup = groups?.filter(
+        (group: any) => group.attributes && group.attributes[attribute],
+      );
 
-      return filteredGroup?.map((group: any) => group.attributes[attribute] ?? [])
+      return filteredGroup?.map((group: any) => group.attributes[attribute] ?? []);
     },
 
     // 2. Get all users (Declarative)
@@ -162,25 +182,27 @@ export const KeycloakStore = signalStore(
           return grps && grps.length > 0 ? grps : null;
         },
         loader: async ({ params: groups }) => {
-          if (!groups) return undefined
+          if (!groups) return undefined;
 
-          const token = await getManagerToken()
+          const token = await getManagerToken();
 
-          const { access_token } = await token.json()
+          const { access_token } = await token.json();
 
           const promises = groups.map(async (group: any) => {
             const members = fetch(`${adminBase}/groups/${group.id}/members`, {
               headers: {
-                'Authorization': `Bearer ${access_token}`
+                Authorization: `Bearer ${access_token}`,
               },
-              method: 'GET'
-            })
-            return members.then(res => res.json()).then(res => res.map((user: any) => ({...user, group})))
-          })
+              method: 'GET',
+            });
+            return members
+              .then((res) => res.json())
+              .then((res) => res.map((user: any) => ({ ...user, group })));
+          });
 
-          return Promise.all(promises).then(res => res.flat())
+          return Promise.all(promises).then((res) => res.flat());
         },
-      })
+      });
       // console.log('getGroupMembers', groups())
       // const ids = groups().map((group: any) => group.id)
       //
@@ -197,12 +219,11 @@ export const KeycloakStore = signalStore(
       //   loader: () => Promise.all(promises)
       // });
 
-
       // httpResource<any[]>(() => {
       //   console.log('getGroupMembers', group())
       //   const groupId = group().id;
       //   return groupId ? `${adminBase}/groups/${groupId}/members` : undefined;
       // })
     },
-  }))
-)
+  })),
+);
