@@ -5,6 +5,7 @@ import {environment} from '@app/src/environments/environment';
 import {httpResource} from '@angular/common/http';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 import { KeycloakUtil } from '@shared/module/keycloak/utils/keycloak.util';
+import { Router } from '@angular/router';
 
 const getManagerToken = async () => {
   return fetch(`${environment.keycloak.config.url}/realms/${environment.keycloak.config.realm}/protocol/openid-connect/token`, {
@@ -95,6 +96,17 @@ const loginResource = (username: string, password: string) => {
 }
 
 const adminBase = `${environment.keycloak.config.url}/admin/realms/${environment.keycloak.config.realm}`;
+
+const getCurrentAppRedirectUri = (router: Router): string => {
+  const currentUrl = router.url;
+
+  if (!currentUrl || currentUrl === '/' || currentUrl.includes('silent-check-sso')) {
+    return window.location.origin;
+  }
+
+  return `${window.location.origin}${currentUrl}`;
+};
+
 export const KeycloakStore = signalStore(
   { providedIn: 'root' },
   withDevtools('keycloak'),
@@ -103,12 +115,12 @@ export const KeycloakStore = signalStore(
     tokenParsed: null as any,
     selectedGroupId: undefined as string | undefined,
   }),
-  withMethods((state, $kc = inject(Keycloak)) => ({
+  withMethods((state, $kc = inject(Keycloak), router = inject(Router)) => ({
     // 6. Auth Actions
     login: async () => {
       const loginUrl = await KeycloakUtil.buildLoginUrlWithTheme(
         $kc,
-        `${window.location.origin}/app/pilotage`,
+        getCurrentAppRedirectUri(router),
       );
 
       window.location.href = loginUrl;
@@ -122,14 +134,15 @@ export const KeycloakStore = signalStore(
         // patchState(state, { user: ...res })
       }, 2000);
     },
-    logout: () =>
-      $kc.logout({
-        redirectUri: `${window.location.origin}/sign-in`,
-      }),
+    logout: async () => {
+      await $kc.logout({
+        redirectUri: getCurrentAppRedirectUri(router),
+      });
+    },
     register: async () => {
       const registerUrl = await KeycloakUtil.buildRegisterUrlWithTheme(
         $kc,
-        `${window.location.origin}/app/pilotage`,
+        getCurrentAppRedirectUri(router),
       );
 
       window.location.href = registerUrl;
