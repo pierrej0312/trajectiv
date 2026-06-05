@@ -1,0 +1,64 @@
+<div
+  class="workspace-switcher"
+  [class.workspace-switcher--menu]="variant() === 'menu'"
+  [class.workspace-switcher--dropdown]="variant() === 'dropdown'"
+  [class.workspace-switcher--compact]="variant() === 'compact'"
+>
+  @if (variant() === 'menu') {
+    <p class="workspace-switcher__title">Espace actif</p>
+  }
+
+  <p-select
+    class="workspace-switcher__select"
+    styleClass="tr-workspace-select"
+    panelStyleClass="tr-workspace-select-panel"
+    [options]="options()"
+    [ngModel]="selectedWorkspaceId()"
+    (ngModelChange)="setActiveWorkspace($event)"
+    optionLabel="label"
+    optionValue="value"
+    [checkmark]="true"
+    appendTo="body"
+    ariaLabel="Changer d’espace actif"
+  >
+    <ng-template #selectedItem let-selectedOption>
+      @if (selectedOption) {
+        <div class="workspace-switcher-option workspace-switcher-option--selected">
+          <span class="workspace-switcher-option__avatar">
+            <i [class]="getIcon(selectedOption.kind)"></i>
+          </span>
+
+          <span class="workspace-switcher-option__text">
+            <span class="workspace-switcher-option__label">
+              {{ selectedOption.label }}
+            </span>
+
+            @if (variant() !== 'compact') {
+              <span class="workspace-switcher-option__meta">
+                {{ getMeta(selectedOption.kind) }}
+              </span>
+            }
+          </span>
+        </div>
+      }
+    </ng-template>
+
+    <ng-template #item let-option>
+      <div class="workspace-switcher-option">
+        <span class="workspace-switcher-option__avatar">
+          <i [class]="getIcon(option.kind)"></i>
+        </span>
+
+        <span class="workspace-switcher-option__text">
+          <span class="workspace-switcher-option__label">
+            {{ option.label }}
+          </span>
+
+          <span class="workspace-switcher-option__meta">
+            {{ getMeta(option.kind) }}
+          </span>
+        </span>
+      </div>
+    </ng-template>
+  </p-select>
+</div>

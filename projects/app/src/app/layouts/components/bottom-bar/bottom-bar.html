@@ -2,8 +2,9 @@
   class="bottom-bar"
   aria-label="Navigation principale mobile"
 >
+
   <ul class="bottom-bar__list">
-    @for (item of items(); track item.routerLink) {
+    @for (item of items(); track item.key) {
       <li class="bottom-bar__item">
         @if (item.children?.length) {
           <button
@@ -12,10 +13,19 @@
             class="bottom-bar__link bottom-bar__link--button"
             [class.bottom-bar__link--active]="isParentActive(item)"
             [class.bottom-bar__link--opened]="isChildrenMenuOpen(item)"
+            [class.bottom-bar__link--active-compact]="isCompactActive(item)"
             [attr.aria-label]="item.ariaLabel"
             [attr.aria-expanded]="isChildrenMenuOpen(item)"
             (click)="toggleChildrenMenu(item)"
           >
+            @if (item.badge) {
+              <span class="bottom-bar__blob" aria-hidden="true">
+                <span class="bottom-bar__blob-shape bottom-bar__blob-shape--icon"></span>
+                <span class="bottom-bar__blob-shape bottom-bar__blob-shape--bridge"></span>
+                <span class="bottom-bar__blob-shape bottom-bar__blob-shape--badge"></span>
+              </span>
+            }
+
             <span class="bottom-bar__icon">
               <i [class]="item.icon"></i>
             </span>
@@ -23,14 +33,24 @@
             <span class="bottom-bar__label">
               {{ item.label }}
             </span>
+
+            @if (item.badge) {
+              <p-badge
+                class="bottom-bar__badge"
+                [value]="item.badge"
+                severity="contrast"
+              />
+            }
           </button>
 
           @if (isChildrenMenuOpen(item)) {
             <div class="bottom-bar__children-menu">
-              @for (child of item.children; track child.routerLink) {
+              @for (child of item.children; track child.key) {
                 <button
                   type="button"
                   class="bottom-bar__child-action"
+                  [class.bottom-bar__child-action--active]="isChildActive(item, child)"
+                  [attr.aria-current]="isChildActive(item, child) ? 'page' : null"
                   [style.--child-index]="$index"
                   [attr.aria-label]="child.ariaLabel"
                   (click)="navigateToChild(child)"
@@ -39,9 +59,17 @@
                     <i [class]="child.icon"></i>
                   </span>
 
-                                  <span class="bottom-bar__child-label">
+                  <span class="bottom-bar__child-label">
                     {{ child.label }}
                   </span>
+
+                  @if (child.badge) {
+                    <p-badge
+                      class="bottom-bar__child-badge"
+                      [value]="child.badge"
+                      severity="contrast"
+                    />
+                  }
                 </button>
               }
             </div>
@@ -50,19 +78,40 @@
           <a
             pRipple
             class="bottom-bar__link"
+            [class.bottom-bar__link--profile]="item.isProfile"
+            [class.bottom-bar__link--active-compact]="isCompactActive(item)"
             [routerLink]="item.routerLink"
             routerLinkActive="bottom-bar__link--active"
             [routerLinkActiveOptions]="{ exact: false }"
             [attr.aria-label]="item.ariaLabel"
             (click)="closeChildrenMenu()"
           >
-            <span class="bottom-bar__icon">
-              <i [class]="item.icon"></i>
+
+            <span
+              class="bottom-bar__icon"
+              [class.bottom-bar__icon--avatar]="item.isProfile"
+            >
+              @if (item.isProfile) {
+                <img
+                  src="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+                  alt=""
+                />
+              } @else {
+                <i [class]="item.icon"></i>
+              }
             </span>
 
             <span class="bottom-bar__label">
               {{ item.label }}
             </span>
+
+            @if (item.badge) {
+              <p-badge
+                class="bottom-bar__badge"
+                [value]="item.badge"
+                severity="contrast"
+              />
+            }
           </a>
         }
       </li>

@@ -7,7 +7,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { MenuItem } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
@@ -15,11 +15,14 @@ import { BadgeModule } from 'primeng/badge';
 import { Menu, MenuModule } from 'primeng/menu';
 import { RippleModule } from 'primeng/ripple';
 import { ToggleButtonModule } from 'primeng/togglebutton';
+import { ButtonModule } from 'primeng/button';
 
 import { TrajectivLogo } from '@shared-ui';
 import { ThemeService } from '@themes/theme.service';
 import { KeycloakStore } from '@shared/module/keycloak/keycloak-store';
-import { ButtonModule } from 'primeng/button';
+import { NavigationService } from '@shared/navigation/navigation.service';
+import { WorkspaceStore } from '@shared/workspace/workspace.store';
+import { WorkspaceSwitcher } from '@shared/workspace/components/workspace-switcher/workspace-switcher';
 
 type SidebarChildItem = {
   label: string;
@@ -29,18 +32,20 @@ type SidebarChildItem = {
 };
 
 type SidebarNavItem = MenuItem & {
+  id?: string;
   routerLink?: string;
   badge?: string;
   children?: SidebarChildItem[];
   type?: 'link' | 'button' | 'toggle';
 };
 
-type SidebarSection = MenuItem & {
+type SidebarSection = {
+  label: string;
   items: SidebarNavItem[];
 };
 
 type ProfileMenuItem = MenuItem & {
-  kind?: 'theme-toggle';
+  kind?: 'theme-toggle' | 'workspace-switcher';
 };
 
 @Component({
@@ -48,7 +53,6 @@ type ProfileMenuItem = MenuItem & {
   imports: [
     FormsModule,
     RouterLink,
-    RouterLinkActive,
     MenuModule,
     AvatarModule,
     BadgeModule,
@@ -56,6 +60,7 @@ type ProfileMenuItem = MenuItem & {
     ToggleButtonModule,
     TrajectivLogo,
     ButtonModule,
+    WorkspaceSwitcher,
   ],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
@@ -64,95 +69,79 @@ type ProfileMenuItem = MenuItem & {
 export class Sidebar {
   private readonly themeService = inject(ThemeService);
   private readonly keycloakStore = inject(KeycloakStore);
+  private readonly navigationService = inject(NavigationService);
+  private readonly workspaceStore = inject(WorkspaceStore);
   private readonly router = inject(Router);
+
+  readonly currentUrl = computed(() => {
+    const lastNavigation = this.router.lastSuccessfulNavigation();
+
+    return this.normalizeUrl(lastNavigation?.finalUrl?.toString() ?? this.router.url);
+  });
 
   readonly profileMenu = viewChild<Menu>('profileMenu');
 
-  readonly openedItems = signal<Set<string>>(new Set());
+  readonly openedItemId = signal<string | null>(null);
+
+  readonly activeWorkspace = this.workspaceStore.activeWorkspace;
 
   readonly isDarkTheme = computed(() => this.themeService.isDarkTheme());
-
   readonly themeLabel = computed(() => (this.isDarkTheme() ? 'Dark mode' : 'Light mode'));
   readonly themeIcon = computed(() => (this.isDarkTheme() ? 'pi pi-moon' : 'pi pi-sun'));
 
-  readonly items = signal<SidebarSection[]>([
+  readonly items = computed<SidebarSection[]>(() => [
     {
       label: 'Principal',
-      items: [
-        {
-          label: 'Pilotage',
-          icon: 'pi pi-chart-line',
-          routerLink: '/app/pilotage',
-        },
-        {
-          label: 'Opportunités',
-          icon: 'pi pi-bullseye',
-          routerLink: '/app/opportunities',
-          children: [
-            {
-              label: 'Toutes',
-              icon: 'pi pi-list',
-              routerLink: '/app/opportunities',
-            },
-            {
-              label: 'Nouvelle',
-              icon: 'pi pi-plus',
-              routerLink: '/app/opportunities/new',
-            },
-          ],
-        },
-        {
-          label: 'Questions',
-          icon: 'pi pi-comments',
-          routerLink: '/app/questions',
-          children: [
-            {
-              label: 'Radar',
-              icon: 'pi pi-compass',
-              routerLink: '/app/questions/radar',
-            },
-            {
-              label: 'Training',
-              icon: 'pi pi-microphone',
-              routerLink: '/app/questions/training',
-            },
-          ],
-        },
-        {
-          label: 'Actions',
-          icon: 'pi pi-sparkles',
-          routerLink: '/app/actions',
-          badge: '4',
-        },
-        {
-          label: 'Ajouter opportunité',
-          icon: 'pi pi-plus',
-          command: () => {
-            this.createOpportunity();
-          },
-          type: 'button',
-        },
-      ],
+      items: this.navigationService.mainDesktopItems().map((item) => ({
+        id: item.id,
+        label: item.label,
+        icon: item.icon,
+        routerLink: item.route,
+        badge: item.badge,
+        type: item.type,
+        command:
+          item.type === 'button' && item.route
+            ? () => this.navigateAndClose(item.route!)
+            : undefined,
+        children: item.children?.map((child) => ({
+          label: child.label,
+          icon: child.icon,
+          routerLink: child.route,
+          badge: child.badge,
+        })),
+      })),
     },
     {
       label: 'Système',
-      items: [
-        {
-          label: 'Notifications',
-          icon: 'pi pi-bell',
-          routerLink: '/app/notifications',
-          badge: '2',
-        },
-        {
-          label: 'Settings',
-          icon: 'pi pi-cog',
-          routerLink: '/app/settings',
-        },
-      ],
+      items: this.navigationService.systemDesktopItems().map((item) => ({
+        id: item.id,
+        label: item.label,
+        icon: item.icon,
+        routerLink: item.route,
+        badge: item.badge,
+        type: item.type,
+        command:
+          item.type === 'button' && item.route
+            ? () => this.navigateAndClose(item.route!)
+            : undefined,
+        children: item.children?.map((child) => ({
+          label: child.label,
+          icon: child.icon,
+          routerLink: child.route,
+          badge: child.badge,
+        })),
+      })),
     },
   ]);
 
   readonly profileItems = signal<ProfileMenuItem[]>([
+    {
+      kind: 'workspace-switcher',
+      label: 'Workspace',
+    },
+    {
+      separator: true,
+    },
     {
       label: 'Profil',
       icon: 'pi pi-user',
@@ -177,35 +166,55 @@ export class Sidebar {
       label: 'Logout',
       icon: 'pi pi-sign-out',
       command: () => {
-        this.keycloakStore.logout();
+        void this.keycloakStore.logout();
       },
     },
   ]);
 
+  isChildRouteActive(parent: SidebarNavItem, child: SidebarChildItem): boolean {
+    const activeChild = this.getActiveChild(parent);
+
+    return activeChild?.routerLink === child.routerLink;
+  }
+
   toggle(item: SidebarNavItem): void {
-    if (!item.children?.length || !item.label) {
+    if (!item.children?.length || !item.id) {
       return;
     }
 
-    this.openedItems.update((current) => {
-      const next = new Set(current);
+    const itemId = item.id;
 
-      if (next.has(item.label!)) {
-        next.delete(item.label!);
-      } else {
-        next.add(item.label!);
-      }
-
-      return next;
-    });
+    this.openedItemId.update((current) => (current === itemId ? null : itemId));
   }
 
   isOpened(item: SidebarNavItem): boolean {
-    return !!item.label && this.openedItems().has(item.label);
+    return !!item.id && this.openedItemId() === item.id;
+  }
+
+  closeOpenedItem(): void {
+    this.openedItemId.set(null);
+  }
+
+  isRouteActive(item: SidebarNavItem): boolean {
+    const currentUrl = this.currentUrl();
+
+    if (item.children?.length) {
+      return item.children.some((child) => this.isRouteMatch(currentUrl, child.routerLink));
+    }
+
+    if (!item.routerLink) {
+      return false;
+    }
+
+    return this.isRouteMatch(currentUrl, item.routerLink);
+  }
+
+  navigateAndClose(route: string): void {
+    this.closeOpenedItem();
+    void this.router.navigateByUrl(route);
   }
 
   setDarkTheme(value: boolean | undefined): void {
-    console.log('setDarkTheme', value);
     this.themeService.set(value ? 'dark' : 'light');
   }
 
@@ -213,7 +222,27 @@ export class Sidebar {
     this.profileMenu()?.toggle(event);
   }
 
-  createOpportunity(): void {
-    void this.router.navigate(['/app/opportunities/new']);
+  private getActiveChild(parent: SidebarNavItem): SidebarChildItem | null {
+    const currentUrl = this.currentUrl();
+
+    return (
+      parent.children
+        ?.filter((child) => this.isRouteMatch(currentUrl, child.routerLink))
+        .reduce<SidebarChildItem | null>((bestMatch, child) => {
+          if (!bestMatch) {
+            return child;
+          }
+
+          return child.routerLink.length > bestMatch.routerLink.length ? child : bestMatch;
+        }, null) ?? null
+    );
+  }
+
+  private normalizeUrl(url: string): string {
+    return url.split('?')[0]?.split('#')[0] ?? url;
+  }
+
+  private isRouteMatch(currentUrl: string, route: string): boolean {
+    return currentUrl === route || currentUrl.startsWith(`${route}/`);
   }
 }

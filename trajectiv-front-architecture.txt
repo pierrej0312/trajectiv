@@ -1,0 +1,544 @@
+# Trajectiv Front Architecture Export
+
+Generated at: 2026-06-05T08:52:08.557Z
+
+## Workspace tree
+
+📁 .claude/
+  📄 CLAUDE.md
+📁 .cursor/
+  📁 rules/
+    📄 cursor.mdc
+📁 .github/
+  📄 copilot-instructions.md
+📁 .junie/
+  📄 guidelines.md
+📁 docker/
+  📁 keycloak/
+    📁 themes/
+📁 projects/
+  📁 app/
+    📁 public/
+      📁 keycloak/
+        📄 silent-check-sso.html
+      📄 favicon.png
+      📄 img.png
+    📁 src/
+      📁 app/
+        📁 container/
+          📄 app.css
+          📄 app.html
+          📄 app.spec.ts
+          📄 app.ts
+        📁 layouts/
+          📁 app-layout/
+            📄 app-layout.css
+            📄 app-layout.html
+            📄 app-layout.ts
+          📁 components/
+            📁 bottom-bar/
+              📄 bottom-bar.css
+              📄 bottom-bar.html
+              📄 bottom-bar.ts
+            📁 navbar/
+              📄 navbar.css
+              📄 navbar.html
+              📄 navbar.ts
+            📁 sidebar/
+              📄 sidebar.css
+              📄 sidebar.html
+              📄 sidebar.ts
+        📁 pages/
+          📁 account-page/
+            📄 account-page.css
+            📄 account-page.html
+            📄 account-page.ts
+          📁 actions-page/
+            📄 actions-page.css
+            📄 actions-page.html
+            📄 actions-page.ts
+          📁 dashboard-page/
+            📄 dashboard-page.css
+            📄 dashboard-page.html
+            📄 dashboard-page.ts
+          📁 notifications-page/
+            📄 notifications-page.css
+            📄 notifications-page.html
+            📄 notifications-page.ts
+          📁 opportunities-page/
+            📄 opportunities-page.css
+            📄 opportunities-page.html
+            📄 opportunities-page.ts
+          📁 opportunity-create-page/
+            📄 opportunity-create-page.css
+            📄 opportunity-create-page.html
+            📄 opportunity-create-page.ts
+          📁 profile-page/
+            📄 profile-page.css
+            📄 profile-page.html
+            📄 profile-page.ts
+          📁 questions-page/
+            📄 questions-page.css
+            📄 questions-page.html
+            📄 questions-page.ts
+          📁 questions-radar-page/
+            📄 questions-radar-page.css
+            📄 questions-radar-page.html
+            📄 questions-radar-page.ts
+          📁 questions-training-page/
+            📄 questions-training-page.css
+            📄 questions-training-page.html
+            📄 questions-training-page.ts
+          📁 settings-page/
+            📄 settings-page.css
+            📄 settings-page.html
+            📄 settings-page.ts
+        📁 shared/
+          📁 components/
+            📁 form-errors/
+              📄 form-errors.css
+              📄 form-errors.html
+              📄 form-errors.ts
+          📁 module/
+            📁 keycloak/
+              📁 guards/
+                📄 auth-keycloak.guard.ts
+                📄 is-access-allowed.guard.ts
+              📁 utils/
+                📄 keycloak.util.ts
+              📄 keycloak-store.ts
+              📄 keycloak.provider.ts
+          📁 navigation/
+            📄 navigation.service.ts
+        📄 app.config.ts
+        📄 app.routes.ts
+      📁 environments/
+        📄 environment.development.ts
+        📄 environment.staging.ts
+        📄 environment.ts
+      📄 index.html
+      📄 main.ts
+      📄 styles.css
+    📄 .postcssrc.json
+    📄 tsconfig.app.json
+    📄 tsconfig.spec.json
+  📁 core/
+    📁 src/
+      📁 app/
+        📁 shared/
+          📁 interceptors/
+      📁 lib/
+        📁 access/
+          📄 access-context.model.ts
+          📄 app-role.model.ts
+          📄 can-access.util.ts
+        📁 navigation/
+          📄 app-navigation.config.ts
+          📄 app-navigation.model.ts
+          📄 can-see-nav-item.util.ts
+        📄 core.ts
+      📄 public-api.ts
+    📄 ng-package.json
+    📄 package.json
+    📄 README.md
+    📄 tsconfig.lib.json
+    📄 tsconfig.lib.prod.json
+    📄 tsconfig.spec.json
+  📁 keycloak-theme/
+    📁 dist_keycloak/
+      📄 .gitignore
+      📄 keycloak-theme-for-kc-22-to-25.jar
+      📄 keycloak-theme-for-kc-all-other-versions.jar
+    📁 public/
+      📁 keycloakify-dev-resources/
+        📁 account/
+          📁 css/
+            📄 account.css
+          📁 img/
+            📄 icon-sidebar-active.png
+            📄 keycloak-logo.png
+            📄 logo.png
+          📁 resources-common/
+            📁 img/
+              📄 favicon.ico
+        📁 login/
+          📁 css/
+            📄 login.css
+          📁 img/
+            📄 feedback-error-arrow-down.png
+            📄 feedback-error-sign.png
+            📄 feedback-success-arrow-down.png
+            📄 feedback-success-sign.png
+            📄 feedback-warning-arrow-down.png
+            📄 feedback-warning-sign.png
+            📄 keycloak-bg.png
+            📄 keycloak-logo-text.png
+            📄 keycloak-logo.png
+          📁 js/
+            📄 authChecker.js
+            📄 common.js
+            📄 kcMultivalued.js
+            📄 kcNumberFormat.js
+            📄 kcNumberUnFormat.js
+            📄 menu-button-links.js
+            📄 passkeysConditionalAuth.js
+            📄 passwordVisibility.js
+            📄 rfc4648.js
+            📄 userProfile.js
+            📄 webauthnAuthenticate.js
+            📄 webauthnRegister.js
+          📁 resources-common/
+            📁 img/
+              📄 favicon.ico
+            📁 lib/
+              📁 pficon/
+                📄 pficon.css
+                📄 pficon.woff2
+        📄 .gitignore
+        📄 keycloakify.buildinfo
+        📄 README.txt
+  📁 shared-ui/
+    📁 src/
+      📁 lib/
+        📁 brand/
+          📁 trajectiv-logo/
+            📄 trajectiv-logo.css
+            📄 trajectiv-logo.html
+            📄 trajectiv-logo.model.ts
+            📄 trajectiv-logo.ts
+        📄 shared-ui.spec.ts
+        📄 shared-ui.ts
+      📄 public-api.ts
+    📄 ng-package.json
+    📄 package.json
+    📄 README.md
+    📄 tsconfig.lib.json
+    📄 tsconfig.lib.prod.json
+    📄 tsconfig.spec.json
+  📁 themes/
+    📄 theme.provider.ts
+    📄 theme.service.ts
+    📄 trajectivTheme.ts
+📁 scripts/
+  📄 export-architecture.mjs
+📄 .editorconfig
+📄 .gitignore
+📄 .prettierrc
+📄 AGENTS.md
+📄 angular.json
+📄 LICENSE
+📄 package.json
+📄 README.md
+📄 trajectiv-front-architecture.txt
+📄 tsconfig.json
+
+
+## Important files content
+
+
+============================================================
+FILE: angular.json
+============================================================
+
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm"
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "app": {
+      "projectType": "application",
+      "schematics": {},
+      "root": "projects/app",
+      "sourceRoot": "projects/app/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/app/src/main.ts",
+            "tsConfig": "projects/app/tsconfig.app.json",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/app/public"
+              }
+            ],
+            "styles": ["projects/app/src/styles.css"]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "projects/app/src/environments/environment.ts",
+                  "with": "projects/app/src/environments/environment.development.ts"
+                }
+              ]
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "app:build:production"
+            },
+            "development": {
+              "buildTarget": "app:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test"
+        }
+      }
+    },
+    "shared-ui": {
+      "projectType": "library",
+      "root": "projects/shared-ui",
+      "sourceRoot": "projects/shared-ui/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/shared-ui/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/shared-ui/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/shared-ui/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "core": {
+      "projectType": "library",
+      "root": "projects/core",
+      "sourceRoot": "projects/core/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/core/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/core/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/core/tsconfig.spec.json"
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+============================================================
+FILE: package.json
+============================================================
+
+{
+  "name": "trajectiv",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "npm@11.7.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "architecture:export": "node scripts/export-architecture.mjs"
+  },
+  "dependencies": {
+    "@angular-architects/ngrx-toolkit": "^21.0.1",
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/forms": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/router": "^21.2.0",
+    "@fontsource/geist": "^5.2.9",
+    "@ngrx/signals": "^21.1.0",
+    "@primeuix/themes": "^2.0.3",
+    "keycloak-angular": "^21.0.0",
+    "keycloak-js": "^26.2.4",
+    "leaflet": "^1.9.4",
+    "primeicons": "^7.0.0",
+    "primeng": "^21.1.8",
+    "rxjs": "~7.8.0",
+    "tailwindcss-primeui": "^0.6.1",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.2.13",
+    "@angular/cli": "^21.2.13",
+    "@angular/compiler-cli": "^21.2.0",
+    "@tailwindcss/postcss": "^4.1.12",
+    "@types/leaflet": "^1",
+    "jsdom": "^28.0.0",
+    "ng-packagr": "^21.2.0",
+    "postcss": "^8.5.3",
+    "prettier": "^3.8.1",
+    "tailwindcss": "^4.1.12",
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.8"
+  }
+}
+
+
+
+============================================================
+FILE: projects\app\tsconfig.app.json
+============================================================
+
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../out-tsc/app",
+    "types": []
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.spec.ts"]
+}
+
+
+
+============================================================
+FILE: projects\core\package.json
+============================================================
+
+{
+  "name": "core",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^21.2.0",
+    "@angular/core": "^21.2.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}
+
+
+
+============================================================
+FILE: projects\shared-ui\package.json
+============================================================
+
+{
+  "name": "shared-ui",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^21.2.0",
+    "@angular/core": "^21.2.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}
+
+
+
+============================================================
+FILE: tsconfig.json
+============================================================
+
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve",
+    "paths": {
+      "@app/*": ["./projects/app/*"],
+      "@features/*": ["./projects/app/src/app/features/*"],
+      "@shared/*": ["./projects/app/src/app/shared/*"],
+      "@i18n/*": ["./projects/i18n/*"],
+      "@themes/*": ["./projects/themes/*"],
+      "@shared-ui": ["./projects/shared-ui/src/public-api.ts"],
+      "@core": ["./projects/core/src/public-api.ts"]
+    }
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./projects/app/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/app/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/shared-ui/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/shared-ui/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/core/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/core/tsconfig.spec.json"
+    }
+  ]
+}
+

@@ -8,7 +8,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "architecture:export": "node scripts/export-architecture.mjs"
   },
   "dependencies": {
     "@angular-architects/ngrx-toolkit": "^21.0.1",

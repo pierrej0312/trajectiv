@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
@@ -15,9 +15,12 @@ import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ThemeService } from '@themes/theme.service';
 import { TrajectivLogo } from '@shared-ui';
 import { KeycloakStore } from '@shared/module/keycloak/keycloak-store';
+import { NavigationService } from '@shared/navigation/navigation.service';
+import { WorkspaceStore } from '@shared/workspace/workspace.store';
+import { WorkspaceSwitcher } from '@shared/workspace/components/workspace-switcher/workspace-switcher';
 
 type NavbarMenuItem = MenuItem & {
-  kind?: 'theme-toggle';
+  kind?: 'theme-toggle' | 'workspace-switcher';
 };
 
 @Component({
@@ -34,34 +37,45 @@ type NavbarMenuItem = MenuItem & {
     RippleModule,
     ToggleButtonModule,
     TrajectivLogo,
+    WorkspaceSwitcher,
   ],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
 export class Navbar {
   private readonly themeService = inject(ThemeService);
-  private $keycloak = inject(KeycloakStore);
+  private readonly keycloakStore = inject(KeycloakStore);
+  private readonly navigationService = inject(NavigationService);
+  private readonly workspaceStore = inject(WorkspaceStore);
 
   readonly profileMenu = viewChild<Menu>('profileMenu');
   readonly drawerVisible = signal(false);
 
   readonly emptyMenuItems = signal<MenuItem[]>([]);
+  readonly drawerItems = this.navigationService.drawerItems;
+  readonly activeWorkspace = this.workspaceStore.activeWorkspace;
 
-  readonly isDarkTheme = signal(this.themeService.isDarkTheme());
-
+  readonly isDarkTheme = computed(() => this.themeService.isDarkTheme());
   readonly themeLabel = computed(() => (this.isDarkTheme() ? 'Dark mode' : 'Light mode'));
   readonly themeIcon = computed(() => (this.isDarkTheme() ? 'pi pi-moon' : 'pi pi-sun'));
 
   readonly profileItems = signal<NavbarMenuItem[]>([
     {
-      label: 'Account',
-      icon: 'pi pi-user',
-      routerLink: '/app/account',
+      kind: 'workspace-switcher',
+      label: 'Workspace',
     },
     {
-      label: 'Settings',
-      icon: 'pi pi-cog',
-      routerLink: '/app/settings',
+      separator: true,
+    },
+    {
+      label: 'Profil',
+      icon: 'pi pi-user',
+      routerLink: '/app/profile',
+    },
+    {
+      label: 'Compte',
+      icon: 'pi pi-id-card',
+      routerLink: '/app/account',
     },
     {
       separator: true,
@@ -77,7 +91,7 @@ export class Navbar {
       label: 'Logout',
       icon: 'pi pi-sign-out',
       command: () => {
-        this.$keycloak.logout();
+        void this.keycloakStore.logout();
       },
     },
   ]);
@@ -92,6 +106,10 @@ export class Navbar {
 
   closeDrawer(): void {
     this.drawerVisible.set(false);
+  }
+
+  logout(): void {
+    void this.keycloakStore.logout();
   }
 
   toggleProfileMenu(event: Event): void {

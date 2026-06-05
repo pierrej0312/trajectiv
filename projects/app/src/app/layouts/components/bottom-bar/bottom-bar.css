@@ -1,192 +1,370 @@
 @reference "tailwindcss";
 
 :host {
-  display: block;
-  width: 100%;
-  height: 100%;
+  @apply block h-full w-full;
 
-  --tr-primary: var(--p-primary-color);
-  --tr-primary-contrast: var(--p-primary-inverse-color);
-  --tr-primary-hover: var(--p-primary-hover-color);
-  --tr-icon-background: var(--p-surface-50);
+  --bottom-bar-height: 3.35rem;
+  --bottom-bar-icon-size: 2.15rem;
+  --bottom-bar-child-icon-size: 2.15rem;
 
-  --tr-bottom-glass-background: rgb(255 255 255 / 0.05);
-  --tr-bottom-glass-border: rgb(255 255 255 / 0.12);
-  --tr-bottom-glass-shadow: rgb(17 23 20 / 0.14);
+  --bottom-bar-icon-background: color-mix(in srgb, var(--p-surface-50) 18%, transparent);
+  --bottom-bar-child-icon-background: color-mix(in srgb, var(--p-surface-50) 18%, transparent);
+}
+
+:host-context(.dark) {
+  --bottom-bar-icon-background: color-mix(in srgb, var(--p-surface-900) 70%, transparent);
+  --bottom-bar-child-icon-background: color-mix(in srgb, var(--p-surface-900) 70%, transparent);
+}
+
+/* ---------------------------------------------------
+   Shell
+--------------------------------------------------- */
+
+:host ::ng-deep .p-ripple {
+  @apply overflow-visible;
 }
 
 .bottom-bar {
-  position: fixed;
-  left: 50%;
+  @apply pointer-events-none fixed left-1/2 z-[999] -translate-x-1/2;
+
   bottom: max(0.85rem, env(safe-area-inset-bottom));
-  z-index: 999;
   width: min(calc(100vw - 1.5rem), 31rem);
-  transform: translateX(-50%);
-  pointer-events: none;
 }
 
 .bottom-bar__list {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.35rem;
-  width: 100%;
+  @apply pointer-events-auto m-0 flex w-full list-none items-center justify-between gap-1 rounded-full border p-[0.45rem] text-[var(--p-text-color)];
+
   min-height: 4.35rem;
-  margin: 0;
-  padding: 0.45rem;
-  list-style: none;
-  border: 1px solid var(--tr-bottom-glass-border);
-  border-radius: 999px;
-  background: var(--tr-bottom-glass-background);
-  color: var(--tr-text);
+  border-color: var(--tr-glass-border);
+  background:
+    radial-gradient(
+      circle at 18% 0%,
+      color-mix(in srgb, var(--p-primary-color) 10%, transparent),
+      transparent 42%
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--tr-glass-background) 42%, white 4%),
+      color-mix(in srgb, var(--tr-glass-background) 62%, transparent)
+    );
   box-shadow:
-    0 24px 80px var(--tr-bottom-glass-shadow),
-    inset 0 1px 0 rgb(255 255 255 / 0.08);
-  backdrop-filter: blur(72px);
-  pointer-events: auto;
+    0 24px 80px var(--tr-glass-shadow),
+    0 0 0 1px rgb(255 255 255 / 0.08) inset,
+    inset 0 1px 0 rgb(255 255 255 / 0.18);
+  backdrop-filter: blur(var(--tr-glass-blur-strong)) saturate(1.45);
+}
+:host-context(.dark) .bottom-bar__list {
+  background:
+    radial-gradient(
+      circle at 18% 0%,
+      color-mix(in srgb, var(--p-primary-color) 5%, transparent),
+      transparent 44%
+    ),
+    linear-gradient(
+      135deg,
+      rgb(5 7 6 / 0.34),
+      rgb(5 7 6 / 0.52)
+    );
+  border-color: color-mix(in srgb, var(--p-primary-color) 5%, transparent);
+  box-shadow:
+    0 28px 90px rgb(0 0 0 / 0.48),
+    0 0 0 1px rgb(255 255 255 / 0.06) inset,
+    inset 0 1px 0 rgb(255 255 255 / 0.1);
+  backdrop-filter: blur(var(--tr-glass-blur-strong)) saturate(1.55);
 }
 
 .bottom-bar__item {
-  position: relative;
-  min-width: 0;
+  @apply relative flex min-w-0 justify-center;
+
+  flex: 1 1 0;
 }
 
-/* Main item */
+.bottom-bar__item:has(.bottom-bar__link--active),
+.bottom-bar__item:has(.bottom-bar__link--opened) {
+  flex: 2.45 1 0;
+}
+
+.bottom-bar__item:has(.bottom-bar__link--active-compact.bottom-bar__link--active) {
+  flex: 1 1 0;
+}
+
+/* ---------------------------------------------------
+   Main link
+--------------------------------------------------- */
 
 .bottom-bar__link {
-  position: relative;
-  display: inline-flex;
+  @apply relative inline-flex w-full max-w-full items-center justify-center rounded-full bg-transparent no-underline text-[var(--p-text-muted-color)];
+
   min-width: 3.35rem;
-  height: 3.35rem;
-  align-items: center;
-  justify-content: center;
+  height: var(--bottom-bar-height);
   gap: 0.45rem;
-  border-radius: 999px;
   padding: 0 0.9rem;
-  color: var(--tr-text-muted);
-  background: transparent;
-  text-decoration: none;
-  overflow: hidden;
   transition:
-    min-width 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    width var(--tr-motion-normal) var(--tr-motion-smooth),
     background 180ms ease,
     color 180ms ease,
     box-shadow 180ms ease,
-    transform 160ms ease;
+    transform var(--tr-motion-fast) ease;
 }
 
 .bottom-bar__link--button {
-  border: 0;
-  font: inherit;
-  cursor: pointer;
+  @apply cursor-pointer border-0 font-[inherit];
 }
 
 .bottom-bar__link:active {
-  transform: scale(0.96);
+  @apply scale-[0.96];
 }
 
+/* ---------------------------------------------------
+   Icon / label
+--------------------------------------------------- */
+
 .bottom-bar__icon {
-  display: inline-flex;
-  width: 2.15rem;
-  height: 2.15rem;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  color: inherit;
-  background: transparent;
+  @apply relative z-20 inline-flex shrink-0 items-center justify-center rounded-full bg-transparent text-[inherit];
+
+  width: var(--bottom-bar-icon-size);
+  height: var(--bottom-bar-icon-size);
   transition:
     background 180ms ease,
     color 180ms ease,
-    box-shadow 180ms ease;
+    box-shadow 180ms ease,
+    transform 180ms ease;
 }
 
 .bottom-bar__icon i {
+  @apply leading-none;
+
   font-size: clamp(1.1rem, 4.6vw, 1.35rem);
-  line-height: 1;
 }
 
 .bottom-bar__label {
-  max-width: 0;
-  opacity: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  color: inherit;
+  @apply relative z-20 max-w-0 -translate-x-1 overflow-hidden whitespace-nowrap text-[inherit] opacity-0;
+
   font-size: 0.78rem;
   font-weight: 650;
   letter-spacing: -0.02em;
-  transform: translateX(-0.25rem);
   transition:
-    max-width 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    max-width 240ms var(--tr-motion-smooth),
     opacity 180ms ease,
-    transform 220ms ease;
+    transform var(--tr-motion-normal) ease;
 }
 
-/* Active / opened item */
+/* ---------------------------------------------------
+   Profile avatar
+--------------------------------------------------- */
+
+.bottom-bar__icon--avatar {
+  @apply overflow-hidden border;
+
+  border-color: color-mix(in srgb, var(--p-primary-color) 28%, transparent);
+  background:
+    radial-gradient(circle at 30% 20%, rgb(255 255 255 / 0.28), transparent 42%),
+    color-mix(in srgb, var(--p-surface-100) 72%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    0 8px 18px rgb(0 0 0 / 0.08);
+}
+
+:host-context(.dark) .bottom-bar__icon--avatar {
+  background:
+    radial-gradient(circle at 30% 20%, rgb(255 255 255 / 0.22), transparent 42%),
+    color-mix(in srgb, var(--p-surface-900) 78%, transparent);
+}
+
+.bottom-bar__icon--avatar img {
+  @apply h-full w-full object-cover;
+}
+
+.bottom-bar__link--profile.bottom-bar__link--active {
+  @apply pr-[0.95rem];
+}
+
+.bottom-bar__link--profile .bottom-bar__label {
+  max-width: 4.8rem;
+}
+
+.bottom-bar__link--profile.bottom-bar__link--active .bottom-bar__icon--avatar,
+.bottom-bar__link--profile.bottom-bar__link--opened .bottom-bar__icon--avatar {
+  border-color: color-mix(in srgb, var(--p-primary-inverse-color) 46%, transparent);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--p-primary-inverse-color) 14%, transparent),
+    0 10px 24px color-mix(in srgb, var(--p-primary-color) 22%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 0.22);
+}
+
+/* ---------------------------------------------------
+   Active / opened state
+--------------------------------------------------- */
 
 .bottom-bar__link--active,
 .bottom-bar__link--opened {
-  min-width: 8.4rem;
-  justify-content: flex-start;
-  color: var(--tr-primary-contrast);
-  background: var(--tr-primary);
-  box-shadow:
-    0 16px 36px color-mix(in srgb, var(--tr-primary) 28%, transparent),
-    0 0 28px color-mix(in srgb, var(--tr-primary) 16%, transparent),
-    inset 0 1px 0 rgb(255 255 255 / 0.24);
+  @apply justify-start bg-[var(--p-primary-color)] text-[var(--p-primary-inverse-color)];
+
+  min-width: 0;
+  box-shadow: var(--tr-shadow-active);
 }
 
-.bottom-bar__link--active .bottom-bar__icon,
-.bottom-bar__link--opened .bottom-bar__icon {
-  color: var(--tr-primary);
-  background: var(--tr-icon-background);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14);
+.bottom-bar__link--active .bottom-bar__icon:not(.bottom-bar__icon--avatar),
+.bottom-bar__link--opened .bottom-bar__icon:not(.bottom-bar__icon--avatar) {
+  @apply bg-transparent text-[var(--p-primary-inverse-color)] shadow-none;
 }
 
 .bottom-bar__link--active .bottom-bar__label,
 .bottom-bar__link--opened .bottom-bar__label {
+  @apply translate-x-0 opacity-100;
+
   max-width: 6.2rem;
-  opacity: 1;
-  transform: translateX(0);
 }
 
-/* Children menu */
+/* ---------------------------------------------------
+   Active compact state
+--------------------------------------------------- */
+
+.bottom-bar__link--active-compact.bottom-bar__link--active {
+  @apply justify-center gap-0 bg-transparent p-0 text-[var(--p-primary-inverse-color)] shadow-none;
+}
+
+.bottom-bar__link--active-compact.bottom-bar__link--active .bottom-bar__icon:not(.bottom-bar__icon--avatar) {
+  @apply bg-[var(--p-primary-color)] text-[var(--p-primary-inverse-color)];
+
+  box-shadow: var(--tr-shadow-active-icon);
+}
+
+.bottom-bar__link--active-compact.bottom-bar__link--active .bottom-bar__label {
+  @apply max-w-0 -translate-x-1 opacity-0;
+}
+
+/* ---------------------------------------------------
+   Badge
+--------------------------------------------------- */
+
+.bottom-bar__badge {
+  @apply pointer-events-none absolute z-30 flex items-center justify-center rounded-full border-0 bg-[var(--p-primary-color)] text-[var(--p-primary-inverse-color)] shadow-none;
+
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.28rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow:
+    0 8px 18px color-mix(in srgb, var(--p-primary-color) 22%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 0.22);
+  transition:
+    right 200ms ease-in-out,
+    bottom 200ms ease-in-out,
+    transform 200ms ease-in-out,
+    box-shadow 160ms ease;
+}
+
+.bottom-bar__link:not(.bottom-bar__link--active):not(.bottom-bar__link--opened) .bottom-bar__badge {
+  @apply absolute;
+
+  right: calc(50% - 1.35rem);
+  bottom: 0.62rem;
+}
+
+.bottom-bar__link--active .bottom-bar__badge,
+.bottom-bar__link--opened .bottom-bar__badge {
+  @apply static ml-auto translate-y-0 bg-[var(--p-primary-color)] text-[var(--p-primary-inverse-color)];
+}
+
+.bottom-bar__link--active-compact.bottom-bar__link--active .bottom-bar__badge {
+  @apply absolute ml-0 translate-y-0 bg-[var(--p-primary-color)] text-[var(--p-primary-inverse-color)];
+
+  right: calc(50% - 1.35rem);
+  bottom: 0.62rem;
+}
+
+.bottom-bar__child-badge {
+  @apply ml-auto;
+}
+
+/* ---------------------------------------------------
+   Links with badge
+--------------------------------------------------- */
+
+.bottom-bar__link--active:has(.bottom-bar__badge),
+.bottom-bar__link--opened:has(.bottom-bar__badge) {
+  @apply justify-start bg-[var(--p-primary-color)] text-[var(--p-primary-inverse-color)];
+
+  gap: 0.45rem;
+  padding: 0 0.72rem 0 0.9rem;
+  box-shadow: var(--tr-shadow-active);
+}
+
+.bottom-bar__link--active:has(.bottom-bar__badge) .bottom-bar__icon,
+.bottom-bar__link--opened:has(.bottom-bar__badge) .bottom-bar__icon {
+  @apply bg-transparent text-[var(--p-primary-inverse-color)] shadow-none;
+}
+
+.bottom-bar__link--active:has(.bottom-bar__badge) .bottom-bar__label,
+.bottom-bar__link--opened:has(.bottom-bar__badge) .bottom-bar__label {
+  @apply translate-x-0 opacity-100;
+
+  max-width: 5.2rem;
+}
+
+.bottom-bar__link--active-compact.bottom-bar__link--active:has(.bottom-bar__badge) {
+  @apply justify-center gap-0 bg-transparent p-0 shadow-none;
+}
+
+.bottom-bar__link--active-compact.bottom-bar__link--active:has(.bottom-bar__badge) .bottom-bar__label {
+  @apply max-w-0 opacity-0;
+}
+
+.bottom-bar__link--active-compact.bottom-bar__link--active:has(.bottom-bar__badge) .bottom-bar__icon {
+  @apply bg-[var(--p-primary-color)] text-[var(--p-primary-inverse-color)];
+
+  box-shadow: var(--tr-shadow-active-icon);
+}
+
+.bottom-bar__link--active-compact.bottom-bar__link--active:has(.bottom-bar__badge) .bottom-bar__badge {
+  @apply absolute ml-0 translate-y-0;
+
+  right: calc(50% - 1.35rem);
+  bottom: 0.62rem;
+}
+
+/* ---------------------------------------------------
+   Children menu
+--------------------------------------------------- */
 
 .bottom-bar__children-menu {
-  position: absolute;
-  left: 50%;
-  bottom: 4.55rem;
-  z-index: 1000;
-  display: grid;
-  gap: 0.55rem;
-  min-width: 9rem;
-  transform: translateX(-50%);
+  @apply pointer-events-auto absolute left-1/2 z-[1000] grid min-w-36 -translate-x-1/2 gap-2;
+
+  bottom: 4.75rem;
   transform-origin: center bottom;
-  pointer-events: auto;
 }
 
 .bottom-bar__child-action {
   --child-index: 0;
 
-  display: inline-flex;
+  @apply inline-flex cursor-pointer items-center justify-start whitespace-nowrap rounded-full border text-[var(--p-text-color)];
+
   min-height: 2.9rem;
-  align-items: center;
-  justify-content: flex-start;
   gap: 0.65rem;
-  border: 1px solid var(--tr-bottom-glass-border);
-  border-radius: 999px;
   padding: 0.35rem 0.85rem 0.35rem 0.4rem;
-  color: var(--tr-text);
-  background: var(--tr-bottom-glass-background);
+  border-color: var(--tr-glass-border);
+  background:
+    radial-gradient(
+      circle at 16% 0%,
+      color-mix(in srgb, var(--p-primary-color) 9%, transparent),
+      transparent 44%
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--tr-glass-background) 72%, white 5%),
+      color-mix(in srgb, var(--tr-glass-background) 78%, transparent)
+    );
   box-shadow:
-    0 14px 34px var(--tr-bottom-glass-shadow),
-    inset 0 1px 0 rgb(255 255 255 / 0.08);
-  cursor: pointer;
-  backdrop-filter: blur(72px);
-  white-space: nowrap;
+    0 14px 34px var(--tr-glass-shadow),
+    0 0 0 1px rgb(255 255 255 / 0.07) inset,
+    inset 0 1px 0 rgb(255 255 255 / 0.16);
+  backdrop-filter: blur(var(--tr-glass-blur-strong)) saturate(1.45);
   opacity: 0;
   transform-origin: center bottom;
-  animation: bottom-bar-child-from-parent 260ms cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+  animation: bottomBarChildFromParent 260ms cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
   animation-delay: calc(var(--child-index) * 42ms);
   transition:
     transform 160ms ease,
@@ -194,63 +372,83 @@
     color 160ms ease,
     box-shadow 160ms ease;
 }
+:host-context(.dark) .bottom-bar__child-action:not(.bottom-bar__child-action--active) {
+  background:
+    radial-gradient(
+      circle at 16% 0%,
+      color-mix(in srgb, var(--p-primary-color) 5%, transparent),
+      transparent 44%
+    ),
+    linear-gradient(
+      135deg,
+      rgb(5 7 6 / 0.36),
+      rgb(5 7 6 / 0.54)
+    );
+  border-color: color-mix(in srgb, var(--p-primary-color) 5%, transparent);
+  box-shadow:
+    0 18px 46px rgb(0 0 0 / 0.42),
+    0 0 0 1px rgb(255 255 255 / 0.05) inset,
+    inset 0 1px 0 rgb(255 255 255 / 0.08);
+}
 
 .bottom-bar__child-action:active {
-  transform: scale(0.96);
+  @apply scale-[0.96];
 }
 
 .bottom-bar__child-icon {
-  display: inline-flex;
-  width: 2.15rem;
-  height: 2.15rem;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  color: var(--tr-text-muted);
-  background: color-mix(in srgb, var(--tr-icon-background) 18%, transparent);
+  @apply inline-flex shrink-0 items-center justify-center rounded-full text-[var(--p-text-muted-color)];
+
+  width: var(--bottom-bar-child-icon-size);
+  height: var(--bottom-bar-child-icon-size);
+  background: var(--bottom-bar-child-icon-background);
   transition:
     background 160ms ease,
-    color 160ms ease;
+    color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .bottom-bar__child-icon i {
-  font-size: 1rem;
-  line-height: 1;
+  @apply text-base leading-none;
 }
 
 .bottom-bar__child-label {
-  font-size: 0.78rem;
-  font-weight: 650;
-  letter-spacing: -0.02em;
+  @apply text-[0.78rem] font-semibold tracking-[-0.02em];
 }
 
-/* Desktop-like hover only for devices that really support hover */
+/* ---------------------------------------------------
+   Active child
+   Important: child active keeps bg primary.
+--------------------------------------------------- */
 
-@media (hover: hover) and (pointer: fine) {
-  .bottom-bar__link:hover {
-    color: var(--tr-text);
-    background: color-mix(in srgb, var(--tr-primary) 10%, transparent);
-  }
+.bottom-bar__child-action--active {
+  @apply text-[var(--p-primary-inverse-color)];
 
-  .bottom-bar__child-action:hover {
-    color: var(--tr-text);
-    background: color-mix(in srgb, var(--tr-primary) 10%, transparent);
-    box-shadow:
-      0 18px 42px color-mix(in srgb, var(--tr-primary) 14%, transparent),
-      inset 0 1px 0 rgb(255 255 255 / 0.1);
-    transform: translateY(-1px);
-  }
-
-  .bottom-bar__child-action:hover .bottom-bar__child-icon {
-    color: var(--tr-primary-contrast);
-    background: color-mix(in srgb, var(--tr-primary) 90%, transparent);
-  }
+  color: var(--p-primary-inverse-color);
+  background: var(--p-primary-color);
+  border-color: color-mix(in srgb, var(--p-primary-color) 72%, transparent);
+  box-shadow:
+    0 16px 36px color-mix(in srgb, var(--p-primary-color) 24%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 0.2);
 }
 
-/* Animation: children start near parent position, then move upward to final stack */
+.bottom-bar__child-action--active .bottom-bar__child-icon {
+  @apply bg-transparent text-[var(--p-primary-inverse-color)] shadow-none;
+}
 
-@keyframes bottom-bar-child-from-parent {
+.bottom-bar__child-action--active .bottom-bar__child-label {
+  @apply text-[inherit];
+}
+
+.bottom-bar__child-action--active .bottom-bar__child-badge.p-badge {
+  color: var(--p-primary-color);
+  background: var(--p-primary-inverse-color);
+}
+
+/* ---------------------------------------------------
+   Animations
+--------------------------------------------------- */
+
+@keyframes bottomBarChildFromParent {
   from {
     opacity: 0;
     transform:
@@ -276,81 +474,85 @@
   }
 }
 
-/* Dark mode controlled by ThemeService through .dark class */
-
-:host-context(.dark) {
-  --tr-icon-background: var(--p-surface-900);
-  --tr-bottom-glass-background: rgb(0 0 0 / 0.33);
-  --tr-bottom-glass-border: rgb(255 255 255 / 0.1);
-  --tr-bottom-glass-shadow: rgb(0 0 0 / 0.38);
-}
-
-:host-context(.dark) .bottom-bar__list {
-  box-shadow:
-    0 24px 80px var(--tr-bottom-glass-shadow),
-    inset 0 1px 0 rgb(255 255 255 / 0.08);
-}
-
-:host-context(.dark) .bottom-bar__link {
-  color: var(--tr-text-muted);
-}
-
-:host-context(.dark) .bottom-bar__link--active,
-:host-context(.dark) .bottom-bar__link--opened {
-  color: var(--tr-primary-contrast);
-  background: var(--tr-primary);
-}
-
-:host-context(.dark) .bottom-bar__link--active .bottom-bar__icon,
-:host-context(.dark) .bottom-bar__link--opened .bottom-bar__icon {
-  color: var(--tr-primary);
-  background: var(--tr-icon-background);
-}
-
-:host-context(.dark) .bottom-bar__child-action {
-  color: var(--tr-text);
-}
-
-:host-context(.dark) .bottom-bar__child-icon {
-  background: color-mix(in srgb, var(--tr-icon-background) 70%, transparent);
-}
+/* ---------------------------------------------------
+   Hover
+--------------------------------------------------- */
 
 @media (hover: hover) and (pointer: fine) {
-  :host-context(.dark) .bottom-bar__link:hover {
-    color: var(--tr-text);
-    background: color-mix(in srgb, var(--tr-primary) 10%, transparent);
+  .bottom-bar__link:hover {
+    @apply text-[var(--p-text-color)];
+
+    background: color-mix(in srgb, var(--p-primary-color) 10%, transparent);
   }
 
-  :host-context(.dark) .bottom-bar__child-action:hover {
-    background: color-mix(in srgb, var(--tr-primary) 12%, transparent);
+  .bottom-bar__link:hover .bottom-bar__icon:not(.bottom-bar__icon--avatar) {
+    @apply bg-transparent text-[var(--p-primary-color)];
   }
 
-  :host-context(.dark) .bottom-bar__child-action:hover .bottom-bar__child-icon {
-    color: var(--tr-primary-contrast);
-    background: color-mix(in srgb, var(--tr-primary) 90%, transparent);
+  .bottom-bar__link--active:hover,
+  .bottom-bar__link--opened:hover {
+    @apply bg-[var(--p-primary-color)] text-[var(--p-primary-inverse-color)];
+  }
+
+  .bottom-bar__link--active:hover .bottom-bar__icon:not(.bottom-bar__icon--avatar),
+  .bottom-bar__link--opened:hover .bottom-bar__icon:not(.bottom-bar__icon--avatar) {
+    @apply bg-transparent text-[var(--p-primary-inverse-color)] shadow-none;
+  }
+
+  .bottom-bar__link--active-compact.bottom-bar__link--active:hover .bottom-bar__icon:not(.bottom-bar__icon--avatar) {
+    @apply bg-[var(--p-primary-color)] text-[var(--p-primary-inverse-color)];
+  }
+
+  .bottom-bar__child-action:not(.bottom-bar__child-action--active):hover {
+    @apply text-[var(--p-text-color)];
+
+    background: color-mix(in srgb, var(--p-primary-color) 10%, transparent);
+    box-shadow:
+      0 18px 42px color-mix(in srgb, var(--p-primary-color) 14%, transparent),
+      inset 0 1px 0 rgb(255 255 255 / 0.1);
+    transform: translateY(-1px);
+  }
+
+  .bottom-bar__child-action--active:hover {
+    @apply text-[var(--p-primary-inverse-color)];
+
+    color: var(--p-primary-inverse-color);
+    background: var(--p-primary-color);
+    box-shadow:
+      0 18px 42px color-mix(in srgb, var(--p-primary-color) 24%, transparent),
+      inset 0 1px 0 rgb(255 255 255 / 0.2);
+  }
+
+  .bottom-bar__child-action--active:hover .bottom-bar__child-icon {
+    @apply bg-transparent text-[var(--p-primary-inverse-color)] shadow-none;
   }
 }
 
-/* Reduced motion */
+/* ---------------------------------------------------
+   Reduced motion
+--------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
   .bottom-bar__link,
   .bottom-bar__label,
   .bottom-bar__icon,
+  .bottom-bar__badge,
   .bottom-bar__child-action,
   .bottom-bar__child-icon {
-    transition: none;
+    @apply transition-none;
     animation: none;
   }
 
   .bottom-bar__child-action {
-    opacity: 1;
+    @apply opacity-100;
     transform: none;
     filter: none;
   }
 }
 
-/* Small screens */
+/* ---------------------------------------------------
+   Small screens
+--------------------------------------------------- */
 
 @media (max-width: 390px) {
   .bottom-bar {
@@ -358,37 +560,71 @@
   }
 
   .bottom-bar__list {
-    gap: 0.2rem;
+    @apply gap-[0.2rem] p-[0.4rem];
+
     min-height: 4.1rem;
-    padding: 0.4rem;
   }
 
   .bottom-bar__link {
-    min-width: 3rem;
+    @apply min-w-12 px-[0.72rem];
+
     height: 3.1rem;
-    padding: 0 0.72rem;
   }
 
   .bottom-bar__link--active,
   .bottom-bar__link--opened {
-    min-width: 7.3rem;
+    min-width: 0;
+  }
+
+  .bottom-bar__link--opened {
+    @apply px-[0.9rem];
+
+    gap: 0.45rem;
+  }
+
+  .bottom-bar__link--active:has(.bottom-bar__badge),
+  .bottom-bar__link--opened:has(.bottom-bar__badge) {
+    padding: 0 0.62rem 0 0.72rem;
+  }
+
+  .bottom-bar__link--active:has(.bottom-bar__badge) .bottom-bar__label,
+  .bottom-bar__link--opened:has(.bottom-bar__badge) .bottom-bar__label {
+    max-width: 4.5rem;
+  }
+
+  .bottom-bar__link--profile .bottom-bar__label {
+    max-width: 4.2rem;
   }
 
   .bottom-bar__label {
-    font-size: 0.72rem;
+    @apply text-[0.72rem];
   }
 
   .bottom-bar__icon {
-    width: 2rem;
-    height: 2rem;
+    @apply size-8;
+  }
+
+  .bottom-bar__badge {
+    @apply text-[0.58rem];
+
+    min-width: 1rem;
+    height: 1rem;
+  }
+
+  .bottom-bar__link:not(.bottom-bar__link--active):not(.bottom-bar__link--opened) .bottom-bar__badge,
+  .bottom-bar__link--active-compact.bottom-bar__link--active .bottom-bar__badge,
+  .bottom-bar__link--active-compact.bottom-bar__link--active:has(.bottom-bar__badge) .bottom-bar__badge {
+    right: calc(50% - 1.25rem);
+    bottom: 0.6rem;
   }
 
   .bottom-bar__children-menu {
-    bottom: 4.35rem;
-    min-width: 8.25rem;
+    @apply min-w-[8.25rem];
+
+    bottom: 4.45rem;
   }
 
   .bottom-bar__child-label {
-    font-size: 0.72rem;
+    @apply text-[0.72rem];
   }
 }

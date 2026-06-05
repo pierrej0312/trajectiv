@@ -1,9 +1,8 @@
-import { Component } from '@angular/core';
+export * from './access/app-role.model';
+export * from './access/access-context.model';
+export * from './access/can-access.util';
 
-@Component({
-  selector: 'lib-core',
-  imports: [],
-  template: ` <p>Core works!</p> `,
-  styles: ``,
-})
-export class Core {}
+export * from './navigation/app-navigation.model';
+export * from './navigation/app-navigation.config';
+export * from './navigation/can-see-nav-item.util';
+export * from './access/workspace-context.model';

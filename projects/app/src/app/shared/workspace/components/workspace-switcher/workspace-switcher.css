@@ -1,0 +1,138 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.workspace-switcher {
+  width: 100%;
+}
+
+.workspace-switcher__title {
+  margin: 0 0 0.55rem;
+  color: var(--tr-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.workspace-switcher--compact {
+  max-width: 13rem;
+}
+
+.workspace-switcher-option {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.workspace-switcher-option__avatar {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--tr-primary) 22%, transparent);
+  border-radius: 999px;
+  color: var(--tr-primary);
+  background: color-mix(in srgb, var(--tr-primary) 10%, transparent);
+}
+
+.workspace-switcher-option__avatar i {
+  font-size: 0.9rem;
+}
+
+.workspace-switcher-option__text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.workspace-switcher-option__label {
+  overflow: hidden;
+  color: var(--tr-text);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-switcher-option__meta {
+  overflow: hidden;
+  color: var(--tr-text-muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .tr-workspace-select {
+  width: 100%;
+  min-height: 3.1rem;
+  border: 1px solid color-mix(in srgb, var(--tr-border) 82%, transparent);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--tr-icon-background) 58%, transparent);
+  box-shadow:
+    0 14px 36px rgb(0 0 0 / 0.06),
+    inset 0 1px 0 rgb(255 255 255 / 0.12);
+}
+
+:host ::ng-deep .tr-workspace-select:not(.p-disabled):hover {
+  border-color: color-mix(in srgb, var(--tr-primary) 34%, transparent);
+}
+
+:host ::ng-deep .tr-workspace-select.p-focus {
+  border-color: color-mix(in srgb, var(--tr-primary) 56%, transparent);
+  box-shadow:
+    0 0 0 0.2rem color-mix(in srgb, var(--tr-primary) 14%, transparent),
+    0 14px 36px rgb(0 0 0 / 0.08);
+}
+
+:host ::ng-deep .tr-workspace-select .p-select-label {
+  padding: 0.55rem 0.7rem;
+}
+
+:host ::ng-deep .tr-workspace-select .p-select-dropdown {
+  width: 2.5rem;
+  color: var(--tr-text-muted);
+}
+
+:host ::ng-deep .tr-workspace-select-panel {
+  border: 1px solid color-mix(in srgb, var(--tr-border) 90%, transparent);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--p-content-background) 94%, transparent);
+  box-shadow: 0 22px 70px rgb(0 0 0 / 0.16);
+  overflow: hidden;
+}
+
+:host ::ng-deep .tr-workspace-select-panel .p-select-option {
+  padding: 0.7rem 0.8rem;
+}
+
+:host ::ng-deep .tr-workspace-select-panel .p-select-option.p-focus {
+  background: color-mix(in srgb, var(--tr-primary) 10%, transparent);
+}
+
+:host ::ng-deep .tr-workspace-select-panel .p-select-option.p-select-option-selected {
+  color: var(--tr-text);
+  background: color-mix(in srgb, var(--tr-primary) 14%, transparent);
+}
+
+.workspace-switcher--compact ::ng-deep .tr-workspace-select {
+  min-height: 2.75rem;
+  border-radius: 999px;
+}
+
+.workspace-switcher--compact .workspace-switcher-option__avatar {
+  width: 1.85rem;
+  height: 1.85rem;
+  flex-basis: 1.85rem;
+}
+
+.workspace-switcher--compact .workspace-switcher-option__label {
+  font-size: 0.82rem;
+}

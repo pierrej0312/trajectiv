@@ -1,11 +1,16 @@
-import {patchState, signalStore, withComputed, withMethods, withState} from '@ngrx/signals';
-import { computed, effect, inject, linkedSignal, resource, Signal, signal } from '@angular/core';
-import Keycloak from 'keycloak-js';
-import {environment} from '@app/src/environments/environment';
-import {httpResource} from '@angular/common/http';
-import {withDevtools} from '@angular-architects/ngrx-toolkit';
-import { KeycloakUtil } from '@shared/module/keycloak/utils/keycloak.util';
+import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
+import { computed, inject, resource, Signal } from '@angular/core';
+import { httpResource } from '@angular/common/http';
 import { Router } from '@angular/router';
+
+import Keycloak from 'keycloak-js';
+import { withDevtools } from '@angular-architects/ngrx-toolkit';
+
+import { environment } from '@app/src/environments/environment';
+import { KeycloakUtil } from '@shared/module/keycloak/utils/keycloak.util';
+
+import type { AccessContext, AppRole } from '@core';
+import { mapKeycloakTokenToAccessContext } from '@shared/module/keycloak/utils/keycloak-access-context.mapper';
 
 const getManagerToken = async () => {
   return fetch(`${environment.keycloak.config.url}/realms/${environment.keycloak.config.realm}/protocol/openid-connect/token`, {
@@ -110,11 +115,18 @@ const getCurrentAppRedirectUri = (router: Router): string => {
 export const KeycloakStore = signalStore(
   { providedIn: 'root' },
   withDevtools('keycloak'),
+
   withState({
     user: null as any,
     tokenParsed: null as any,
     selectedGroupId: undefined as string | undefined,
   }),
+  withComputed((state) => ({
+    accessContext: computed<AccessContext>(() =>
+      mapKeycloakTokenToAccessContext(state.tokenParsed()),
+    ),
+  })),
+
   withMethods((state, $kc = inject(Keycloak), router = inject(Router)) => ({
     // 6. Auth Actions
     login: async () => {
@@ -156,6 +168,7 @@ export const KeycloakStore = signalStore(
           tokenParsed: $kc.tokenParsed,
           user: user,
         });
+        console.log('toker ', $kc.tokenParsed);
       }
     },
 

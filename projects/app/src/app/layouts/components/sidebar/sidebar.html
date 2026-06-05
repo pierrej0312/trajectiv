@@ -1,13 +1,41 @@
 <nav class="sidebar" aria-label="Navigation desktop principale">
+  <svg class="sidebar__goo-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <filter
+        id="sidebar-active-blob"
+        x="-50%"
+        y="-50%"
+        width="200%"
+        height="200%"
+        color-interpolation-filters="sRGB"
+      >
+        <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur" />
+        <feColorMatrix
+          in="blur"
+          mode="matrix"
+          values="
+            0 0 0 0 0
+            0 0 0 0 0
+            0 0 0 0 0
+            0 0 0 18 -7
+          "
+          result="goo"
+        />
+        <feFlood class="sidebar__goo-color" result="color" />
+        <feComposite in="color" in2="goo" operator="in" result="blob" />
+        <feComposite in="blob" in2="SourceGraphic" operator="over" />
+      </filter>
+    </defs>
+  </svg>
   <p-menu
     [model]="items()"
     styleClass="tr-sidebar-menu"
   >
     <ng-template #start>
       <a
-        routerLink="/app/pilotage"
+        routerLink="/app/dashboard"
         class="sidebar__brand"
-        aria-label="Trajectiv pilotage"
+        aria-label="Trajectiv dashboard"
       >
         <lib-trajectiv-logo
           variant="mark"
@@ -36,10 +64,7 @@
               [class]="item.icon"
               pButtonIcon
             ></i>
-
-            <span pButtonLabel>
-          {{ item.label }}
-        </span>
+            <span pButtonLabel>{{ item.label }}</span>
           </button>
         } @else if (item.children?.length) {
           <button
@@ -47,17 +72,18 @@
             pRipple
             class="sidebar__link sidebar__link--button"
             [class.sidebar__link--opened]="isOpened(item)"
+            [class.sidebar__link--active]="isRouteActive(item)"
             [attr.aria-expanded]="isOpened(item)"
             [attr.aria-label]="'Afficher les sous-pages ' + item.label"
             (click)="toggle(item)"
           >
-        <span class="sidebar__icon">
-          <i [class]="item.icon"></i>
-        </span>
+            <span class="sidebar__icon">
+              <i [class]="item.icon"></i>
+            </span>
 
             <span class="sidebar__label">
-          {{ item.label }}
-        </span>
+              {{ item.label }}
+            </span>
 
             @if (item.badge) {
               <p-badge
@@ -82,18 +108,18 @@
                     pRipple
                     class="sidebar__child-link"
                     [routerLink]="child.routerLink"
-                    routerLinkActive="sidebar__child-link--active"
-                    [routerLinkActiveOptions]="{ exact: false }"
-                    ariaCurrentWhenActive="page"
+                    [class.sidebar__child-link--active]="isChildRouteActive(item, child)"
+                    [attr.aria-current]="isChildRouteActive(item, child) ? 'page' : null"
                     [attr.aria-label]="child.label"
+                    (click)="closeOpenedItem()"
                   >
-                <span class="sidebar__child-icon">
-                  <i [class]="child.icon"></i>
-                </span>
+                    <span class="sidebar__child-icon">
+                      <i [class]="child.icon"></i>
+                    </span>
 
                     <span class="sidebar__child-label">
-                  {{ child.label }}
-                </span>
+                      {{ child.label }}
+                    </span>
 
                     @if (child.badge) {
                       <p-badge
@@ -112,18 +138,26 @@
             pRipple
             class="sidebar__link"
             [routerLink]="item.routerLink"
-            routerLinkActive="sidebar__link--active"
-            [routerLinkActiveOptions]="{ exact: false }"
-            ariaCurrentWhenActive="page"
+            [class.sidebar__link--active]="isRouteActive(item)"
+            [attr.aria-current]="isRouteActive(item) ? 'page' : null"
             [attr.aria-label]="item.label"
+            (click)="closeOpenedItem()"
           >
-        <span class="sidebar__icon">
-          <i [class]="item.icon"></i>
-        </span>
+            @if (item.badge) {
+              <span class="sidebar__blob" aria-hidden="true">
+                <span class="sidebar__blob-shape sidebar__blob-shape--icon"></span>
+                <span class="sidebar__blob-shape sidebar__blob-shape--bridge"></span>
+                <span class="sidebar__blob-shape sidebar__blob-shape--badge"></span>
+              </span>
+            }
+
+            <span class="sidebar__icon">
+              <i [class]="item.icon"></i>
+            </span>
 
             <span class="sidebar__label">
-          {{ item.label }}
-        </span>
+              {{ item.label }}
+            </span>
 
             @if (item.badge) {
               <p-badge
@@ -138,71 +172,88 @@
     </ng-template>
 
     <ng-template #end>
-      <button
-        type="button"
-        pRipple
-        class="sidebar__profile"
-        aria-label="Ouvrir le menu profil"
-        (click)="toggleProfileMenu($event)"
-      >
-        <p-avatar
-          image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
-          shape="circle"
-        ></p-avatar>
+      <div class="sidebar__profile-wrapper">
+        <button
+          type="button"
+          pRipple
+          class="sidebar__profile"
+          aria-label="Ouvrir le menu profil"
+          (click)="toggleProfileMenu($event)"
+        >
+          <p-avatar
+            image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+            shape="circle"
+          ></p-avatar>
 
-        <span class="sidebar__profile-text">
-          <span class="sidebar__profile-name">Pierre</span>
-          <span class="sidebar__profile-role">B2C</span>
-        </span>
-      </button>
+          <span class="sidebar__profile-text">
+      <span class="sidebar__profile-name">Pierre</span>
+      <span class="sidebar__profile-role">
+        {{ activeWorkspace()?.label ?? 'Compte personnel' }}
+      </span>
+    </span>
+        </button>
 
-      <p-menu
-        #profileMenu
-        [model]="profileItems()"
-        [popup]="true"
-        appendTo="body"
-        styleClass="tr-profile-menu"
-      >
-        <ng-template #item let-item>
-          @if (item.kind === 'theme-toggle') {
-            <div
-              class="sidebar-profile-theme"
-              (click)="$event.stopPropagation()"
-              (keydown)="$event.stopPropagation()"
-            >
-              <div class="sidebar-profile-theme__label">
-                <i [class]="themeIcon()"></i>
-                <span>{{ themeLabel() }}</span>
+        <p-menu
+          #profileMenu
+          [model]="profileItems()"
+          [popup]="true"
+          appendTo="body"
+          styleClass="tr-profile-menu"
+        >
+          <ng-template #item let-item>
+            @if (item.kind === 'workspace-switcher') {
+              <app-workspace-switcher
+                variant="menu"
+                (click)="$event.stopPropagation()"
+              />
+            } @else if (item.kind === 'theme-toggle') {
+              <div
+                class="sidebar-profile-theme"
+                (click)="$event.stopPropagation()"
+                (keydown)="$event.stopPropagation()"
+              >
+
+                <p-togglebutton
+                  styleClass="tr-theme-toggle"
+                  [ngModel]="isDarkTheme()"
+                  (ngModelChange)="setDarkTheme($event)"
+                  onLabel="Dark mode"
+                  offLabel="Light mode"
+                  onIcon="pi pi-moon"
+                  offIcon="pi pi-sun"
+                  fluid
+                  ariaLabel="Toggle light or dark theme"
+                ></p-togglebutton>
               </div>
+            } @else if (item.command) {
+              <button
+                type="button"
+                pRipple
+                class="sidebar-profile-menu__item sidebar-profile-menu__item--button"
+                (click)="item.command({ originalEvent: $event, item })"
+              >
+                @if (item.icon) {
+                  <i [class]="item.icon"></i>
+                }
 
-              <p-togglebutton
-                styleClass="tr-theme-toggle"
-                [ngModel]="isDarkTheme()"
-                (onChange)="setDarkTheme($event.checked)"
-                onLabel="Dark mode"
-                offLabel="Light mode"
-                onIcon="pi pi-moon"
-                offIcon="pi pi-sun"
-                fluid
-                ariaLabel="Toggle light or dark theme"
-              ></p-togglebutton>
-            </div>
-          } @else {
-            <a
-              pRipple
-              class="sidebar-profile-menu__item"
-              [routerLink]="item.routerLink"
-              (click)="item.command?.({ originalEvent: $event, item })"
-            >
-              @if (item.icon) {
-                <i [class]="item.icon"></i>
-              }
+                <span>{{ item.label }}</span>
+              </button>
+            } @else {
+              <a
+                pRipple
+                class="sidebar-profile-menu__item"
+                [routerLink]="item.routerLink"
+              >
+                @if (item.icon) {
+                  <i [class]="item.icon"></i>
+                }
 
-              <span>{{ item.label }}</span>
-            </a>
-          }
-        </ng-template>
-      </p-menu>
+                <span>{{ item.label }}</span>
+              </a>
+            }
+          </ng-template>
+        </p-menu>
+      </div>
     </ng-template>
   </p-menu>
 </nav>

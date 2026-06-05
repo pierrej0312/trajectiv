@@ -45,6 +45,61 @@ export const TrajectivTheme = definePreset(Aura, {
       },
     },
   },
+  extend: {
+    trajectiv: {
+      radius: {
+        full: '999px',
+        xl: '1.25rem',
+      },
+      motion: {
+        fast: '160ms',
+        normal: '220ms',
+        smooth: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+      },
+      glass: {
+        blurStrong: '72px',
+        light: {
+          background: 'color-mix(in srgb, {surface.0} 34%, transparent)',
+          border: 'color-mix(in srgb, {surface.200} 34%, transparent)',
+          shadow: 'rgb(17 23 20 / 0.10)',
+        },
+        dark: {
+          background: 'rgb(5 7 6 / 0.34)',
+          border: 'rgb(184 248 90 / 0.14)',
+          shadow: 'rgb(0 0 0 / 0.46)',
+        },
+      },
+      shadow: {
+        active:
+          '0 16px 36px color-mix(in srgb, {primary.color} 28%, transparent), 0 0 28px color-mix(in srgb, {primary.color} 16%, transparent), inset 0 1px 0 rgb(255 255 255 / 0.24)',
+        activeIcon:
+          '0 12px 28px color-mix(in srgb, {primary.color} 22%, transparent), inset 0 1px 0 rgb(255 255 255 / 0.18)',
+      },
+    },
+  },
+  css: ({ dt }) => `
+    :root {
+      --tr-radius-full: ${dt('trajectiv.radius.full')};
+
+      --tr-motion-fast: ${dt('trajectiv.motion.fast')};
+      --tr-motion-normal: ${dt('trajectiv.motion.normal')};
+      --tr-motion-smooth: ${dt('trajectiv.motion.smooth')};
+
+      --tr-glass-blur-strong: ${dt('trajectiv.glass.blur.strong')};
+      --tr-glass-background: ${dt('trajectiv.glass.light.background')};
+      --tr-glass-border: ${dt('trajectiv.glass.light.border')};
+      --tr-glass-shadow: ${dt('trajectiv.glass.light.shadow')};
+
+      --tr-shadow-active: ${dt('trajectiv.shadow.active')};
+      --tr-shadow-active-icon: ${dt('trajectiv.shadow.active.icon')};
+    }
+
+    .dark {
+      --tr-glass-background: ${dt('trajectiv.glass.dark.background')};
+      --tr-glass-border: ${dt('trajectiv.glass.dark.border')};
+      --tr-glass-shadow: ${dt('trajectiv.glass.dark.shadow')};
+    }
+  `,
   components: {
     button: {
       colorScheme: {
@@ -241,6 +296,30 @@ export const TrajectivTheme = definePreset(Aura, {
           contrast: {
             background: '{primary.color}',
             color: '{primary.inverseColor}',
+          },
+        },
+      },
+    },
+    menu: {
+      colorScheme: {
+        light: {
+          root: {
+            background: 'transparent',
+            borderColor: 'transparent',
+            color: '#111714',
+          },
+          item: {
+            focusBackground: 'transparent',
+          },
+        },
+        dark: {
+          root: {
+            background: 'transparent',
+            borderColor: 'transparent',
+            color: '#f7f8f3',
+          },
+          item: {
+            focusBackground: 'transparent',
           },
         },
       },
