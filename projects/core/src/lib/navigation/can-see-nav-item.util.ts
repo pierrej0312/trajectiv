@@ -3,11 +3,7 @@ import { canAccess } from '../access/can-access.util';
 import type { AppNavChildItem, AppNavItem } from './app-navigation.model';
 
 export function canSeeNavItem(item: AppNavItem, context: AccessContext): boolean {
-  if (!canAccess(item, context)) {
-    return false;
-  }
-
-  return true;
+  return canAccess(item, context);
 }
 
 export function canSeeNavChildItem(item: AppNavChildItem, context: AccessContext): boolean {
