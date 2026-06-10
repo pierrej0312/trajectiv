@@ -124,6 +124,84 @@
           }
         }
       }
+    },
+    "shared-domain": {
+      "projectType": "library",
+      "root": "projects/shared-domain",
+      "sourceRoot": "projects/shared-domain/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/shared-domain/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/shared-domain/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/shared-domain/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "shared-api-client": {
+      "projectType": "library",
+      "root": "projects/shared-api-client",
+      "sourceRoot": "projects/shared-api-client/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/shared-api-client/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/shared-api-client/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/shared-api-client/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "shared-data-access": {
+      "projectType": "library",
+      "root": "projects/shared-data-access",
+      "sourceRoot": "projects/shared-data-access/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/shared-data-access/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/shared-data-access/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/shared-data-access/tsconfig.spec.json"
+          }
+        }
+      }
     }
   }
 }

@@ -21,7 +21,14 @@
       "@i18n/*": ["./projects/i18n/*"],
       "@themes/*": ["./projects/themes/*"],
       "@shared-ui": ["./projects/shared-ui/src/public-api.ts"],
-      "@core": ["./projects/core/src/public-api.ts"]
+      "@core": ["./projects/core/src/public-api.ts"],
+      "@env": ["./projects/app/src/environments"],
+      "@shared-domain": ["./projects/shared-domain/src/public-api.ts"],
+      "@shared-domain/*": ["./projects/shared-domain/src/lib/*"],
+      "@shared-api-client": ["./projects/shared-api-client/src/public-api.ts"],
+      "@shared-api-client/*": ["./projects/shared-api-client/src/generated/*"],
+      "@shared-data-access": ["./projects/shared-data-access/src/public-api.ts"],
+      "@shared-data-access/*": ["./projects/shared-data-access/src/lib/*"]
     }
   },
   "angularCompilerOptions": {
@@ -49,6 +56,24 @@
     },
     {
       "path": "./projects/core/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/shared-domain/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/shared-domain/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/shared-api-client/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/shared-api-client/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/shared-data-access/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/shared-data-access/tsconfig.spec.json"
     }
   ]
 }

@@ -17,6 +17,8 @@ import { includeBearerTokenInterceptor } from 'keycloak-angular';
 import { provideKeycloakAngular } from '@shared/module/keycloak/keycloak.provider';
 import { environment } from '@app/src/environments/environment';
 
+import { provideApi } from '@shared-api-client';
+
 const localConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(),
@@ -30,6 +32,10 @@ const localConfig: ApplicationConfig = {
       config: environment.keycloak.config,
       redirectUri: environment.keycloak.redirectUri,
       sessionTimeout: environment.keycloak.sessionTimeout,
+    }),
+    provideApi({
+      basePath: environment.uri,
+      withCredentials: false,
     }),
   ],
 };

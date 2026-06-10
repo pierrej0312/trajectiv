@@ -1,0 +1,16 @@
+export * from './meAvatarController.service';
+import { MeAvatarControllerService } from './meAvatarController.service';
+export * from './meAvatarController.serviceInterface';
+export * from './meController.service';
+import { MeControllerService } from './meController.service';
+export * from './meController.serviceInterface';
+export * from './onboardingController.service';
+import { OnboardingControllerService } from './onboardingController.service';
+export * from './onboardingController.serviceInterface';
+export * from './profileController.service';
+import { ProfileControllerService } from './profileController.service';
+export * from './profileController.serviceInterface';
+export * from './securityDebugController.service';
+import { SecurityDebugControllerService } from './securityDebugController.service';
+export * from './securityDebugController.serviceInterface';
+export const APIS = [MeAvatarControllerService, MeControllerService, OnboardingControllerService, ProfileControllerService, SecurityDebugControllerService];
