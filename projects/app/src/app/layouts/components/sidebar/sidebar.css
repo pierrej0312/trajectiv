@@ -416,17 +416,40 @@
 }
 
 .sidebar__profile-text {
-  @apply flex max-w-0 -translate-x-1.5 flex-col overflow-hidden whitespace-nowrap opacity-0 transition-[opacity,max-width,transform] duration-200 ease-in-out;
+  @apply flex max-w-0 -translate-x-1.5 flex-col flex-1 overflow-hidden whitespace-nowrap opacity-0 transition-[opacity,max-width,transform] duration-200 ease-in-out;
 }
 
 .sidebar:is(:hover, :focus-within) .sidebar__profile-text {
   @apply max-w-40 translate-x-0 opacity-100;
 }
 
+.sidebar__profile-name-row {
+  @apply flex min-w-0 items-center gap-1.5 justify-between;
+}
+
 .sidebar__profile-name {
-  @apply text-sm font-bold tracking-[-0.02em];
+  @apply min-w-0 truncate text-sm font-bold tracking-[-0.02em];
 
   color: var(--p-text-color);
+}
+
+.sidebar__plan-chip {
+  @apply inline-flex shrink-0 items-center rounded-full px-1.5 py-0.5 text-[0.55rem] font-black uppercase tracking-[0.06em];
+
+  line-height: 1;
+}
+
+.sidebar__plan-chip--free {
+  color: var(--p-text-muted-color);
+  background: color-mix(in srgb, var(--p-surface-400) 16%, transparent);
+}
+
+.sidebar__plan-chip--premium {
+  color: var(--p-primary-inverse-color);
+  background: var(--p-primary-color);
+  box-shadow:
+    0 8px 18px color-mix(in srgb, var(--p-primary-color) 18%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 0.18);
 }
 
 .sidebar__profile-role {

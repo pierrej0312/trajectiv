@@ -27,8 +27,6 @@
       "@shared-domain/*": ["./projects/shared-domain/src/lib/*"],
       "@shared-api-client": ["./projects/shared-api-client/src/public-api.ts"],
       "@shared-api-client/*": ["./projects/shared-api-client/src/generated/*"],
-      "@shared-data-access": ["./projects/shared-data-access/src/public-api.ts"],
-      "@shared-data-access/*": ["./projects/shared-data-access/src/lib/*"]
     }
   },
   "angularCompilerOptions": {

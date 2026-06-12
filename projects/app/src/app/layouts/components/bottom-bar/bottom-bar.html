@@ -92,10 +92,16 @@
               [class.bottom-bar__icon--avatar]="item.isProfile"
             >
               @if (item.isProfile) {
-                <img
-                  src="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
-                  alt=""
-                />
+                @if (appContext.avatarUrl(); as avatarUrl) {
+                  <img
+                    [src]="avatarUrl"
+                    [alt]="appContext.displayName()"
+                  />
+                } @else {
+                  <span class="bottom-bar__avatar-fallback">
+                    {{ appContext.initials() }}
+                  </span>
+                }
               } @else {
                 <i [class]="item.icon"></i>
               }

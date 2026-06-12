@@ -1,15 +1,17 @@
 export const environment = {
-  uri: '',
+  production: false,
+
+  uri: 'http://localhost:8081/api',
+
   keycloak: {
     config: {
-      url: 'https://sso.ovyn.be',
-      realm: 'formation',
-      clientId: 'angular',
-      credentials: { secret: '' },
-      backEndUri: 'http://localhost:3000',
+      url: 'http://localhost:8080',
+      realm: 'trajectiv',
+      clientId: 'trajectiv-web',
+      backEndUri: 'http://localhost:8081/api',
     },
     redirectUri: 'http://localhost:4200',
-    sessionTimeout: 0,
+    sessionTimeout: 300000,
     manager: {
       client_id: '',
       secret: '',

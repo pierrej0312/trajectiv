@@ -1,26 +1,14 @@
 import { computed, inject } from '@angular/core';
-import {
-  patchState,
-  signalStore,
-  withComputed,
-  withMethods,
-  withState,
-} from '@ngrx/signals';
+import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, EMPTY, exhaustMap, pipe, tap } from 'rxjs';
 
-import {
-  Me,
-  OnboardingStatus,
-  SubscriptionPlan,
-  UserStatus,
-} from '@shared-domain';
-import { MeDataAccess } from '@shared-data-access';
+import { MeControllerService, MeResponseApiDto } from '@shared-api-client';
 
 export type AppContextStatus = 'idle' | 'loading' | 'ready' | 'error';
 
 export interface AppContextState {
-  me: Me | null;
+  me: MeResponseApiDto | null;
   status: AppContextStatus;
   error: unknown | null;
 }
@@ -33,41 +21,30 @@ const initialState: AppContextState = {
 
 export const AppContextStore = signalStore(
   { providedIn: 'root' },
+
   withState(initialState),
+
   withComputed((store) => ({
     isIdle: computed(() => store.status() === 'idle'),
     isLoading: computed(() => store.status() === 'loading'),
     isReady: computed(() => store.status() === 'ready'),
     hasError: computed(() => store.status() === 'error'),
-    isDisabled: computed(() => store.me()?.status === UserStatus.Disabled),
+
+    isDisabled: computed(() => store.me()?.status === 'DISABLED'),
+
     displayName: computed(() => {
       const me = store.me();
+
       return me?.displayName || me?.email || 'Utilisateur';
     }),
+
     email: computed(() => store.me()?.email ?? ''),
+
     avatarUrl: computed(() => store.me()?.avatarUrl ?? null),
-    onboardingStatus: computed(() => store.me()?.onboarding.status ?? OnboardingStatus.NotStarted),
-    isOnboardingCompleted: computed(
-      () => store.me()?.onboarding.status === OnboardingStatus.Completed,
-    ),
-    shouldRedirectToOnboarding: computed(() => {
-      const me = store.me();
-      if (!me) {
-        return false;
-      }
-      if (me.status !== UserStatus.Active) {
-        return false;
-      }
-      return me.onboarding.status !== OnboardingStatus.Completed;
-    }),
-    isPremium: computed(() => store.me()?.subscription.plan === SubscriptionPlan.Premium),
-    creditsRemaining: computed(() => store.me()?.credits.remaining ?? 0),
-    planLabel: computed(() => {
-      const plan = store.me()?.subscription.plan;
-      return plan === SubscriptionPlan.Premium ? 'Premium' : 'Free';
-    }),
+
     initials: computed(() => {
       const source = store.me()?.displayName || store.me()?.email || 'U';
+
       return source
         .split(' ')
         .filter(Boolean)
@@ -75,8 +52,37 @@ export const AppContextStore = signalStore(
         .map((part) => part.charAt(0).toUpperCase())
         .join('');
     }),
+
+    onboardingStatus: computed(() => store.me()?.onboarding?.status ?? 'NOT_STARTED'),
+
+    isOnboardingCompleted: computed(() => store.me()?.onboarding?.status === 'COMPLETED'),
+
+    shouldRedirectToOnboarding: computed(() => {
+      const me = store.me();
+
+      if (!me) {
+        return false;
+      }
+
+      if (me.status !== 'ACTIVE') {
+        return false;
+      }
+
+      return me.onboarding?.status !== 'COMPLETED';
+    }),
+
+    isPremium: computed(() => store.me()?.subscription?.plan === 'PREMIUM'),
+
+    creditsRemaining: computed(() => store.me()?.credits?.remaining ?? 0),
+
+    planLabel: computed(() => {
+      const plan = store.me()?.subscription?.plan;
+
+      return plan === 'PREMIUM' ? 'Premium' : 'Free';
+    }),
   })),
-  withMethods((store, meDataAccess = inject(MeDataAccess)) => {
+
+  withMethods((store, meApi = inject(MeControllerService)) => {
     const loadMeInternal = rxMethod<boolean>(
       pipe(
         exhaustMap((forceReload) => {
@@ -91,7 +97,7 @@ export const AppContextStore = signalStore(
             error: null,
           });
 
-          return meDataAccess.getMe().pipe(
+          return meApi.getMe('body', false, { transferCache: false }).pipe(
             tap((me) => {
               patchState(store, {
                 me,

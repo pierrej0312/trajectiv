@@ -47,10 +47,17 @@
             aria-label="Open profile menu"
             (click)="toggleProfileMenu($event)"
           >
-            <p-avatar
-              image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
-              shape="circle"
-            ></p-avatar>
+            @if (appContext.avatarUrl(); as avatarUrl) {
+              <p-avatar
+                [image]="avatarUrl"
+                shape="circle"
+              ></p-avatar>
+            } @else {
+              <p-avatar
+                [label]="appContext.initials()"
+                shape="circle"
+              ></p-avatar>
+            }
           </button>
 
           <p-menu

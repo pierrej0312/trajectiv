@@ -1,0 +1,136 @@
+@reference "tailwindcss";
+
+:host {
+  @apply block min-h-screen;
+}
+
+.onboarding-page {
+  @apply grid min-h-screen place-items-center px-4 py-10;
+
+  background:
+    radial-gradient(
+      circle at 15% 10%,
+      color-mix(in srgb, var(--p-primary-color) 8%, transparent),
+      transparent 34%
+    ),
+    var(--p-surface-ground);
+}
+
+.onboarding-page__panel {
+  @apply grid w-full max-w-4xl gap-8 rounded-3xl border p-6 md:p-10;
+
+  border-color: var(--tr-glass-border);
+  background: color-mix(in srgb, var(--tr-glass-background) 70%, transparent);
+  backdrop-filter: blur(var(--tr-glass-blur-strong)) saturate(1.35);
+  box-shadow: 0 24px 80px var(--tr-glass-shadow);
+}
+
+.onboarding-page__header {
+  @apply grid gap-2 text-center;
+}
+
+.onboarding-page__eyebrow {
+  @apply text-sm font-bold uppercase tracking-[0.14em];
+
+  color: var(--p-primary-color);
+}
+
+.onboarding-page__header h1 {
+  @apply text-3xl font-bold tracking-[-0.04em];
+
+  color: var(--p-text-color);
+}
+
+.onboarding-page__header p,
+.onboarding-card span,
+.onboarding-row span,
+.onboarding-field span {
+  color: var(--p-text-muted-color);
+}
+
+.onboarding-page__section {
+  @apply grid gap-4;
+}
+
+.onboarding-page__section h2 {
+  @apply text-xl font-bold tracking-[-0.03em];
+
+  color: var(--p-text-color);
+}
+
+.onboarding-page__cards {
+  @apply grid gap-3 md:grid-cols-3;
+}
+
+.onboarding-card,
+.onboarding-row {
+  @apply cursor-pointer rounded-2xl border bg-transparent p-4 text-left transition-[background,border-color,box-shadow,transform] duration-150 ease-in-out;
+
+  border-color: var(--tr-glass-border);
+  color: var(--p-text-color);
+}
+
+.onboarding-card {
+  @apply grid gap-2;
+}
+
+.onboarding-row {
+  @apply grid gap-1;
+}
+
+.onboarding-card:hover,
+.onboarding-row:hover {
+  background: color-mix(in srgb, var(--p-primary-color) 8%, transparent);
+}
+
+.onboarding-card--selected,
+.onboarding-row--selected {
+  border-color: color-mix(in srgb, var(--p-primary-color) 60%, transparent);
+  background: color-mix(in srgb, var(--p-primary-color) 12%, transparent);
+  box-shadow:
+    0 16px 36px color-mix(in srgb, var(--p-primary-color) 14%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 0.12);
+}
+
+.onboarding-page__list {
+  @apply grid gap-3;
+}
+
+.onboarding-field {
+  @apply grid gap-2;
+}
+
+.onboarding-field input {
+  @apply h-12 rounded-2xl border bg-transparent px-4 outline-none;
+
+  border-color: var(--tr-glass-border);
+  color: var(--p-text-color);
+}
+
+.onboarding-field input:focus {
+  border-color: var(--p-primary-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-primary-color) 16%, transparent);
+}
+
+.onboarding-page__error {
+  @apply rounded-2xl border p-4 text-sm;
+
+  color: var(--p-red-600, #dc2626);
+  border-color: color-mix(in srgb, red 28%, transparent);
+  background: color-mix(in srgb, red 8%, transparent);
+}
+
+.onboarding-page__footer {
+  @apply flex justify-end;
+}
+
+.onboarding-page__submit {
+  @apply inline-flex h-12 min-w-44 items-center justify-center rounded-2xl border-0 px-5 font-bold;
+
+  color: var(--p-primary-inverse-color);
+  background: var(--p-primary-color);
+}
+
+.onboarding-page__submit:disabled {
+  @apply cursor-not-allowed opacity-50;
+}

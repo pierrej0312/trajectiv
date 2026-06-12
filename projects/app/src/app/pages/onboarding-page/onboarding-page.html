@@ -1,0 +1,87 @@
+<section class="onboarding-page">
+  <div class="onboarding-page__panel">
+    <header class="onboarding-page__header">
+      <p class="onboarding-page__eyebrow">Bienvenue sur Trajectiv</p>
+
+      <h1>
+        Bienvenue {{ appContext.displayName() }} 👋
+      </h1>
+
+      <p>
+        Nous allons personnaliser ton espace pour t’aider à avancer plus vite.
+      </p>
+    </header>
+
+    <div class="onboarding-page__section">
+      <h2>Quel est ton objectif principal ?</h2>
+
+      <div class="onboarding-page__cards">
+        @for (option of careerGoalOptions; track option.value) {
+          <button
+            type="button"
+            class="onboarding-card"
+            [class.onboarding-card--selected]="careerGoal() === option.value"
+            (click)="selectCareerGoal(option.value)"
+          >
+            <strong>{{ option.label }}</strong>
+            <span>{{ option.description }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="onboarding-page__section">
+      <h2>Quel est ton rôle cible ?</h2>
+
+      <label class="onboarding-field">
+        <span>Rôle ou métier visé</span>
+
+        <input
+          type="text"
+          [value]="targetRole()"
+          placeholder="Ex : Développeur frontend"
+          (input)="updateTargetRole($event)"
+        />
+      </label>
+    </div>
+
+    <div class="onboarding-page__section">
+      <h2>Quel est ton niveau d’expérience ?</h2>
+
+      <div class="onboarding-page__list">
+        @for (option of experienceLevelOptions; track option.value) {
+          <button
+            type="button"
+            class="onboarding-row"
+            [class.onboarding-row--selected]="experienceLevel() === option.value"
+            (click)="selectExperienceLevel(option.value)"
+          >
+            <strong>{{ option.label }}</strong>
+            <span>{{ option.description }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (errorMessage(); as error) {
+      <p class="onboarding-page__error">
+        {{ error }}
+      </p>
+    }
+
+    <footer class="onboarding-page__footer">
+      <button
+        type="button"
+        class="onboarding-page__submit"
+        [disabled]="!canSubmit()"
+        (click)="submit()"
+      >
+        @if (isSubmitting()) {
+          Création de ton espace...
+        } @else {
+          Créer mon espace
+        }
+      </button>
+    </footer>
+  </div>
+</section>

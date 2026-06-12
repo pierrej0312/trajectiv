@@ -5,6 +5,7 @@ import { BadgeModule } from 'primeng/badge';
 import { RippleModule } from 'primeng/ripple';
 
 import { NavigationService } from '@shared/navigation/navigation.service';
+import { AppContextStore } from '@core';
 
 type BottomBarChildItem = {
   key: string;
@@ -38,6 +39,7 @@ type WithRoute<T extends { readonly route?: string }> = T & {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BottomBar {
+  readonly appContext = inject(AppContextStore);
   private readonly router = inject(Router);
   private readonly navigationService = inject(NavigationService);
 

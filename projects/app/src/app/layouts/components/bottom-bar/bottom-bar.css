@@ -628,3 +628,8 @@
     @apply text-[0.72rem];
   }
 }
+.bottom-bar__avatar-fallback {
+  @apply flex h-full w-full items-center justify-center text-[0.7rem] font-bold uppercase;
+
+  color: var(--p-primary-color);
+}

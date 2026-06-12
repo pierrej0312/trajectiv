@@ -180,17 +180,37 @@
           aria-label="Ouvrir le menu profil"
           (click)="toggleProfileMenu($event)"
         >
-          <p-avatar
-            image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
-            shape="circle"
-          ></p-avatar>
+          @if (appContext.avatarUrl(); as avatarUrl) {
+            <p-avatar
+              [image]="avatarUrl"
+              shape="circle"
+            ></p-avatar>
+          } @else {
+            <p-avatar
+              [label]="appContext.initials()"
+              shape="circle"
+            ></p-avatar>
+          }
 
           <span class="sidebar__profile-text">
-      <span class="sidebar__profile-name">Pierre</span>
-      <span class="sidebar__profile-role">
-        {{ activeWorkspace()?.label ?? 'Compte personnel' }}
-      </span>
-    </span>
+            <span class="sidebar__profile-name-row">
+              <span class="sidebar__profile-name">
+                {{ appContext.displayName() }}
+              </span>
+
+              <span
+                class="sidebar__plan-chip"
+                [class.sidebar__plan-chip--premium]="appContext.isPremium()"
+                [class.sidebar__plan-chip--free]="!appContext.isPremium()"
+              >
+                {{ appContext.planLabel() }}
+              </span>
+            </span>
+
+            <span class="sidebar__profile-role">
+              {{ activeWorkspace()?.label ?? 'Compte personnel' }}
+            </span>
+          </span>
         </button>
 
         <p-menu

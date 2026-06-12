@@ -23,6 +23,7 @@ import { KeycloakStore } from '@shared/module/keycloak/keycloak-store';
 import { NavigationService } from '@shared/navigation/navigation.service';
 import { WorkspaceStore } from '@shared/workspace/workspace.store';
 import { WorkspaceSwitcher } from '@shared/workspace/components/workspace-switcher/workspace-switcher';
+import { AppContextStore } from '@core';
 
 type SidebarChildItem = {
   label: string;
@@ -72,6 +73,7 @@ export class Sidebar {
   private readonly navigationService = inject(NavigationService);
   private readonly workspaceStore = inject(WorkspaceStore);
   private readonly router = inject(Router);
+  readonly appContext = inject(AppContextStore);
 
   readonly currentUrl = computed(() => {
     const lastNavigation = this.router.lastSuccessfulNavigation();
