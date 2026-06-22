@@ -1,87 +1,67 @@
-<section class="onboarding-page">
-  <div class="onboarding-page__panel">
-    <header class="onboarding-page__header">
-      <p class="onboarding-page__eyebrow">Bienvenue sur Trajectiv</p>
+<section
+  class="onboarding-page"
+  [class.onboarding-page--no-stage]="!onboarding.showCompanionStage()"
+>
+  @if (onboarding.showCompanionStage()) {
+    <aside class="onboarding-page__stage">
+      <app-companion-stage
+        [config]="companionConfig"
+        [command]="onboarding.companionCommand()"
+        [lightingPreset]="companionLightingPreset()"
+      />
+    </aside>
+  }
 
-      <h1>
-        Bienvenue {{ appContext.displayName() }} 👋
-      </h1>
+  <div class="onboarding-page__flow">
+    <main class="onboarding-page__content">
+      <router-outlet />
+    </main>
 
-      <p>
-        Nous allons personnaliser ton espace pour t’aider à avancer plus vite.
-      </p>
-    </header>
-
-    <div class="onboarding-page__section">
-      <h2>Quel est ton objectif principal ?</h2>
-
-      <div class="onboarding-page__cards">
-        @for (option of careerGoalOptions; track option.value) {
-          <button
-            type="button"
-            class="onboarding-card"
-            [class.onboarding-card--selected]="careerGoal() === option.value"
-            (click)="selectCareerGoal(option.value)"
-          >
-            <strong>{{ option.label }}</strong>
-            <span>{{ option.description }}</span>
-          </button>
-        }
-      </div>
-    </div>
-
-    <div class="onboarding-page__section">
-      <h2>Quel est ton rôle cible ?</h2>
-
-      <label class="onboarding-field">
-        <span>Rôle ou métier visé</span>
-
-        <input
-          type="text"
-          [value]="targetRole()"
-          placeholder="Ex : Développeur frontend"
-          (input)="updateTargetRole($event)"
-        />
-      </label>
-    </div>
-
-    <div class="onboarding-page__section">
-      <h2>Quel est ton niveau d’expérience ?</h2>
-
-      <div class="onboarding-page__list">
-        @for (option of experienceLevelOptions; track option.value) {
-          <button
-            type="button"
-            class="onboarding-row"
-            [class.onboarding-row--selected]="experienceLevel() === option.value"
-            (click)="selectExperienceLevel(option.value)"
-          >
-            <strong>{{ option.label }}</strong>
-            <span>{{ option.description }}</span>
-          </button>
-        }
-      </div>
-    </div>
-
-    @if (errorMessage(); as error) {
+    @if (onboarding.errorMessage(); as error) {
       <p class="onboarding-page__error">
         {{ error }}
       </p>
     }
 
-    <footer class="onboarding-page__footer">
-      <button
-        type="button"
-        class="onboarding-page__submit"
-        [disabled]="!canSubmit()"
-        (click)="submit()"
-      >
-        @if (isSubmitting()) {
-          Création de ton espace...
+    @if (onboarding.showFooter()) {
+      <footer class="onboarding-page__footer">
+        <button
+          pButton
+          type="button"
+          severity="secondary"
+          class="onboarding-page__secondary"
+          [disabled]="!onboarding.canGoPrevious() || onboarding.isSubmitting()"
+          (click)="onboarding.goPrevious()"
+        >
+          Retour
+        </button>
+
+        @if (onboarding.isLastStep()) {
+          <button
+            pButton
+            type="button"
+            class="onboarding-page__submit"
+            [disabled]="!onboarding.canComplete() || onboarding.isSubmitting()"
+            (click)="onboarding.complete()"
+          >
+            @if (onboarding.isSubmitting()) {
+              Création...
+            } @else {
+              Lancer ma trajectoire
+            }
+          </button>
         } @else {
-          Créer mon espace
+          <button
+            pButton
+            type="button"
+            class="onboarding-page__submit"
+            [disabled]="!onboarding.canGoNext() || onboarding.isSubmitting()"
+            (click)="onboarding.goNext()"
+          >
+            Continuer
+          </button>
         }
-      </button>
-    </footer>
+      </footer>
+    }
   </div>
 </section>

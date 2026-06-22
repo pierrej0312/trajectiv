@@ -1,0 +1,169 @@
+@reference "tailwindcss";
+
+:host {
+  @apply block h-full min-h-0;
+}
+
+.welcome-step {
+  @apply grid h-full min-h-0 place-items-center gap-8 overflow-auto px-2 py-8 lg:grid-cols-[0.9fr_1fr] lg:px-8 lg:py-10;
+}
+
+.welcome-step__visual {
+  @apply relative hidden aspect-square w-full max-w-[28rem] place-items-center lg:grid;
+}
+
+.welcome-step__orb {
+  @apply relative grid size-64 place-items-center rounded-full;
+
+  background:
+    radial-gradient(
+      circle at 35% 25%,
+      rgb(255 255 255 / 0.42),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 65% 72%,
+      color-mix(in srgb, var(--p-primary-color) 44%, transparent),
+      transparent 48%
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--p-primary-color) 34%, transparent),
+      color-mix(in srgb, #69d8ff 20%, transparent)
+    );
+
+  border: 1px solid color-mix(in srgb, var(--p-primary-color) 28%, transparent);
+  box-shadow:
+    0 40px 120px color-mix(in srgb, var(--p-primary-color) 18%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 0.3);
+  backdrop-filter: blur(24px) saturate(1.16);
+}
+
+.welcome-step__orb span {
+  @apply text-5xl;
+
+  color: var(--p-primary-color);
+  filter: drop-shadow(0 0 24px color-mix(in srgb, var(--p-primary-color) 55%, transparent));
+}
+
+.welcome-step__floating-card {
+  @apply absolute flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-semibold;
+
+  color: var(--p-text-color);
+  border-color: var(--tr-glass-border);
+  background: color-mix(in srgb, var(--tr-glass-background) 58%, transparent);
+  box-shadow: 0 22px 70px var(--tr-glass-shadow);
+  backdrop-filter: blur(var(--tr-glass-blur-strong)) saturate(1.12);
+}
+
+.welcome-step__floating-card span.pi {
+  color: var(--p-primary-color);
+}
+
+.welcome-step__floating-card--top {
+  @apply right-4 top-16;
+}
+
+.welcome-step__floating-card--bottom {
+  @apply bottom-20 left-2;
+}
+
+.welcome-step__card {
+  @apply w-full max-w-2xl rounded-[2rem] border p-6 text-center lg:p-10;
+
+  border-color: var(--tr-glass-border);
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      color-mix(in srgb, var(--p-primary-color) 12%, transparent),
+      transparent 42%
+    ),
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--tr-glass-background) 48%, transparent),
+      color-mix(in srgb, var(--tr-glass-background) 76%, transparent)
+    );
+  box-shadow: 0 28px 90px var(--tr-glass-shadow);
+  backdrop-filter: blur(var(--tr-glass-blur-strong)) saturate(1.12);
+}
+
+.welcome-step__eyebrow {
+  @apply mb-4 text-xs font-semibold uppercase tracking-[0.22em];
+
+  color: var(--p-text-muted-color);
+}
+
+.welcome-step__title {
+  @apply text-4xl font-semibold tracking-[-0.06em] lg:text-6xl;
+
+  color: var(--p-text-color);
+}
+
+.welcome-step__title span {
+  background:
+    linear-gradient(
+      135deg,
+      var(--p-primary-color),
+      color-mix(in srgb, var(--p-primary-color) 72%, #69d8ff 28%)
+    );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.welcome-step__lead {
+  @apply mx-auto mt-5 max-w-xl text-base leading-7 lg:text-lg;
+
+  color: var(--p-text-muted-color);
+}
+
+.welcome-step__mini-steps {
+  @apply mx-auto mt-8 grid max-w-xl grid-cols-3 gap-3;
+}
+
+.welcome-step__mini-step {
+  @apply rounded-2xl border px-3 py-4;
+
+  border-color: color-mix(in srgb, var(--p-primary-color) 18%, transparent);
+  background: color-mix(in srgb, var(--p-surface-0) 26%, transparent);
+}
+
+.welcome-step__mini-step span {
+  @apply text-xl;
+
+  color: var(--p-primary-color);
+}
+
+.welcome-step__mini-step p {
+  @apply mt-2 text-xs font-semibold;
+
+  color: var(--p-text-muted-color);
+}
+
+.welcome-step__start {
+  @apply mt-8 rounded-full px-7 py-4 text-base font-semibold transition duration-300 ease-in-out;
+
+  color: var(--p-primary-inverse-color);
+  background:
+    linear-gradient(
+      135deg,
+      var(--p-primary-color),
+      color-mix(in srgb, var(--p-primary-color) 78%, #69d8ff 22%)
+    );
+  box-shadow:
+    0 18px 54px color-mix(in srgb, var(--p-primary-color) 28%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 0.26);
+}
+
+.welcome-step__start:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 24px 70px color-mix(in srgb, var(--p-primary-color) 38%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 0.34);
+}
+
+.welcome-step__hint {
+  @apply mt-4 text-xs;
+
+  color: var(--p-text-muted-color);
+}

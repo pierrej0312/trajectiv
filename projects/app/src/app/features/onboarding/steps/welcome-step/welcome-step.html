@@ -1,0 +1,62 @@
+<section class="welcome-step">
+  <div class="welcome-step__visual">
+    <div class="welcome-step__orb welcome-step__orb--main">
+      <span class="pi pi-check"></span>
+    </div>
+
+    <div class="welcome-step__floating-card welcome-step__floating-card--top">
+      <span class="pi pi-shield"></span>
+      <span>Compte prêt</span>
+    </div>
+
+    <div class="welcome-step__floating-card welcome-step__floating-card--bottom">
+      <span class="pi pi-sparkles"></span>
+      <span>Copilot à personnaliser</span>
+    </div>
+  </div>
+
+  <article class="welcome-step__card">
+    <p class="welcome-step__eyebrow">
+      Inscription confirmée
+    </p>
+
+    <h1 class="welcome-step__title">
+      Bienvenue
+      <span>{{ appContext.displayName() }}</span>
+    </h1>
+
+    <p class="welcome-step__lead">
+      Ton espace est prêt. On a juste besoin de quelques informations pour personnaliser ton copilot.
+    </p>
+
+    <div class="welcome-step__mini-steps">
+      <div class="welcome-step__mini-step">
+        <span class="pi pi-compass"></span>
+        <p>Objectif</p>
+      </div>
+
+      <div class="welcome-step__mini-step">
+        <span class="pi pi-briefcase"></span>
+        <p>Destination</p>
+      </div>
+
+      <div class="welcome-step__mini-step">
+        <span class="pi pi-chart-line"></span>
+        <p>Niveau</p>
+      </div>
+    </div>
+
+    <button
+      pButton
+      type="button"
+      class="welcome-step__start"
+      (click)="start()"
+    >
+      Personnaliser mon expérience
+    </button>
+
+    <p class="welcome-step__hint">
+      3 étapes rapides · modifiable plus tard
+    </p>
+  </article>
+</section>

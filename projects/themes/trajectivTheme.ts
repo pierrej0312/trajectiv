@@ -59,13 +59,13 @@ export const TrajectivTheme = definePreset(Aura, {
       glass: {
         blurStrong: '72px',
         light: {
-          background: 'color-mix(in srgb, {surface.0} 34%, transparent)',
-          border: 'color-mix(in srgb, {surface.200} 34%, transparent)',
+          background: 'color-mix(in srgb, {surface.100} 33%, transparent)',
+          border: 'color-mix(in srgb, {surface.200} 10%, transparent)',
           shadow: 'rgb(17 23 20 / 0.10)',
         },
         dark: {
-          background: 'rgb(5 7 6 / 0.34)',
-          border: 'rgb(184 248 90 / 0.14)',
+          background: 'rgb(5 7 6 / 0.05)',
+          border: 'rgb(184 248 90 / 0.05)',
           shadow: 'rgb(0 0 0 / 0.46)',
         },
       },

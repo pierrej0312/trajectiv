@@ -19,6 +19,7 @@ import { NavigationService } from '@shared/navigation/navigation.service';
 import { WorkspaceStore } from '@shared/workspace/workspace.store';
 import { WorkspaceSwitcher } from '@shared/workspace/components/workspace-switcher/workspace-switcher';
 import { AppContextStore } from '@core';
+import { NavigationStore } from '@shared/navigation/navigation.store';
 
 type NavbarMenuItem = MenuItem & {
   kind?: 'theme-toggle' | 'workspace-switcher';
@@ -48,6 +49,8 @@ export class Navbar {
   private readonly keycloakStore = inject(KeycloakStore);
   private readonly navigationService = inject(NavigationService);
   private readonly workspaceStore = inject(WorkspaceStore);
+
+  readonly shellNavigation = inject(NavigationStore);
 
   readonly appContext = inject(AppContextStore);
 

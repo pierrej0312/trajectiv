@@ -35,7 +35,8 @@ export const AppContextStore = signalStore(
     displayName: computed(() => {
       const me = store.me();
 
-      return me?.displayName || me?.email || 'Utilisateur';
+      console.log(me?.firstName);
+      return me?.displayName ?? me?.firstName ?? me?.email ?? 'Utilisateur';
     }),
 
     email: computed(() => store.me()?.email ?? ''),

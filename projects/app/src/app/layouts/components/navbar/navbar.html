@@ -1,3 +1,4 @@
+
 <nav class="navbar">
   <p-menubar
     [model]="emptyMenuItems()"
@@ -20,18 +21,98 @@
 
     <ng-template #end>
       <div class="navbar__end">
-        <div class="navbar__search">
-          <i class="pi pi-search"></i>
-          <input
-            type="text"
-            pInputText
-            placeholder="Search"
-            aria-label="Search"
-          />
-        </div>
+        @if (shellNavigation.navbarVariant() === 'onboarding') {
+          <div class="navbar__onboarding-context">
+            <span>Configuration de ton espace</span>
+          </div>
+        } @else {
+          <div class="navbar__search">
+            <i class="pi pi-search"></i>
+            <input
+              type="text"
+              pInputText
+              placeholder="Search"
+              aria-label="Search"
+            />
+          </div>
 
-        <div class="navbar__desktop-actions">
+          <div class="navbar__desktop-actions">
 
+            <button
+              type="button"
+              class="navbar__icon-button"
+              aria-label="Notifications"
+            >
+              <i class="pi pi-bell"></i>
+              <span class="navbar__notification-dot"></span>
+            </button>
+
+            <button
+              type="button"
+              class="navbar__profile-button"
+              aria-label="Open profile menu"
+              (click)="toggleProfileMenu($event)"
+            >
+              @if (appContext.avatarUrl(); as avatarUrl) {
+                <p-avatar
+                  [image]="avatarUrl"
+                  shape="circle"
+                ></p-avatar>
+              } @else {
+                <p-avatar
+                  [label]="appContext.initials()"
+                  shape="circle"
+                ></p-avatar>
+              }
+            </button>
+
+            <p-menu
+              #profileMenu
+              [model]="profileItems()"
+              [popup]="true"
+              appendTo="body"
+              styleClass="tr-profile-menu"
+            >
+              <ng-template
+                #item
+                let-item
+              >
+                @if (item.kind === 'theme-toggle') {
+                  <div class="navbar-profile-theme">
+                    <p-togglebutton
+                      styleClass="tr-theme-toggle"
+                      [ngModel]="isDarkTheme()"
+                      (ngModelChange)="setDarkTheme($event)"
+                      onLabel="Dark mode"
+                      offLabel="Light mode"
+                      onIcon="pi pi-moon"
+                      offIcon="pi pi-sun"
+                      fluid
+                      ariaLabel="Toggle light or dark theme"
+                    ></p-togglebutton>
+                  </div>
+                } @else {
+                  <a
+                    pRipple
+                    class="navbar-profile-menu__item"
+                    [routerLink]="item.routerLink"
+                    (click)="item.command?.({ originalEvent: $event, item })"
+                  >
+                    @if (item.icon) {
+                      <i [class]="item.icon"></i>
+                    }
+
+                    <span>{{ item.label }}</span>
+                  </a>
+                }
+              </ng-template>
+            </p-menu>
+          </div>
+        }
+      </div>
+
+      <div class="navbar__mobile-actions">
+        @if (shellNavigation.navbarVariant() === 'app') {
           <button
             type="button"
             class="navbar__icon-button"
@@ -40,79 +121,7 @@
             <i class="pi pi-bell"></i>
             <span class="navbar__notification-dot"></span>
           </button>
-
-          <button
-            type="button"
-            class="navbar__profile-button"
-            aria-label="Open profile menu"
-            (click)="toggleProfileMenu($event)"
-          >
-            @if (appContext.avatarUrl(); as avatarUrl) {
-              <p-avatar
-                [image]="avatarUrl"
-                shape="circle"
-              ></p-avatar>
-            } @else {
-              <p-avatar
-                [label]="appContext.initials()"
-                shape="circle"
-              ></p-avatar>
-            }
-          </button>
-
-          <p-menu
-            #profileMenu
-            [model]="profileItems()"
-            [popup]="true"
-            appendTo="body"
-            styleClass="tr-profile-menu"
-          >
-            <ng-template
-              #item
-              let-item
-            >
-              @if (item.kind === 'theme-toggle') {
-                <div class="navbar-profile-theme">
-                  <p-togglebutton
-                    styleClass="tr-theme-toggle"
-                    [ngModel]="isDarkTheme()"
-                    (ngModelChange)="setDarkTheme($event)"
-                    onLabel="Dark mode"
-                    offLabel="Light mode"
-                    onIcon="pi pi-moon"
-                    offIcon="pi pi-sun"
-                    fluid
-                    ariaLabel="Toggle light or dark theme"
-                  ></p-togglebutton>
-                </div>
-              } @else {
-                <a
-                  pRipple
-                  class="navbar-profile-menu__item"
-                  [routerLink]="item.routerLink"
-                  (click)="item.command?.({ originalEvent: $event, item })"
-                >
-                  @if (item.icon) {
-                    <i [class]="item.icon"></i>
-                  }
-
-                  <span>{{ item.label }}</span>
-                </a>
-              }
-            </ng-template>
-          </p-menu>
-        </div>
-      </div>
-
-      <div class="navbar__mobile-actions">
-        <button
-          type="button"
-          class="navbar__icon-button"
-          aria-label="Notifications"
-        >
-          <i class="pi pi-bell"></i>
-          <span class="navbar__notification-dot"></span>
-        </button>
+        }
 
         <button
           pButton

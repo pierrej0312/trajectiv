@@ -1,0 +1,43 @@
+@reference "tailwindcss";
+
+:host {
+  @apply block h-full min-h-0 w-full overflow-visible;
+}
+
+.companion-stage {
+  @apply relative h-full min-h-0 w-full overflow-visible rounded-[2rem];
+
+  /**
+   * Le canvas est plus large que le stage.
+   * Il reste centré sur l'emplacement prévu du personnage.
+   */
+  --companion-canvas-width: min(100svw, 80rem);
+}
+
+.companion-stage__canvas {
+  @apply absolute top-0 bottom-0 left-1/2 z-10 min-h-0 overflow-visible;
+
+  width: var(--companion-canvas-width);
+  transform: translateX(-50%);
+}
+
+.companion-stage__canvas canvas {
+  @apply absolute inset-0 block h-full w-full;
+}
+
+.companion-stage__orb {
+  @apply pointer-events-none absolute rounded-full blur-3xl;
+}
+
+.companion-stage__loading,
+.companion-stage__error {
+  @apply absolute inset-x-6 bottom-6 z-20 rounded-2xl px-4 py-3 text-center text-sm font-semibold;
+
+  color: var(--p-text-color);
+  background: color-mix(in srgb, var(--p-surface-0) 72%, transparent);
+  backdrop-filter: blur(18px);
+}
+
+.companion-stage__error {
+  color: var(--p-red-500);
+}

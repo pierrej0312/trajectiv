@@ -1,0 +1,20 @@
+<div class="companion-stage">
+
+  <div
+    #host
+    class="companion-stage__canvas"
+    aria-label="Compagnon de trajectoire 3D"
+  ></div>
+
+  @if (!isReady() && !hasError()) {
+    <div class="companion-stage__loading">
+      Chargement du compagnon...
+    </div>
+  }
+
+  @if (hasError()) {
+    <div class="companion-stage__error">
+      Impossible d’afficher le compagnon.
+    </div>
+  }
+</div>

@@ -1,6 +1,6 @@
 # Trajectiv Front Architecture Export
 
-Generated at: 2026-06-05T08:52:08.557Z
+Generated at: 2026-06-18T07:21:08.261Z
 
 ## Workspace tree
 
@@ -30,6 +30,11 @@ Generated at: 2026-06-05T08:52:08.557Z
           📄 app.html
           📄 app.spec.ts
           📄 app.ts
+        📁 core/
+          📁 guards/
+            📄 me-ready.guard-helper.ts
+            📄 onboarding-completed.guard.ts
+            📄 onboarding-incomplete.guard.ts
         📁 layouts/
           📁 app-layout/
             📄 app-layout.css
@@ -65,6 +70,10 @@ Generated at: 2026-06-05T08:52:08.557Z
             📄 notifications-page.css
             📄 notifications-page.html
             📄 notifications-page.ts
+          📁 onboarding-page/
+            📄 onboarding-page.css
+            📄 onboarding-page.html
+            📄 onboarding-page.ts
           📁 opportunities-page/
             📄 opportunities-page.css
             📄 opportunities-page.html
@@ -105,11 +114,19 @@ Generated at: 2026-06-05T08:52:08.557Z
                 📄 auth-keycloak.guard.ts
                 📄 is-access-allowed.guard.ts
               📁 utils/
+                📄 keycloak-access-context.mapper.ts
                 📄 keycloak.util.ts
               📄 keycloak-store.ts
               📄 keycloak.provider.ts
           📁 navigation/
             📄 navigation.service.ts
+          📁 workspace/
+            📁 components/
+              📁 workspace-switcher/
+                📄 workspace-switcher.css
+                📄 workspace-switcher.html
+                📄 workspace-switcher.ts
+            📄 workspace.store.ts
         📄 app.config.ts
         📄 app.routes.ts
       📁 environments/
@@ -124,18 +141,18 @@ Generated at: 2026-06-05T08:52:08.557Z
     📄 tsconfig.spec.json
   📁 core/
     📁 src/
-      📁 app/
-        📁 shared/
-          📁 interceptors/
       📁 lib/
         📁 access/
           📄 access-context.model.ts
           📄 app-role.model.ts
           📄 can-access.util.ts
+          📄 workspace-context.model.ts
         📁 navigation/
           📄 app-navigation.config.ts
           📄 app-navigation.model.ts
           📄 can-see-nav-item.util.ts
+        📁 store/
+          📄 app-context.store.ts
         📄 core.ts
       📄 public-api.ts
     📄 ng-package.json
@@ -197,6 +214,85 @@ Generated at: 2026-06-05T08:52:08.557Z
         📄 .gitignore
         📄 keycloakify.buildinfo
         📄 README.txt
+  📁 shared-api-client/
+    📁 src/
+      📁 generated/
+        📁 .openapi-generator/
+          📄 FILES
+          📄 VERSION
+        📁 api/
+          📄 api.ts
+          📄 meAvatarController.service.ts
+          📄 meAvatarController.serviceInterface.ts
+          📄 meController.service.ts
+          📄 meController.serviceInterface.ts
+          📄 onboardingController.service.ts
+          📄 onboardingController.serviceInterface.ts
+          📄 profileController.service.ts
+          📄 profileController.serviceInterface.ts
+          📄 securityDebugController.service.ts
+          📄 securityDebugController.serviceInterface.ts
+        📁 model/
+          📄 authenticatedUserClaims.ts
+          📄 meAvatarApiDto.ts
+          📄 meCreditsApiDto.ts
+          📄 meOnboardingApiDto.ts
+          📄 meProfileApiDto.ts
+          📄 meResponseApiDto.ts
+          📄 meSubscriptionApiDto.ts
+          📄 models.ts
+          📄 updatedMeProfileResponseApiDto.ts
+          📄 updateMeProfileRequestApiDto.ts
+        📄 .gitignore
+        📄 .openapi-generator-ignore
+        📄 api.base.service.ts
+        📄 api.module.ts
+        📄 configuration.ts
+        📄 encoder.ts
+        📄 git_push.sh
+        📄 index.ts
+        📄 param.ts
+        📄 provide-api.ts
+        📄 query.params.ts
+        📄 README.md
+        📄 variables.ts
+      📁 lib/
+        📄 shared-api-client.spec.ts
+        📄 shared-api-client.ts
+      📄 public-api.ts
+    📄 ng-package.json
+    📄 package.json
+    📄 README.md
+    📄 tsconfig.lib.json
+    📄 tsconfig.lib.prod.json
+    📄 tsconfig.spec.json
+  📁 shared-domain/
+    📁 src/
+      📁 lib/
+        📁 users/
+          📁 catalogs/
+            📄 career-goal.catalog.ts
+            📄 catalog-option.model.ts
+            📄 experience-level.catalog.ts
+            📄 index.ts
+          📁 enums/
+            📄 index.ts
+            📄 onboarding-missing-field.enum.ts
+            📄 onboarding-status.enum.ts
+            📄 subscription-plan.enum.ts
+            📄 subscription-status.enum.ts
+            📄 user-status.enum.ts
+          📁 models/
+            📄 index.ts
+            📄 me-onboarding.model.ts
+          📄 index.ts
+      📄 public-api.ts
+    📄 ng-package.json
+    📄 package.json
+    📄 README.md
+    📄 tsconfig.lib.json
+    📄 tsconfig.lib.prod.json
+    📄 tsconfig.spec.json
   📁 shared-ui/
     📁 src/
       📁 lib/
@@ -227,6 +323,7 @@ Generated at: 2026-06-05T08:52:08.557Z
 📄 AGENTS.md
 📄 angular.json
 📄 LICENSE
+📄 openapitools.json
 📄 package.json
 📄 README.md
 📄 trajectiv-front-architecture.txt
@@ -366,6 +463,84 @@ FILE: angular.json
           }
         }
       }
+    },
+    "shared-domain": {
+      "projectType": "library",
+      "root": "projects/shared-domain",
+      "sourceRoot": "projects/shared-domain/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/shared-domain/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/shared-domain/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/shared-domain/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "shared-api-client": {
+      "projectType": "library",
+      "root": "projects/shared-api-client",
+      "sourceRoot": "projects/shared-api-client/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/shared-api-client/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/shared-api-client/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/shared-api-client/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "shared-data-access": {
+      "projectType": "library",
+      "root": "projects/shared-data-access",
+      "sourceRoot": "projects/shared-data-access/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/shared-data-access/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/shared-data-access/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/shared-data-access/tsconfig.spec.json"
+          }
+        }
+      }
     }
   }
 }
@@ -387,7 +562,8 @@ FILE: package.json
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "architecture:export": "node scripts/export-architecture.mjs"
+    "architecture:export": "node scripts/export-architecture.mjs",
+    "api:generate-client": "openapi-generator-cli generate -i http://localhost:8081/api/v3/api-docs -g typescript-angular -o projects/shared-api-client/src/generated --additional-properties=providedInRoot=true,withInterfaces=true"
   },
   "dependencies": {
     "@angular-architects/ngrx-toolkit": "^21.0.1",
@@ -398,7 +574,8 @@ FILE: package.json
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
     "@fontsource/geist": "^5.2.9",
-    "@ngrx/signals": "^21.1.0",
+    "@ngrx/signals": "^21.1.1",
+    "@openapitools/openapi-generator-cli": "^2.35.0",
     "@primeuix/themes": "^2.0.3",
     "keycloak-angular": "^21.0.0",
     "keycloak-js": "^26.2.4",
@@ -465,6 +642,44 @@ FILE: projects\core\package.json
 
 
 ============================================================
+FILE: projects\shared-api-client\package.json
+============================================================
+
+{
+  "name": "shared-api-client",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^21.2.0",
+    "@angular/core": "^21.2.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}
+
+
+
+============================================================
+FILE: projects\shared-domain\package.json
+============================================================
+
+{
+  "name": "shared-domain",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^21.2.0",
+    "@angular/core": "^21.2.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}
+
+
+
+============================================================
 FILE: projects\shared-ui\package.json
 ============================================================
 
@@ -510,7 +725,12 @@ FILE: tsconfig.json
       "@i18n/*": ["./projects/i18n/*"],
       "@themes/*": ["./projects/themes/*"],
       "@shared-ui": ["./projects/shared-ui/src/public-api.ts"],
-      "@core": ["./projects/core/src/public-api.ts"]
+      "@core": ["./projects/core/src/public-api.ts"],
+      "@env": ["./projects/app/src/environments"],
+      "@shared-domain": ["./projects/shared-domain/src/public-api.ts"],
+      "@shared-domain/*": ["./projects/shared-domain/src/lib/*"],
+      "@shared-api-client": ["./projects/shared-api-client/src/public-api.ts"],
+      "@shared-api-client/*": ["./projects/shared-api-client/src/generated/*"],
     }
   },
   "angularCompilerOptions": {
@@ -538,6 +758,24 @@ FILE: tsconfig.json
     },
     {
       "path": "./projects/core/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/shared-domain/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/shared-domain/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/shared-api-client/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/shared-api-client/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/shared-data-access/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/shared-data-access/tsconfig.spec.json"
     }
   ]
 }
