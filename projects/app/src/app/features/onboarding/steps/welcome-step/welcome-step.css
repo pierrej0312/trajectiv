@@ -106,9 +106,8 @@
       var(--p-primary-color),
       color-mix(in srgb, var(--p-primary-color) 72%, #69d8ff 28%)
     );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent;
 }
 
 .welcome-step__lead {
