@@ -53,3 +53,10 @@
   border-color: color-mix(in srgb, red 28%, transparent);
   background: color-mix(in srgb, red 8%, transparent);
 }
+
+.onboarding-page__content {
+  view-transition-name: onboarding-step;
+}
+.onboarding-page__content {
+  @apply min-h-0 overflow-auto transition-all;
+}

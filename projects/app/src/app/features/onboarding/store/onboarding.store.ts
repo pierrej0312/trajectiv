@@ -276,6 +276,7 @@ export class OnboardingStore {
       return;
     }
 
+    this.setStepDirection('previous');
     void this.router.navigateByUrl(previousStep.route);
   }
 
@@ -290,6 +291,7 @@ export class OnboardingStore {
       return;
     }
 
+    this.setStepDirection('next');
     void this.router.navigateByUrl(nextStep.route);
   }
 
@@ -298,7 +300,19 @@ export class OnboardingStore {
       return;
     }
 
+    this.setDirectionFromTargetRoute(step.route);
     void this.router.navigateByUrl(step.route);
+  }
+
+  private setDirectionFromTargetRoute(targetRoute: string): void {
+    const currentIndex = this.activeStepIndex();
+    const targetIndex = ONBOARDING_STEPS.findIndex((step) => step.route === targetRoute);
+
+    if (targetIndex === -1 || targetIndex === currentIndex) {
+      return;
+    }
+
+    this.setStepDirection(targetIndex > currentIndex ? 'next' : 'previous');
   }
 
   private isStepCompleted(key: OnboardingStepKey): boolean {
@@ -472,5 +486,10 @@ export class OnboardingStore {
       clearTimeout(this.idleDanceCooldownTimeoutId);
       this.idleDanceCooldownTimeoutId = null;
     }
+  }
+
+  private setStepDirection(direction: 'next' | 'previous'): void {
+    document.documentElement.dataset['onboardingDirection'] = direction;
+    console.log('ONBOARDING_DIRECTION', direction);
   }
 }

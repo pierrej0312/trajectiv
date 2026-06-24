@@ -73,6 +73,8 @@ export const AppContextStore = signalStore(
       return me.onboarding?.status !== 'COMPLETED';
     }),
 
+    emailVerified: computed(() => store.me()?.emailVerified ?? false),
+
     isPremium: computed(() => store.me()?.subscription?.plan === 'PREMIUM'),
 
     creditsRemaining: computed(() => store.me()?.credits?.remaining ?? 0),

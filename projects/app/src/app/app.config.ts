@@ -6,7 +6,7 @@ import {
   provideEnvironmentInitializer,
   provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideTheme } from '@themes/theme.provider';
@@ -24,7 +24,13 @@ const localConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideBrowserGlobalErrorListeners(),
     provideHttpClient(withFetch(), withInterceptors([includeBearerTokenInterceptor])),
-    provideRouter(routes, withComponentInputBinding()),
+    provideRouter(
+      routes,
+      withViewTransitions({
+        skipInitialTransition: true,
+      }),
+      withComponentInputBinding(),
+    ),
     provideEnvironmentInitializer(() => {
       inject(ThemeService).init();
     }),

@@ -1,62 +1,151 @@
-<section class="welcome-step">
-  <div class="welcome-step__visual">
-    <div class="welcome-step__orb welcome-step__orb--main">
-      <span class="pi pi-check"></span>
-    </div>
-
-    <div class="welcome-step__floating-card welcome-step__floating-card--top">
-      <span class="pi pi-shield"></span>
-      <span>Compte prêt</span>
-    </div>
-
-    <div class="welcome-step__floating-card welcome-step__floating-card--bottom">
-      <span class="pi pi-sparkles"></span>
-      <span>Copilot à personnaliser</span>
-    </div>
+<section class="onboarding-welcome">
+  <div class="onboarding-welcome__ambient" aria-hidden="true">
+    <span class="onboarding-welcome__orb onboarding-welcome__orb--one"></span>
+    <span class="onboarding-welcome__orb onboarding-welcome__orb--two"></span>
   </div>
 
-  <article class="welcome-step__card">
-    <p class="welcome-step__eyebrow">
-      Inscription confirmée
-    </p>
+  <div class="onboarding-welcome__content">
+    <p-panel styleClass="tr-glass-panel onboarding-welcome__identity-panel">
+      <div class="onboarding-welcome__identity">
+        <span class="onboarding-welcome__eyebrow">
+          Configuration de ton espace
+        </span>
 
-    <h1 class="welcome-step__title">
-      Bienvenue
-      <span>{{ appContext.displayName() }}</span>
-    </h1>
+        @if (scene() === 'identity-check') {
+          <div class="onboarding-welcome__identity-scene">
+            <p class="onboarding-welcome__email">
+              <i class="pi pi-envelope"></i>
+              {{ appContext.email() }}
 
-    <p class="welcome-step__lead">
-      Ton espace est prêt. On a juste besoin de quelques informations pour personnaliser ton copilot.
-    </p>
+              @if (appContext.emailVerified()) {
+                <span>
+                  <i class="pi pi-check-circle"></i>
+                  vérifié
+                </span>
+              }
+            </p>
 
-    <div class="welcome-step__mini-steps">
-      <div class="welcome-step__mini-step">
-        <span class="pi pi-compass"></span>
-        <p>Objectif</p>
+            <h1>
+              Bonjour,
+              <span>{{ displayNamePreview() }}</span>
+              ?
+            </h1>
+
+            <p class="onboarding-welcome__lead">
+              On a reconnu ton compte. Confirme simplement comment Trajectiv doit s’adresser à toi.
+            </p>
+
+            <div class="onboarding-welcome__actions onboarding-welcome__actions--identity">
+              <p-button
+                label="Oui, c’est moi"
+                icon="pi pi-check"
+                rounded="true"
+                (onClick)="confirmIdentity()"
+              />
+
+              <p-button
+                label="Je préfère un autre nom"
+                icon="pi pi-pencil"
+                rounded="true"
+                severity="secondary"
+                [outlined]="true"
+                (onClick)="chooseAnotherName()"
+              />
+            </div>
+          </div>
+        }
+
+        @if (scene() === 'rename') {
+          <div class="onboarding-welcome__identity-scene">
+            <h1 class="onboarding-welcome__rename-title">
+              Bonjour,
+              <input
+                pInputText
+                type="text"
+                autocomplete="name"
+                [value]="store.displayName()"
+                placeholder="ton prénom ou pseudo"
+                (input)="onNameInput($any($event.target).value)"
+                (keydown)="onNameKeydown($event)"
+              />
+            </h1>
+
+            <p class="onboarding-welcome__lead">
+              Choisis le nom qui te met le plus à l’aise. Tu pourras le modifier plus tard.
+            </p>
+
+            <div class="onboarding-welcome__actions onboarding-welcome__actions--identity">
+              <p-button
+                label="Valider ce nom"
+                icon="pi pi-arrow-right"
+                rounded="true"
+                [disabled]="!canValidateName()"
+                (onClick)="validateName()"
+              />
+            </div>
+          </div>
+        }
+
+        @if (isIdentityConfirmed()) {
+          <div class="onboarding-welcome__identity-confirmed">
+            <p class="onboarding-welcome__email onboarding-welcome__email--small">
+              <i class="pi pi-check-circle"></i>
+              Identité confirmée
+            </p>
+
+            <h1>
+              Bonjour,
+              <span>{{ displayNamePreview() }}</span>
+            </h1>
+          </div>
+        }
+      </div>
+    </p-panel>
+
+    @if (showWelcomePanel()) {
+      <p-panel styleClass="tr-glass-panel onboarding-welcome__intro-panel">
+        <div class="onboarding-welcome__intro">
+          <span class="onboarding-welcome__eyebrow">
+            Ton point de départ
+          </span>
+
+          <h2>Bienvenue sur Trajectiv</h2>
+
+          <p>
+            Ici, on ne te demande pas de tout savoir dès maintenant.
+            On va simplement poser les bonnes bases pour t’aider à avancer :
+            ton objectif, le rôle que tu vises, et le niveau d’accompagnement qui te correspond.
+          </p>
+        </div>
+      </p-panel>
+
+      <div class="onboarding-welcome__timeline" aria-label="Étapes de configuration">
+        @for (item of timelineItems; track item.label; let index = $index) {
+          @if (index < revealedStepCount()) {
+            <article class="onboarding-welcome__timeline-card">
+              <span class="onboarding-welcome__timeline-dot">
+                <i [class]="item.icon"></i>
+              </span>
+
+              <div>
+                <strong>{{ item.label }}</strong>
+                <p>{{ item.text }}</p>
+              </div>
+            </article>
+          }
+        }
       </div>
 
-      <div class="welcome-step__mini-step">
-        <span class="pi pi-briefcase"></span>
-        <p>Destination</p>
-      </div>
-
-      <div class="welcome-step__mini-step">
-        <span class="pi pi-chart-line"></span>
-        <p>Niveau</p>
-      </div>
-    </div>
-
-    <button
-      pButton
-      type="button"
-      class="welcome-step__start"
-      (click)="start()"
-    >
-      Personnaliser mon expérience
-    </button>
-
-    <p class="welcome-step__hint">
-      3 étapes rapides · modifiable plus tard
-    </p>
-  </article>
+      @if (scene() === 'ready') {
+        <div class="onboarding-welcome__start">
+          <p-button
+            label="Préparer mon espace"
+            icon="pi pi-sparkles"
+            rounded="true"
+            (onClick)="startOnboarding()"
+          />
+        </div>
+      }
+    }
+  </div>
 </section>

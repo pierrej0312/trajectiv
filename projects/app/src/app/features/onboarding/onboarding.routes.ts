@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-import { OnboardingPage } from '@app/src/app/pages/onboarding-page/onboarding-page';
+import { OnboardingPage } from '@features/onboarding/pages/onboarding-page/onboarding-page';
 
 export const onboardingRoutes: Routes = [
   {

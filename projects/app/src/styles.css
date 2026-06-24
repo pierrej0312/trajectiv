@@ -25,3 +25,133 @@
     "Segoe UI",
     sans-serif;
 }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none !important;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(onboarding-step),
+::view-transition-new(onboarding-step) {
+  animation-duration: 440ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: both;
+  mix-blend-mode: normal;
+}
+
+html[data-onboarding-direction="next"]::view-transition-old(onboarding-step) {
+  animation-name: tr-onboarding-next-out;
+}
+
+html[data-onboarding-direction="next"]::view-transition-new(onboarding-step) {
+  animation-name: tr-onboarding-next-in;
+}
+
+html[data-onboarding-direction="previous"]::view-transition-old(onboarding-step) {
+  animation-name: tr-onboarding-previous-out;
+}
+
+html[data-onboarding-direction="previous"]::view-transition-new(onboarding-step) {
+  animation-name: tr-onboarding-previous-in;
+}
+
+@keyframes tr-onboarding-next-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(-20rem);
+    filter: blur(6px);
+  }
+}
+
+@keyframes tr-onboarding-next-in {
+  from {
+    opacity: 0;
+    transform: translateX(20rem);
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes tr-onboarding-previous-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(20rem);
+    filter: blur(6px);
+  }
+}
+
+@keyframes tr-onboarding-previous-in {
+  from {
+    opacity: 0;
+    transform: translateX(-20rem);
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-old(onboarding-step),
+  ::view-transition-new(onboarding-step) {
+    animation-duration: 1ms !important;
+  }
+}
+.tr-enter-panel {
+  animation: tr-enter-panel 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tr-enter-card {
+  animation: tr-enter-card 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes tr-enter-panel {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes tr-enter-card {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
