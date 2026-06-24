@@ -96,6 +96,7 @@ export class OnboardingStore {
 
   readonly currentUrl = signal(this.normalizeUrl(this.router.url));
 
+  readonly displayName = signal('');
   readonly careerGoal = signal<CareerGoal | null>(null);
   readonly targetRole = signal('');
   readonly experienceLevel = signal<ExperienceLevel | null>(null);
@@ -112,6 +113,29 @@ export class OnboardingStore {
   readonly animationCommandId = signal(0);
 
   readonly manualCompanionCommand = signal<CompanionAnimationCommand | null>(null);
+
+  readonly suggestedDisplayName = computed(() => {
+    const me = this.appContext.me();
+
+    if (!me) {
+      return '';
+    }
+
+    if (me.displayName?.trim()) {
+      return me.displayName.trim();
+    }
+
+    const fullName = [me.firstName, me.lastName]
+      .filter((part) => part?.trim())
+      .join(' ')
+      .trim();
+
+    if (fullName) {
+      return fullName;
+    }
+
+    return me.email?.split('@')[0] ?? '';
+  });
 
   readonly activeStepKey = computed<OnboardingStepKey>(() => {
     const activeStep = ONBOARDING_STEPS.find((step) =>
@@ -218,6 +242,15 @@ export class OnboardingStore {
         this.clearIdleDanceTimer();
       });
     });
+    effect(() => {
+      const suggestedDisplayName = this.suggestedDisplayName();
+
+      if (this.displayName().trim() || !suggestedDisplayName) {
+        return;
+      }
+
+      this.displayName.set(suggestedDisplayName);
+    });
   }
 
   setCareerGoal(value: CareerGoal): void {
@@ -230,6 +263,10 @@ export class OnboardingStore {
 
   setExperienceLevel(value: ExperienceLevel): void {
     this.experienceLevel.set(value);
+  }
+
+  setDisplayName(value: string): void {
+    this.displayName.set(value);
   }
 
   goPrevious(): void {
@@ -312,7 +349,10 @@ export class OnboardingStore {
     this.errorMessage.set(null);
 
     this.profileApi
-      .updateProfile(payload, 'body', false, { transferCache: false })
+      .updateProfile(payload, 'body', false, {
+        httpHeaderAccept: 'application/json',
+        transferCache: false,
+      })
       .pipe(
         switchMap(() => this.onboardingApi.completeOnboarding()),
         tap(() => {

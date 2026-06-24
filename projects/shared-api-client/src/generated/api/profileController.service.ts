@@ -48,10 +48,10 @@ export class ProfileControllerService extends BaseService implements ProfileCont
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateProfile(updateMeProfileRequestApiDto: UpdateMeProfileRequestApiDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<UpdatedMeProfileResponseApiDto>;
-    public updateProfile(updateMeProfileRequestApiDto: UpdateMeProfileRequestApiDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<UpdatedMeProfileResponseApiDto>>;
-    public updateProfile(updateMeProfileRequestApiDto: UpdateMeProfileRequestApiDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<UpdatedMeProfileResponseApiDto>>;
-    public updateProfile(updateMeProfileRequestApiDto: UpdateMeProfileRequestApiDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public updateProfile(updateMeProfileRequestApiDto: UpdateMeProfileRequestApiDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<UpdatedMeProfileResponseApiDto>;
+    public updateProfile(updateMeProfileRequestApiDto: UpdateMeProfileRequestApiDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<UpdatedMeProfileResponseApiDto>>;
+    public updateProfile(updateMeProfileRequestApiDto: UpdateMeProfileRequestApiDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<UpdatedMeProfileResponseApiDto>>;
+    public updateProfile(updateMeProfileRequestApiDto: UpdateMeProfileRequestApiDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (updateMeProfileRequestApiDto === null || updateMeProfileRequestApiDto === undefined) {
             throw new Error('Required parameter updateMeProfileRequestApiDto was null or undefined when calling updateProfile.');
         }
@@ -62,7 +62,7 @@ export class ProfileControllerService extends BaseService implements ProfileCont
         localVarHeaders = this.configuration.addCredentialToHeaders('keycloakOAuth2', 'Authorization', localVarHeaders, 'Bearer ');
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            '*/*'
+            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);

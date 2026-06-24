@@ -10,6 +10,7 @@
 
 
 export interface UpdateMeProfileRequestApiDto { 
+    displayName?: string;
     careerGoal?: UpdateMeProfileRequestApiDto.CareerGoalEnum;
     targetRole?: string;
     experienceLevel?: UpdateMeProfileRequestApiDto.ExperienceLevelEnum;

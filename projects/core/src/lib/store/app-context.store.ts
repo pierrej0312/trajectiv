@@ -35,7 +35,8 @@ export const AppContextStore = signalStore(
     displayName: computed(() => {
       const me = store.me();
 
-      console.log(me?.firstName);
+      console.log('APP_CONTEXT_ME_SHAPE', me);
+
       return me?.displayName ?? me?.firstName ?? me?.email ?? 'Utilisateur';
     }),
 
@@ -98,24 +99,27 @@ export const AppContextStore = signalStore(
             error: null,
           });
 
-          return meApi.getMe('body', false, { transferCache: false }).pipe(
-            tap((me) => {
-              patchState(store, {
-                me,
-                status: 'ready',
-                error: null,
-              });
-            }),
-            catchError((error: unknown) => {
-              patchState(store, {
-                me: null,
-                status: 'error',
-                error,
-              });
+          return meApi.getMe('body', false, {
+              httpHeaderAccept: 'application/json',
+              transferCache: false,
+            }).pipe(
+              tap((me) => {
+                patchState(store, {
+                  me,
+                  status: 'ready',
+                  error: null,
+                });
+              }),
+              catchError((error: unknown) => {
+                patchState(store, {
+                  me: null,
+                  status: 'error',
+                  error,
+                });
 
-              return EMPTY;
-            }),
-          );
+                return EMPTY;
+              }),
+            );
         }),
       ),
     );
