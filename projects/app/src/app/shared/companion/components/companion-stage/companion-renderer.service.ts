@@ -5,6 +5,7 @@ import {
   AnimationAction,
   AnimationClip,
   AnimationMixer,
+  Bone,
   Box3,
   Clock,
   Color,
@@ -13,6 +14,8 @@ import {
   HemisphereLight,
   LoopOnce,
   LoopRepeat,
+  Mesh,
+  MeshStandardMaterial,
   Object3D,
   PCFSoftShadowMap,
   PerspectiveCamera,
@@ -42,6 +45,7 @@ export class CompanionRendererService {
   private model: Group | null = null;
   private mixer: AnimationMixer | null = null;
   private frameId: number | null = null;
+  private hair: Group | null = null;
 
   private readonly actions = new Map<CompanionAnimationName, AnimationAction>();
   private currentAction: AnimationAction | null = null;
@@ -53,6 +57,10 @@ export class CompanionRendererService {
   async init(host: HTMLElement, config: CompanionAnimationConfig): Promise<void> {
     this.createScene(host, config.framing ?? 'full-body');
     await this.loadModel(config.modelUrl, config.framing ?? 'full-body');
+    if (config.hairUrl) {
+      await this.loadHair(config.hairUrl);
+    }
+
     await this.loadAnimations(config.animations);
 
     this.playLoop('idle');
@@ -403,10 +411,125 @@ export class CompanionRendererService {
     this.fitModelToStage(this.model, framing);
 
     this.scene?.add(this.model);
+    this.logBones(this.model);
 
     this.mixer = new AnimationMixer(this.model);
 
     this.registerClips(gltf.animations, 'idle');
+  }
+
+  private async loadHair(url: string): Promise<void> {
+    console.log('[Companion] loading hair', url);
+
+    if (!this.model) {
+      console.warn('[Companion] cannot load hair: model missing');
+      return;
+    }
+
+    const gltf = await this.loadGltf(url);
+
+    console.log('[Companion] hair gltf loaded', {
+      url,
+      scene: gltf.scene.name,
+      children: gltf.scene.children.map((child) => child.name),
+    });
+
+    this.hair = gltf.scene;
+    this.hair.name = 'TR_HAIR_PREVIEW';
+
+    /**
+     * Étape 1 :
+     * On l’ajoute d’abord au model root pour qu’il soit dans le même repère
+     * que le personnage déjà fit/scalé.
+     */
+    this.model.add(this.hair);
+
+    /**
+     * Important avant attach :
+     * On force la mise à jour des matrices monde.
+     */
+    this.model.updateMatrixWorld(true);
+    this.hair.updateMatrixWorld(true);
+
+    const headBone = this.findHeadBone(this.model);
+
+    if (!headBone) {
+      console.warn('[Companion] no head bone found, hair remains attached to model root');
+      return;
+    }
+
+    headBone.updateMatrixWorld(true);
+
+    this.hair.traverse((object) => {
+      object.frustumCulled = false;
+
+      if (object instanceof Mesh) {
+        object.material = new MeshStandardMaterial({
+          color: 0x9dff57,
+          roughness: 0.72,
+          metalness: 0,
+        });
+
+        object.castShadow = true;
+        object.receiveShadow = true;
+      }
+    });
+
+    /**
+     * Étape 2 :
+     * Re-parent au bone de tête en conservant la position monde.
+     */
+    headBone.attach(this.hair);
+
+    console.log('[Companion] hair attached to head bone', {
+      bone: headBone.name,
+      hairPosition: this.hair.position.toArray(),
+      hairRotation: this.hair.rotation.toArray(),
+      hairScale: this.hair.scale.toArray(),
+    });
+  }
+
+  private logBones(root: Object3D): void {
+    const bones: string[] = [];
+
+    root.traverse((object) => {
+      if (object instanceof Bone) {
+        bones.push(object.name);
+      }
+    });
+
+    console.log('[Companion] bones', bones);
+  }
+
+  private findHeadBone(root: Object3D): Bone | null {
+    const candidates: Bone[] = [];
+
+    root.traverse((object) => {
+      if (!(object instanceof Bone)) {
+        return;
+      }
+
+      const name = object.name.toLowerCase();
+
+      if (name === 'head' || name.includes('head') || name.includes('skull')) {
+        candidates.push(object);
+      }
+    });
+
+    console.log(
+      '[Companion] head bone candidates',
+      candidates.map((bone) => bone.name),
+    );
+
+    return (
+      candidates.find((bone) => {
+        const name = bone.name.toLowerCase();
+
+        return name === 'head' || name.endsWith('head') || name.includes('mixamorighead');
+      }) ??
+      candidates[0] ??
+      null
+    );
   }
 
   private async loadAnimations(animations: Record<CompanionAnimationName, string>): Promise<void> {

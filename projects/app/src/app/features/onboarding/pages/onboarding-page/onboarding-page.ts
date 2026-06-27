@@ -26,6 +26,7 @@ export class OnboardingPage {
 
   readonly companionConfig: CompanionAnimationConfig = {
     modelUrl: '/characters/placeholder/BASEmodel_female.glb',
+    hairUrl: '/characters/placeholder/hair/hair_long_01.glb',
     framing: 'full-body',
     animations: {
       idle: '/characters/placeholder/animations/idle_female.glb',
