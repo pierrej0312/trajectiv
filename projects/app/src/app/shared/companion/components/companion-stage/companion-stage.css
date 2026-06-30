@@ -1,43 +1,247 @@
-@reference "tailwindcss";
-
-:host {
-  @apply block h-full min-h-0 w-full overflow-visible;
-}
-
 .companion-stage {
-  @apply relative h-full min-h-0 w-full overflow-visible rounded-[2rem];
-
-  /**
-   * Le canvas est plus large que le stage.
-   * Il reste centré sur l'emplacement prévu du personnage.
-   */
-  --companion-canvas-width: min(100svw, 80rem);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 22rem;
+  overflow: hidden;
 }
 
 .companion-stage__canvas {
-  @apply absolute top-0 bottom-0 left-1/2 z-10 min-h-0 overflow-visible;
-
-  width: var(--companion-canvas-width);
-  transform: translateX(-50%);
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateY(1.25rem) scale(0.72);
+  transform-origin: 50% 82%;
+  filter: blur(10px);
+  transition:
+    opacity 640ms ease,
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 720ms ease;
 }
 
-.companion-stage__canvas canvas {
-  @apply absolute inset-0 block h-full w-full;
+.companion-stage__canvas--ready {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
 }
 
-.companion-stage__orb {
-  @apply pointer-events-none absolute rounded-full blur-3xl;
+.companion-stage__gooey-filter {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
 }
 
-.companion-stage__loading,
+.companion-stage__loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 1rem;
+  z-index: 2;
+  opacity: 1;
+  transition:
+    opacity 420ms ease,
+    transform 520ms ease,
+    filter 420ms ease;
+  pointer-events: none;
+}
+
+.companion-stage__canvas--ready + .companion-stage__loading {
+  opacity: 0;
+  transform: scale(1.04);
+  filter: blur(10px);
+}
+
+.companion-stage__blob-loader {
+  position: relative;
+  width: 9rem;
+  height: 9rem;
+  filter: url('#tr-companion-gooey');
+}
+
+.companion-stage__blob {
+  position: absolute;
+  display: block;
+  border-radius: 999rem;
+  background:
+    radial-gradient(
+      circle at 30% 24%,
+      color-mix(in srgb, var(--p-primary-inverse-color) 42%, transparent),
+      transparent 36%
+    ),
+    var(--p-primary-color);
+  box-shadow:
+    0 0 2rem color-mix(in srgb, var(--p-primary-color) 34%, transparent),
+    0 1.25rem 3rem color-mix(in srgb, var(--p-primary-color) 18%, transparent);
+}
+
+.companion-stage__blob--main {
+  left: 50%;
+  top: 50%;
+  width: 3.8rem;
+  height: 3.8rem;
+  transform: translate(-50%, -50%) scale(calc(0.82 + var(--tr-companion-ratio) * 0.42));
+  animation: tr-companion-main-pulse 1.9s ease-in-out infinite;
+}
+
+.companion-stage__blob--one {
+  width: 1.35rem;
+  height: 1.35rem;
+  left: 0.5rem;
+  top: 1.2rem;
+  transform:
+    translate(
+      calc(var(--tr-companion-ratio) * 3.05rem),
+      calc(var(--tr-companion-ratio) * 2.1rem)
+    );
+  animation: tr-companion-orbit-one 2.4s ease-in-out infinite;
+}
+
+.companion-stage__blob--two {
+  width: 1.7rem;
+  height: 1.7rem;
+  right: 0.3rem;
+  top: 2.1rem;
+  transform:
+    translate(
+      calc(var(--tr-companion-ratio) * -2.7rem),
+      calc(var(--tr-companion-ratio) * 1.35rem)
+    );
+  animation: tr-companion-orbit-two 2.8s ease-in-out infinite;
+}
+
+.companion-stage__blob--three {
+  width: 1.15rem;
+  height: 1.15rem;
+  left: 1.35rem;
+  bottom: 0.8rem;
+  transform:
+    translate(
+      calc(var(--tr-companion-ratio) * 2.3rem),
+      calc(var(--tr-companion-ratio) * -2.65rem)
+    );
+  animation: tr-companion-orbit-three 2.55s ease-in-out infinite;
+}
+
+.companion-stage__blob--four {
+  width: 1.45rem;
+  height: 1.45rem;
+  right: 1.1rem;
+  bottom: 1rem;
+  transform:
+    translate(
+      calc(var(--tr-companion-ratio) * -2.1rem),
+      calc(var(--tr-companion-ratio) * -2.4rem)
+    );
+  animation: tr-companion-orbit-four 2.7s ease-in-out infinite;
+}
+
+.companion-stage__progress {
+  position: relative;
+  width: min(12rem, 58%);
+  height: 0.38rem;
+  overflow: hidden;
+  border-radius: 999rem;
+  background: color-mix(in srgb, var(--p-primary-color) 18%, transparent);
+}
+
+.companion-stage__progress-bar {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: var(--tr-companion-progress);
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--p-primary-color) 72%, white 12%),
+    var(--p-primary-color)
+  );
+  transition: width 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.companion-stage__loading-label {
+  margin: 0;
+  color: var(--p-text-muted-color);
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+}
+
 .companion-stage__error {
-  @apply absolute inset-x-6 bottom-6 z-20 rounded-2xl px-4 py-3 text-center text-sm font-semibold;
-
+  position: absolute;
+  inset: auto 1rem 1rem;
+  z-index: 3;
+  border-radius: 1rem;
+  padding: 0.75rem 1rem;
   color: var(--p-text-color);
-  background: color-mix(in srgb, var(--p-surface-0) 72%, transparent);
+  background: color-mix(in srgb, var(--p-surface-900) 72%, transparent);
   backdrop-filter: blur(18px);
 }
 
-.companion-stage__error {
-  color: var(--p-red-500);
+@keyframes tr-companion-main-pulse {
+  0%,
+  100% {
+    border-radius: 42% 58% 54% 46% / 48% 44% 56% 52%;
+  }
+
+  50% {
+    border-radius: 58% 42% 46% 54% / 42% 58% 42% 58%;
+  }
+}
+
+@keyframes tr-companion-orbit-one {
+  0%,
+  100% {
+    margin: 0;
+  }
+
+  50% {
+    margin: 0.35rem 0 0 -0.2rem;
+  }
+}
+
+@keyframes tr-companion-orbit-two {
+  0%,
+  100% {
+    margin: 0;
+  }
+
+  50% {
+    margin: -0.25rem -0.3rem 0 0;
+  }
+}
+
+@keyframes tr-companion-orbit-three {
+  0%,
+  100% {
+    margin: 0;
+  }
+
+  50% {
+    margin: 0 0 -0.3rem 0.28rem;
+  }
+}
+
+@keyframes tr-companion-orbit-four {
+  0%,
+  100% {
+    margin: 0;
+  }
+
+  50% {
+    margin: 0 0 0.2rem -0.32rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .companion-stage__canvas,
+  .companion-stage__loading,
+  .companion-stage__progress-bar {
+    transition: none;
+  }
+
+  .companion-stage__blob {
+    animation: none;
+  }
 }

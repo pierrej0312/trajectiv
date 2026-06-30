@@ -4,12 +4,14 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  computed,
   effect,
   inject,
   input,
   signal,
   viewChild,
 } from '@angular/core';
+
 import {
   CompanionAnimationCommand,
   CompanionAnimationConfig,
@@ -23,23 +25,34 @@ import { CompanionRendererService } from './companion-renderer.service';
   providers: [CompanionRendererService],
   templateUrl: './companion-stage.html',
   styleUrl: './companion-stage.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompanionStageComponent implements AfterViewInit {
   readonly lightingPreset = input<CompanionLightingPreset>('day');
-  private readonly renderer = inject(CompanionRendererService);
-  private readonly destroyRef = inject(DestroyRef);
-
   readonly config = input.required<CompanionAnimationConfig>();
   readonly command = input<CompanionAnimationCommand | null>(null);
 
+  private readonly renderer = inject(CompanionRendererService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private readonly host = viewChild.required<ElementRef<HTMLElement>>('host');
+
   private resizeObserver: ResizeObserver | null = null;
+  private lastPlayedCommandId: number | null = null;
 
   readonly isReady = signal(false);
   readonly hasError = signal(false);
 
-  private readonly host = viewChild.required<ElementRef<HTMLElement>>('host');
+  readonly loadingProgress = signal(0);
+  readonly isIntroVisible = signal(true);
 
-  private lastPlayedCommandId: number | null = null;
+  readonly loadingRatio = computed(() => {
+    return this.loadingProgress() / 100;
+  });
+
+  readonly isLoadingVisible = computed(() => {
+    return !this.hasError() && (!this.isReady() || this.isIntroVisible());
+  });
 
   constructor() {
     effect(() => {
@@ -78,7 +91,9 @@ export class CompanionStageComponent implements AfterViewInit {
     try {
       const host = this.host().nativeElement;
 
-      await this.renderer.init(host, this.config());
+      await this.renderer.init(host, this.config(), (progress) => {
+        this.loadingProgress.set(progress);
+      });
 
       this.resizeObserver = new ResizeObserver(() => {
         this.renderer.resize(host);
@@ -92,8 +107,14 @@ export class CompanionStageComponent implements AfterViewInit {
         this.renderer.dispose();
       });
 
+      this.loadingProgress.set(100);
       this.isReady.set(true);
-    } catch {
+
+      window.setTimeout(() => {
+        this.isIntroVisible.set(false);
+      }, 520);
+    } catch (error) {
+      console.error('[CompanionStage] init failed', error);
       this.hasError.set(true);
     }
   }

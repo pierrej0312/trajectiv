@@ -1,14 +1,50 @@
 <div class="companion-stage">
+  <svg class="companion-stage__gooey-filter" aria-hidden="true" focusable="false">
+    <filter id="tr-companion-gooey">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+      <feColorMatrix
+        in="blur"
+        mode="matrix"
+        values="
+          1 0 0 0 0
+          0 1 0 0 0
+          0 0 1 0 0
+          0 0 0 22 -10
+        "
+        result="gooey"
+      />
+      <feComposite in="SourceGraphic" in2="gooey" operator="atop" />
+    </filter>
+  </svg>
 
   <div
     #host
     class="companion-stage__canvas"
+    [class.companion-stage__canvas--ready]="isReady()"
     aria-label="Compagnon de trajectoire 3D"
   ></div>
 
-  @if (!isReady() && !hasError()) {
-    <div class="companion-stage__loading">
-      Chargement du compagnon...
+  @if (isLoadingVisible()) {
+    <div
+      class="companion-stage__loading"
+      [style.--tr-companion-progress]="loadingProgress() + '%'"
+      [style.--tr-companion-ratio]="loadingRatio()"
+    >
+      <div class="companion-stage__blob-loader" aria-hidden="true">
+        <span class="companion-stage__blob companion-stage__blob--main"></span>
+        <span class="companion-stage__blob companion-stage__blob--one"></span>
+        <span class="companion-stage__blob companion-stage__blob--two"></span>
+        <span class="companion-stage__blob companion-stage__blob--three"></span>
+        <span class="companion-stage__blob companion-stage__blob--four"></span>
+      </div>
+
+      <div class="companion-stage__progress">
+        <span class="companion-stage__progress-bar"></span>
+      </div>
+
+      <p class="companion-stage__loading-label">
+        Génération du compagnon · {{ loadingProgress() }}%
+      </p>
     </div>
   }
 

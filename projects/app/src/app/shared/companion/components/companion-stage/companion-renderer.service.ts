@@ -23,16 +23,25 @@ import {
   Scene,
   SpotLight,
   SRGBColorSpace,
+  Texture,
+  TextureLoader,
   Vector3,
   WebGLRenderer,
+  RectAreaLight,
 } from 'three';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
 import {
   CompanionAnimationConfig,
   CompanionAnimationName,
+  CompanionAnimationSource,
+  CompanionHairConfig,
   CompanionLightingPreset,
+  CompanionSkinConfig,
   CompanionStageFraming,
 } from '../../models/companion-animation.model';
+
+type CompanionLoadingProgressCallback = (progress: number) => void;
 
 @Injectable()
 export class CompanionRendererService {
@@ -54,17 +63,43 @@ export class CompanionRendererService {
   private readonly lights: Object3D[] = [];
   private lightTarget: Object3D | null = null;
 
-  async init(host: HTMLElement, config: CompanionAnimationConfig): Promise<void> {
+  private readonly textureLoader = new TextureLoader();
+
+  async init(
+    host: HTMLElement,
+    config: CompanionAnimationConfig,
+    onProgress: CompanionLoadingProgressCallback = () => {},
+  ): Promise<void> {
+    onProgress(4);
+
     this.createScene(host, config.framing ?? 'full-body');
+    onProgress(10);
+
     await this.loadModel(config.modelUrl, config.framing ?? 'full-body');
-    if (config.hairUrl) {
-      await this.loadHair(config.hairUrl);
+    onProgress(32);
+
+    if (config.skin) {
+      await this.applySkinMaterial(config.skin);
+    }
+    onProgress(48);
+
+    if (config.hair) {
+      await this.loadHair(config.hair);
+    }
+    onProgress(64);
+
+    await this.loadAnimations(config.animations, onProgress);
+    onProgress(96);
+
+    this.startRenderLoop();
+
+    if (config.intro?.animation) {
+      this.playOnce(config.intro.animation, config.intro.fallback ?? 'idle');
+    } else {
+      this.playLoop('idle');
     }
 
-    await this.loadAnimations(config.animations);
-
-    this.playLoop('idle');
-    this.startRenderLoop();
+    onProgress(100);
   }
 
   resize(host: HTMLElement): void {
@@ -169,6 +204,8 @@ export class CompanionRendererService {
 
   private createScene(host: HTMLElement, framing: CompanionStageFraming): void {
     this.scene = new Scene();
+
+    RectAreaLightUniformsLib.init();
 
     const { width, height } = this.getHostSize(host);
 
@@ -320,10 +357,14 @@ export class CompanionRendererService {
     const hemisphere = new HemisphereLight(blue, 0x050706, 0.18);
 
     // Key light : mint/white premium, concentrée sur le visage et le torse.
-    const keyLight = new SpotLight(this.hsl(155, 45, 88), 5.8, 8, Math.PI / 10, 0.32, 1.8);
+    const keyLight = new SpotLight(this.hsl(155, 45, 88), 4.2, 8, Math.PI / 10, 0.38, 1.8);
     keyLight.position.set(2.8, 3.9, 4.1);
     keyLight.target = this.lightTarget;
     keyLight.castShadow = true;
+
+    const softboxKey = new RectAreaLight(this.hsl(150, 38, 88), 1.5, 3.2, 2.2);
+    softboxKey.position.set(2.4, 2.4, 3.2);
+    softboxKey.lookAt(0, 1.05, 0);
 
     // Fill light : bleu doux, faible, pour ne pas griser toute la scène.
     const fillLight = new SpotLight(blue, 1.15, 7, Math.PI / 12, 0.5, 2);
@@ -354,6 +395,7 @@ export class CompanionRendererService {
       ambient,
       hemisphere,
       keyLight,
+      softboxKey,
       fillLight,
       backLight,
       violetRimLight,
@@ -412,24 +454,34 @@ export class CompanionRendererService {
 
     this.scene?.add(this.model);
     this.logBones(this.model);
+    this.logModelMaterials(this.model);
 
     this.mixer = new AnimationMixer(this.model);
 
-    this.registerClips(gltf.animations, 'idle');
+    if (gltf.animations.length > 0) {
+      console.warn('[Companion] base model animations ignored', {
+        url,
+        clips: gltf.animations.map((clip) => ({
+          name: clip.name,
+          duration: clip.duration,
+          tracks: clip.tracks.length,
+        })),
+      });
+    }
   }
 
-  private async loadHair(url: string): Promise<void> {
-    console.log('[Companion] loading hair', url);
+  private async loadHair(config: CompanionHairConfig): Promise<void> {
+    console.log('[Companion] loading hair', config);
 
     if (!this.model) {
       console.warn('[Companion] cannot load hair: model missing');
       return;
     }
 
-    const gltf = await this.loadGltf(url);
+    const gltf = await this.loadGltf(config.url);
 
     console.log('[Companion] hair gltf loaded', {
-      url,
+      url: config.url,
       scene: gltf.scene.name,
       children: gltf.scene.children.map((child) => child.name),
     });
@@ -437,19 +489,17 @@ export class CompanionRendererService {
     this.hair = gltf.scene;
     this.hair.name = 'TR_HAIR_PREVIEW';
 
-    /**
-     * Étape 1 :
-     * On l’ajoute d’abord au model root pour qu’il soit dans le même repère
-     * que le personnage déjà fit/scalé.
-     */
+    await this.applyHairMaterial(this.hair, config);
+
     this.model.add(this.hair);
 
-    /**
-     * Important avant attach :
-     * On force la mise à jour des matrices monde.
-     */
     this.model.updateMatrixWorld(true);
     this.hair.updateMatrixWorld(true);
+
+    if (config.attachTo === 'model') {
+      console.log('[Companion] hair attached to model root');
+      return;
+    }
 
     const headBone = this.findHeadBone(this.model);
 
@@ -459,26 +509,6 @@ export class CompanionRendererService {
     }
 
     headBone.updateMatrixWorld(true);
-
-    this.hair.traverse((object) => {
-      object.frustumCulled = false;
-
-      if (object instanceof Mesh) {
-        object.material = new MeshStandardMaterial({
-          color: 0x9dff57,
-          roughness: 0.72,
-          metalness: 0,
-        });
-
-        object.castShadow = true;
-        object.receiveShadow = true;
-      }
-    });
-
-    /**
-     * Étape 2 :
-     * Re-parent au bone de tête en conservant la position monde.
-     */
     headBone.attach(this.hair);
 
     console.log('[Companion] hair attached to head bone', {
@@ -487,6 +517,76 @@ export class CompanionRendererService {
       hairRotation: this.hair.rotation.toArray(),
       hairScale: this.hair.scale.toArray(),
     });
+  }
+
+  private async applyHairMaterial(hair: Group, config: CompanionHairConfig): Promise<void> {
+    const material = await this.createHairMaterial(config);
+
+    hair.traverse((object) => {
+      object.frustumCulled = false;
+
+      if (!(object instanceof Mesh)) {
+        return;
+      }
+
+      object.castShadow = true;
+      object.receiveShadow = true;
+
+      if (
+        !config.debug &&
+        object.material &&
+        !config.detailMapUrl &&
+        !config.normalMapUrl &&
+        !config.roughnessMapUrl
+      ) {
+        return;
+      }
+
+      object.material = material;
+    });
+  }
+
+  private async createHairMaterial(config: CompanionHairConfig): Promise<MeshStandardMaterial> {
+    const material = new MeshStandardMaterial({
+      color: config.color ?? '#4A2D1D',
+      roughness: 0.9,
+      metalness: 0,
+    });
+
+    if (config.detailMapUrl) {
+      material.map = await this.loadColorTexture(config.detailMapUrl);
+    }
+
+    if (config.roughnessMapUrl) {
+      material.roughnessMap = await this.loadDataTexture(config.roughnessMapUrl);
+      material.roughness = 0.95;
+    }
+
+    if (config.normalMapUrl) {
+      material.normalMap = await this.loadDataTexture(config.normalMapUrl);
+      material.normalScale.set(0.35, 0.35);
+    }
+
+    material.needsUpdate = true;
+
+    return material;
+  }
+
+  private async loadColorTexture(url: string): Promise<Texture> {
+    const texture = await this.textureLoader.loadAsync(url);
+
+    texture.colorSpace = SRGBColorSpace;
+    texture.flipY = false;
+
+    return texture;
+  }
+
+  private async loadDataTexture(url: string): Promise<Texture> {
+    const texture = await this.textureLoader.loadAsync(url);
+
+    texture.flipY = false;
+
+    return texture;
   }
 
   private logBones(root: Object3D): void {
@@ -532,34 +632,55 @@ export class CompanionRendererService {
     );
   }
 
-  private async loadAnimations(animations: Record<CompanionAnimationName, string>): Promise<void> {
-    const entries = Object.entries(animations) as Array<[CompanionAnimationName, string]>;
+  private async loadAnimations(
+    animations: Record<CompanionAnimationName, CompanionAnimationSource>,
+    onProgress: CompanionLoadingProgressCallback = () => {},
+  ): Promise<void> {
+    const entries = Object.entries(animations) as Array<
+      [CompanionAnimationName, CompanionAnimationSource]
+    >;
 
-    for (const [name, url] of entries) {
+    const startProgress = 64;
+    const endProgress = 96;
+    const progressStep = (endProgress - startProgress) / Math.max(entries.length, 1);
+
+    for (const [index, [name, source]] of entries.entries()) {
+      const url = this.getAnimationUrl(source);
       const gltf = await this.loadGltf(url);
 
-      console.log('[Companion] loaded animation', {
-        name,
+      console.log('[Companion] loaded animation clips', {
+        actionName: name,
         url,
-        clips: gltf.animations.map((clip) => ({
+        clips: gltf.animations.map((clip, clipIndex) => ({
+          index: clipIndex,
           name: clip.name,
           duration: clip.duration,
           tracks: clip.tracks.length,
         })),
       });
 
-      this.registerClips(gltf.animations, name);
+      this.registerClips(gltf.animations, name, source);
+
+      onProgress(Math.round(startProgress + progressStep * (index + 1)));
     }
 
     console.log('[Companion] registered actions', Array.from(this.actions.keys()));
   }
 
-  private registerClips(clips: AnimationClip[], name: CompanionAnimationName): void {
+  private getAnimationUrl(source: CompanionAnimationSource): string {
+    return typeof source === 'string' ? source : source.url;
+  }
+
+  private registerClips(
+    clips: AnimationClip[],
+    name: CompanionAnimationName,
+    source?: CompanionAnimationSource,
+  ): void {
     if (!this.mixer || clips.length === 0) {
       return;
     }
 
-    const clip = this.findBestClip(clips, name);
+    const clip = this.findBestClip(clips, name, source);
 
     if (!clip) {
       return;
@@ -579,20 +700,35 @@ export class CompanionRendererService {
   private findBestClip(
     clips: AnimationClip[],
     actionName: CompanionAnimationName,
+    source?: CompanionAnimationSource,
   ): AnimationClip | null {
     const usefulClips = clips.filter((clip) => {
       return clip.duration > 0.2 && clip.tracks.length > 0;
     });
 
-    if (usefulClips.length === 0) {
-      return clips[0] ?? null;
+    const candidateClips = usefulClips.length > 0 ? usefulClips : clips;
+
+    if (typeof source !== 'string' && source?.clipName) {
+      const normalizedClipName = this.normalizeAnimationName(source.clipName);
+
+      const clipByName = candidateClips.find((clip) => {
+        return this.normalizeAnimationName(clip.name) === normalizedClipName;
+      });
+
+      if (clipByName) {
+        return clipByName;
+      }
+    }
+
+    if (typeof source !== 'string' && source?.clipIndex !== undefined) {
+      return candidateClips[source.clipIndex] ?? candidateClips[0] ?? null;
     }
 
     if (actionName === 'idle') {
-      return this.findLongestClip(usefulClips);
+      return candidateClips[3] ?? candidateClips[0] ?? null;
     }
 
-    return usefulClips.at(-1) ?? null;
+    return candidateClips.at(-1) ?? null;
   }
 
   private findLongestClip(clips: AnimationClip[]): AnimationClip | null {
@@ -714,5 +850,113 @@ export class CompanionRendererService {
       width: Math.max(Math.round(rect.width), 1),
       height: Math.max(Math.round(rect.height), 1),
     };
+  }
+
+  private async applySkinMaterial(config: CompanionSkinConfig): Promise<void> {
+    if (!this.model) {
+      return;
+    }
+
+    const skinMaterial = await this.createSkinMaterial(config);
+    let appliedCount = 0;
+
+    this.model.traverse((object) => {
+      if (!(object instanceof Mesh)) {
+        return;
+      }
+
+      object.castShadow = true;
+      object.receiveShadow = true;
+
+      if (Array.isArray(object.material)) {
+        object.material = object.material.map((material) => {
+          if (!this.isSkinMaterialName(material.name)) {
+            return material;
+          }
+
+          appliedCount += 1;
+          return skinMaterial;
+        });
+
+        return;
+      }
+
+      if (!this.isSkinMaterialName(object.material.name)) {
+        return;
+      }
+
+      object.material = skinMaterial;
+      appliedCount += 1;
+    });
+
+    console.log('[Companion] skin material applied', {
+      color: config.color,
+      appliedCount,
+    });
+  }
+
+  private isSkinMaterialName(name: string): boolean {
+    const normalizedName = name
+      .toLowerCase()
+      .replaceAll('_', '')
+      .replaceAll('-', '')
+      .replaceAll(' ', '');
+
+    return (
+      normalizedName === 'trskin' ||
+      normalizedName.includes('skin') ||
+      normalizedName.includes('body') ||
+      normalizedName.includes('female')
+    );
+  }
+
+  private async createSkinMaterial(config: CompanionSkinConfig): Promise<MeshStandardMaterial> {
+    const material = new MeshStandardMaterial({
+      color: config.color,
+      roughness: 0.86,
+      metalness: 0,
+    });
+
+    material.name = 'TR_SKIN_RUNTIME';
+
+    if (config.detailMapUrl) {
+      material.map = await this.loadColorTexture(config.detailMapUrl);
+    }
+
+    if (config.roughnessMapUrl) {
+      material.roughnessMap = await this.loadDataTexture(config.roughnessMapUrl);
+      material.roughness = 0.9;
+    }
+
+    if (config.normalMapUrl) {
+      material.normalMap = await this.loadDataTexture(config.normalMapUrl);
+      material.normalScale.set(0.05, 0.05);
+    }
+
+    material.needsUpdate = true;
+
+    return material;
+  }
+
+  private logModelMaterials(root: Object3D): void {
+    const materials = new Set<string>();
+
+    root.traverse((object) => {
+      if (!(object instanceof Mesh)) {
+        return;
+      }
+
+      if (Array.isArray(object.material)) {
+        for (const material of object.material) {
+          materials.add(material.name || '(unnamed material)');
+        }
+
+        return;
+      }
+
+      materials.add(object.material.name || '(unnamed material)');
+    });
+
+    console.log('[Companion] model materials', Array.from(materials));
   }
 }

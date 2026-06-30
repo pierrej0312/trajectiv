@@ -26,10 +26,36 @@ export class OnboardingPage {
 
   readonly companionConfig: CompanionAnimationConfig = {
     modelUrl: '/characters/placeholder/BASEmodel_female.glb',
-    hairUrl: '/characters/placeholder/hair/hair_long_01.glb',
+    skin: {
+      color: '#c49377',
+      detailMapUrl: '/characters/placeholder/skin/female_skin_detail.png',
+      normalMapUrl: '/characters/placeholder/skin/female_skin_normal.png',
+      roughnessMapUrl: '/characters/placeholder/skin/female_skin_roughness.png',
+      debug: true,
+    },
+    hair: {
+      url: '/characters/placeholder/hair/hair_long_01.glb',
+      color: '#3f250b',
+      detailMapUrl: '/characters/placeholder/hair/hair_long_01_detail.png',
+      normalMapUrl: '/characters/placeholder/hair/hair_long_01_normal.png',
+      roughnessMapUrl: '/characters/placeholder/hair/hair_long_01_roughness.png',
+      attachTo: 'head',
+      debug: true,
+    },
     framing: 'full-body',
+    intro: {
+      animation: 'landing',
+      fallback: 'idle',
+    },
     animations: {
-      idle: '/characters/placeholder/animations/idle_female.glb',
+      landing: {
+        url: '/characters/placeholder/animations/landing.glb',
+        clipIndex: 0,
+      },
+      idle: {
+        url: '/characters/placeholder/animations/idle_female.glb',
+        clipIndex: 3,
+      },
       victory: '/characters/placeholder/animations/victory_female.glb',
       levelUp: '/characters/placeholder/animations/level-up_female.glb',
       levelDown: '/characters/placeholder/animations/level-down_female.glb',
