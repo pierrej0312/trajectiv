@@ -27,7 +27,7 @@ export class OnboardingPage {
   readonly companionConfig: CompanionAnimationConfig = {
     modelUrl: '/characters/placeholder/BASEmodel_female.glb',
     skin: {
-      color: '#c49377',
+      color: '#f1ac8e',
       detailMapUrl: '/characters/placeholder/skin/female_skin_detail.png',
       normalMapUrl: '/characters/placeholder/skin/female_skin_normal.png',
       roughnessMapUrl: '/characters/placeholder/skin/female_skin_roughness.png',
@@ -35,7 +35,7 @@ export class OnboardingPage {
     },
     hair: {
       url: '/characters/placeholder/hair/hair_long_01.glb',
-      color: '#3f250b',
+      color: '#853e16',
       detailMapUrl: '/characters/placeholder/hair/hair_long_01_detail.png',
       normalMapUrl: '/characters/placeholder/hair/hair_long_01_normal.png',
       roughnessMapUrl: '/characters/placeholder/hair/hair_long_01_roughness.png',

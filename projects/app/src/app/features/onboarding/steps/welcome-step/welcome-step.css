@@ -131,27 +131,21 @@
   @apply relative mx-auto grid w-full max-w-4xl gap-3 pt-2;
 }
 
-.onboarding-welcome__timeline::before {
-  @apply absolute bottom-0 left-[1.35rem] top-2 hidden w-px md:block;
-  content: "";
-  z-index: -1;
-  background: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--p-primary-color) 52%, transparent),
-    transparent
-  );
-}
-
 .onboarding-welcome__timeline-card {
   @apply relative grid grid-cols-[auto_1fr] items-start gap-4 rounded-[1.5rem] px-4 py-4;
   color: var(--p-text-color);
-  background: color-mix(in srgb, var(--p-surface-50) 5%, transparent);
+  background: var(--p-panel-background);
   border: 1px solid color-mix(in srgb, var(--p-primary-color) 14%, transparent);
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(24px);
   animation: tr-welcome-timeline-in 520ms ease-out both;
   z-index: 2;
 }
-
+.onboarding-welcome__timeline-card:not(:last-child)::after {
+  @apply absolute top-1/1 left-[1.35rem] hidden w-px h-3 hidden w-px md:block;
+  content: "";
+  z-index: -1;
+  background: color-mix(in srgb, var(--p-primary-color) 52%, transparent);
+}
 .onboarding-welcome__timeline-dot {
   @apply relative z-10 grid size-11 place-items-center rounded-2xl;
   color: var(--p-primary-color);

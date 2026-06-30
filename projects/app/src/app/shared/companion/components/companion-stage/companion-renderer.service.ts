@@ -351,7 +351,7 @@ export class CompanionRendererService {
     const violet = this.hsl(260, 70, 62);
 
     // Ambiance minimale : évite le rendu gris diffus.
-    const ambient = new AmbientLight(0x06100c, 0.08);
+    const ambient = new AmbientLight(0x06100c, 0.15);
 
     // Très léger ciel froid / sol sombre, juste pour garder du volume.
     const hemisphere = new HemisphereLight(blue, 0x050706, 0.18);
@@ -362,7 +362,7 @@ export class CompanionRendererService {
     keyLight.target = this.lightTarget;
     keyLight.castShadow = true;
 
-    const softboxKey = new RectAreaLight(this.hsl(150, 38, 88), 1.5, 3.2, 2.2);
+    const softboxKey = new RectAreaLight(this.hsl(150, 38, 88), 2.5, 3.2, 2.2);
     softboxKey.position.set(2.4, 2.4, 3.2);
     softboxKey.lookAt(0, 1.05, 0);
 
