@@ -11,7 +11,9 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { AvatarCustomizationResponseApiDto } from '../model/models';
 import { MeAvatarApiDto } from '../model/models';
+import { PatchAvatarCustomizationRequestApiDto } from '../model/models';
 
 
 import { Configuration }                                     from '../configuration';
@@ -27,10 +29,25 @@ export interface MeAvatarControllerServiceInterface {
      * 
      * @endpoint delete /v1/me/avatar
      */
-    deleteAvatar(extraHttpRequestParams?: any): Observable<MeAvatarApiDto>;
+    deleteAvatarCustomization(extraHttpRequestParams?: any): Observable<{}>;
 
     /**
-     * Upload current user avatar
+     * Get current user avatar customization
+     * 
+     * @endpoint get /v1/me/avatar
+     */
+    getAvatarCustomization(extraHttpRequestParams?: any): Observable<AvatarCustomizationResponseApiDto>;
+
+    /**
+     * Patch current user avatar customization
+     * 
+     * @endpoint patch /v1/me/avatar
+     * @param patchAvatarCustomizationRequestApiDto 
+     */
+    patchAvatarCustomization(patchAvatarCustomizationRequestApiDto: PatchAvatarCustomizationRequestApiDto, extraHttpRequestParams?: any): Observable<AvatarCustomizationResponseApiDto>;
+
+    /**
+     * Create current user avatar customization
      * 
      * @endpoint post /v1/me/avatar
      * @param file Avatar image file. Accepted types: jpeg, png, webp.

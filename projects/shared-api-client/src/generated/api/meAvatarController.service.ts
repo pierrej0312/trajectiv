@@ -17,7 +17,11 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
+import { AvatarCustomizationResponseApiDto } from '../model/avatarCustomizationResponseApiDto';
+// @ts-ignore
 import { MeAvatarApiDto } from '../model/meAvatarApiDto';
+// @ts-ignore
+import { PatchAvatarCustomizationRequestApiDto } from '../model/patchAvatarCustomizationRequestApiDto';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -45,10 +49,10 @@ export class MeAvatarControllerService extends BaseService implements MeAvatarCo
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteAvatar(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MeAvatarApiDto>;
-    public deleteAvatar(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MeAvatarApiDto>>;
-    public deleteAvatar(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MeAvatarApiDto>>;
-    public deleteAvatar(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteAvatarCustomization(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public deleteAvatarCustomization(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public deleteAvatarCustomization(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public deleteAvatarCustomization(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -56,7 +60,6 @@ export class MeAvatarControllerService extends BaseService implements MeAvatarCo
         localVarHeaders = this.configuration.addCredentialToHeaders('keycloakOAuth2', 'Authorization', localVarHeaders, 'Bearer ');
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -80,7 +83,7 @@ export class MeAvatarControllerService extends BaseService implements MeAvatarCo
 
         let localVarPath = `/v1/me/avatar`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<MeAvatarApiDto>('delete', `${basePath}${localVarPath}`,
+        return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -94,17 +97,141 @@ export class MeAvatarControllerService extends BaseService implements MeAvatarCo
     }
 
     /**
-     * Upload current user avatar
+     * Get current user avatar customization
+     * @endpoint get /v1/me/avatar
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getAvatarCustomization(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<AvatarCustomizationResponseApiDto>;
+    public getAvatarCustomization(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AvatarCustomizationResponseApiDto>>;
+    public getAvatarCustomization(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AvatarCustomizationResponseApiDto>>;
+    public getAvatarCustomization(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (keycloakOAuth2) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('keycloakOAuth2', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            '*/*'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/me/avatar`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<AvatarCustomizationResponseApiDto>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Patch current user avatar customization
+     * @endpoint patch /v1/me/avatar
+     * @param patchAvatarCustomizationRequestApiDto 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public patchAvatarCustomization(patchAvatarCustomizationRequestApiDto: PatchAvatarCustomizationRequestApiDto, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<AvatarCustomizationResponseApiDto>;
+    public patchAvatarCustomization(patchAvatarCustomizationRequestApiDto: PatchAvatarCustomizationRequestApiDto, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AvatarCustomizationResponseApiDto>>;
+    public patchAvatarCustomization(patchAvatarCustomizationRequestApiDto: PatchAvatarCustomizationRequestApiDto, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AvatarCustomizationResponseApiDto>>;
+    public patchAvatarCustomization(patchAvatarCustomizationRequestApiDto: PatchAvatarCustomizationRequestApiDto, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (patchAvatarCustomizationRequestApiDto === null || patchAvatarCustomizationRequestApiDto === undefined) {
+            throw new Error('Required parameter patchAvatarCustomizationRequestApiDto was null or undefined when calling patchAvatarCustomization.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (keycloakOAuth2) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('keycloakOAuth2', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            '*/*'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/v1/me/avatar`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<AvatarCustomizationResponseApiDto>('patch', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: patchAvatarCustomizationRequestApiDto,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Create current user avatar customization
      * @endpoint post /v1/me/avatar
      * @param file Avatar image file. Accepted types: jpeg, png, webp.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public uploadAvatar(file: Blob, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<MeAvatarApiDto>;
-    public uploadAvatar(file: Blob, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MeAvatarApiDto>>;
-    public uploadAvatar(file: Blob, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MeAvatarApiDto>>;
-    public uploadAvatar(file: Blob, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public uploadAvatar(file: Blob, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json' | '*/*', context?: HttpContext, transferCache?: boolean}): Observable<MeAvatarApiDto>;
+    public uploadAvatar(file: Blob, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json' | '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<MeAvatarApiDto>>;
+    public uploadAvatar(file: Blob, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json' | '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<MeAvatarApiDto>>;
+    public uploadAvatar(file: Blob, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json' | '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (file === null || file === undefined) {
             throw new Error('Required parameter file was null or undefined when calling uploadAvatar.');
         }
@@ -115,7 +242,8 @@ export class MeAvatarControllerService extends BaseService implements MeAvatarCo
         localVarHeaders = this.configuration.addCredentialToHeaders('keycloakOAuth2', 'Authorization', localVarHeaders, 'Bearer ');
 
         const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
+            'application/json',
+            '*/*'
         ]);
         if (localVarHttpHeaderAcceptSelected !== undefined) {
             localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
@@ -127,7 +255,8 @@ export class MeAvatarControllerService extends BaseService implements MeAvatarCo
 
         // to determine the Content-Type header
         const consumes: string[] = [
-            'multipart/form-data'
+            'multipart/form-data',
+            'application/json'
         ];
 
         const canConsumeForm = this.canConsumeForm(consumes);

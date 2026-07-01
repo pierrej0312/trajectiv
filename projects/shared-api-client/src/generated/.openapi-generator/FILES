@@ -18,6 +18,8 @@ encoder.ts
 git_push.sh
 index.ts
 model/authenticatedUserClaims.ts
+model/avatarCustomizationResponseApiDto.ts
+model/createAvatarCustomizationRequestApiDto.ts
 model/meAvatarApiDto.ts
 model/meCreditsApiDto.ts
 model/meOnboardingApiDto.ts
@@ -25,6 +27,7 @@ model/meProfileApiDto.ts
 model/meResponseApiDto.ts
 model/meSubscriptionApiDto.ts
 model/models.ts
+model/patchAvatarCustomizationRequestApiDto.ts
 model/updateMeProfileRequestApiDto.ts
 model/updatedMeProfileResponseApiDto.ts
 param.ts
