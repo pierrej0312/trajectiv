@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ButtonDirective } from 'primeng/button';
 
@@ -6,10 +6,8 @@ import { AppContextStore } from '@core';
 import { ThemeService } from '@themes/theme.service';
 import { OnboardingStore } from '@features/onboarding/store/onboarding.store';
 import { CompanionStageComponent } from '@shared/companion/components/companion-stage/companion-stage';
-import {
-  CompanionAnimationConfig,
-  CompanionLightingPreset,
-} from '@shared/companion/models/companion-animation.model';
+import { CompanionLightingPreset } from '@shared/companion/models/companion-animation.model';
+import { AvatarCustomizationStore } from '@shared/companion/stores/avatar-customization.store';
 
 @Component({
   selector: 'app-onboarding-page',
@@ -18,52 +16,22 @@ import {
   styleUrl: './onboarding-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OnboardingPage {
+export class OnboardingPage implements OnInit {
   readonly onboarding = inject(OnboardingStore);
   readonly appContext = inject(AppContextStore);
+  readonly avatarStore = inject(AvatarCustomizationStore);
 
   private readonly themeService = inject(ThemeService);
 
-  readonly companionConfig: CompanionAnimationConfig = {
-    modelUrl: '/characters/placeholder/BASEmodel_female.glb',
-    skin: {
-      color: '#f1ac8e',
-      detailMapUrl: '/characters/placeholder/skin/female_skin_detail.png',
-      normalMapUrl: '/characters/placeholder/skin/female_skin_normal.png',
-      roughnessMapUrl: '/characters/placeholder/skin/female_skin_roughness.png',
-      debug: true,
-    },
-    hair: {
-      url: '/characters/placeholder/hair/hair_long_01.glb',
-      color: '#853e16',
-      detailMapUrl: '/characters/placeholder/hair/hair_long_01_detail.png',
-      normalMapUrl: '/characters/placeholder/hair/hair_long_01_normal.png',
-      roughnessMapUrl: '/characters/placeholder/hair/hair_long_01_roughness.png',
-      attachTo: 'head',
-      debug: true,
-    },
-    framing: 'full-body',
-    intro: {
-      animation: 'landing',
-      fallback: 'idle',
-    },
-    animations: {
-      landing: {
-        url: '/characters/placeholder/animations/landing.glb',
-        clipIndex: 0,
-      },
-      idle: {
-        url: '/characters/placeholder/animations/idle_female.glb',
-        clipIndex: 3,
-      },
-      victory: '/characters/placeholder/animations/victory_female.glb',
-      levelUp: '/characters/placeholder/animations/level-up_female.glb',
-      levelDown: '/characters/placeholder/animations/level-down_female.glb',
-      dancing: '/characters/placeholder/animations/dancing.glb',
-    },
-  };
+  readonly companionConfig = computed(() => {
+    return this.avatarStore.companionConfig();
+  });
 
   readonly companionLightingPreset = computed<CompanionLightingPreset>(() => {
     return this.themeService.isDarkTheme() ? 'night-studio' : 'day';
   });
+
+  ngOnInit(): void {
+    this.avatarStore.load();
+  }
 }

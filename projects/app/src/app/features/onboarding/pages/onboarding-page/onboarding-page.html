@@ -5,7 +5,7 @@
   @if (onboarding.showCompanionStage()) {
     <aside class="onboarding-page__stage">
       <app-companion-stage
-        [config]="companionConfig"
+        [config]="companionConfig()"
         [command]="onboarding.companionCommand()"
         [lightingPreset]="companionLightingPreset()"
       />
