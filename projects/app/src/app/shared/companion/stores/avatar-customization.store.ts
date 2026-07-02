@@ -18,14 +18,18 @@ type AvatarCustomizationStatus = 'idle' | 'loading' | 'ready' | 'saving' | 'dele
 
 type AvatarCustomizationState = {
   customization: AvatarCustomizationResponseApiDto | null;
+  draftCustomization: AvatarCustomizationResponseApiDto | null;
   status: AvatarCustomizationStatus;
   errorMessage: string | null;
+  saveCompletedAt: number | null;
 };
 
 const initialState: AvatarCustomizationState = {
   customization: null,
+  draftCustomization: null,
   status: 'idle',
   errorMessage: null,
+  saveCompletedAt: null,
 };
 
 export const AvatarCustomizationStore = signalStore(
@@ -42,10 +46,14 @@ export const AvatarCustomizationStore = signalStore(
 
     hasCustomization: computed(() => store.customization() !== null),
 
-    effectiveCustomization: computed(() => store.customization() ?? DEFAULT_AVATAR_CUSTOMIZATION),
+    effectiveCustomization: computed(
+      () => store.draftCustomization() ?? store.customization() ?? DEFAULT_AVATAR_CUSTOMIZATION,
+    ),
 
     companionConfig: computed(() =>
-      resolveCompanionConfig(store.customization() ?? DEFAULT_AVATAR_CUSTOMIZATION),
+      resolveCompanionConfig(
+        store.draftCustomization() ?? store.customization() ?? DEFAULT_AVATAR_CUSTOMIZATION,
+      ),
     ),
   })),
 
@@ -68,6 +76,7 @@ export const AvatarCustomizationStore = signalStore(
                 patchState(store, {
                   customization,
                   status: 'ready',
+                  draftCustomization: null,
                   errorMessage: null,
                 });
               }),
@@ -75,6 +84,7 @@ export const AvatarCustomizationStore = signalStore(
                 if (isNotFoundError(error)) {
                   patchState(store, {
                     customization: null,
+                    draftCustomization: null,
                     status: 'ready',
                     errorMessage: null,
                   });
@@ -112,6 +122,7 @@ export const AvatarCustomizationStore = signalStore(
                 patchState(store, {
                   customization,
                   status: 'ready',
+                  draftCustomization: null,
                   errorMessage: null,
                 });
               }),
@@ -146,6 +157,7 @@ export const AvatarCustomizationStore = signalStore(
                 patchState(store, {
                   customization,
                   status: 'ready',
+                  draftCustomization: null,
                   errorMessage: null,
                 });
               }),
@@ -180,6 +192,7 @@ export const AvatarCustomizationStore = signalStore(
                 patchState(store, {
                   customization: null,
                   status: 'ready',
+                  draftCustomization: null,
                   errorMessage: null,
                 });
               }),
@@ -188,6 +201,7 @@ export const AvatarCustomizationStore = signalStore(
                   patchState(store, {
                     customization: null,
                     status: 'ready',
+                    draftCustomization: null,
                     errorMessage: null,
                   });
 
@@ -206,6 +220,22 @@ export const AvatarCustomizationStore = signalStore(
       ),
     ),
 
+    previewDraft(payload: CreateAvatarCustomizationRequestApiDto): void {
+      patchState(store, {
+        draftCustomization: {
+          ...DEFAULT_AVATAR_CUSTOMIZATION,
+          ...store.customization(),
+          ...payload,
+        },
+      });
+    },
+
+    clearDraft(): void {
+      patchState(store, {
+        draftCustomization: null,
+      });
+    },
+
     save(payload: CreateAvatarCustomizationRequestApiDto): void {
       if (store.hasCustomization()) {
         this.patch(payload);
@@ -219,6 +249,7 @@ export const AvatarCustomizationStore = signalStore(
       patchState(store, {
         customization: null,
         status: 'ready',
+        draftCustomization: null,
         errorMessage: null,
       });
     },

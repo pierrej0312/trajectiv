@@ -59,11 +59,3 @@ export type CompanionAnimationSource =
     };
 
 export type CompanionLightingPreset = 'day' | 'night-studio';
-
-export const AVATAR_SKIN_PRESETS = [
-  { id: 'SKIN_01', label: 'Clair', color: '#F0C7AA' },
-  { id: 'SKIN_02', label: 'Doré', color: '#D8A071' },
-  { id: 'SKIN_03', label: 'Mat', color: '#B87552' },
-  { id: 'SKIN_04', label: 'Foncé', color: '#7A4A35' },
-  { id: 'SKIN_05', label: 'Profond', color: '#4A2C22' },
-] as const;

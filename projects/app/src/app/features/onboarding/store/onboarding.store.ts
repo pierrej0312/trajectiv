@@ -278,6 +278,7 @@ export class OnboardingStore {
 
     this.setStepDirection('previous');
     void this.router.navigateByUrl(previousStep.route);
+    document.querySelector('.app-layout')!.scrollTo({ top: 0 });
   }
 
   goNext(): void {
@@ -293,6 +294,7 @@ export class OnboardingStore {
 
     this.setStepDirection('next');
     void this.router.navigateByUrl(nextStep.route);
+    document.querySelector('.app-layout')!.scrollTo({ top: 0 });
   }
 
   goToStep(step: OnboardingStepVm): void {

@@ -178,8 +178,13 @@ export const TrajectivTheme = definePreset(Aura, {
       },
     },
     panel: {
+      root: {
+        borderRadius: '2rem',
+
+      },
       extend: {
         backdropFilter: 'blur(50px)',
+        padding: '2rem',
       },
       colorScheme: {
         light: {

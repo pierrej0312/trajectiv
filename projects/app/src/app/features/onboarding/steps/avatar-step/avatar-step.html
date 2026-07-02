@@ -1,7 +1,210 @@
-<div class="flex flex-col">
-  <h1>Avatar</h1>
-  <p-panel header="Header"
-           animate.enter="tr-enter-panel">
+<form class="avatar-step" [formGroup]="form">
+  <header class="avatar-step__header">
+    <p class="avatar-step__eyebrow">Compagnon</p>
 
+    <h1 class="avatar-step__title">
+      Donne une première forme à ton guide
+    </h1>
+
+    <p class="avatar-step__description">
+      Tu peux personnaliser ton compagnon maintenant, ou passer cette étape.
+      Il restera modifiable plus tard depuis ton profil.
+    </p>
+  </header>
+
+  @if (avatarStore.errorMessage(); as errorMessage) {
+    <p class="avatar-step__error">
+      {{ errorMessage }}
+    </p>
+  }
+
+  <p-panel class="avatar-step__group" header="Silhouette">
+
+    <div class="avatar-step__card-grid">
+      @for (option of bodyTypeOptions; track option.value) {
+        <button
+          type="button"
+          class="avatar-step__asset-card"
+          [class.avatar-step__asset-card--selected]="form.controls.bodyType.value === option.value"
+          (click)="form.controls.bodyType.setValue(option.value)"
+        >
+        <span class="avatar-step__asset-visual">
+          <img
+            [src]="option.previewImageUrl"
+            [alt]="option.label"
+            loading="lazy"
+          />
+        </span>
+
+          <span class="avatar-step__asset-content">
+          <span class="avatar-step__asset-label">{{ option.label }}</span>
+
+            @if (option.description) {
+              <span class="avatar-step__asset-description">
+              {{ option.description }}
+            </span>
+            }
+        </span>
+
+          <span class="avatar-step__asset-check" aria-hidden="true">
+          ✓
+        </span>
+        </button>
+      }
+    </div>
   </p-panel>
-</div>
+
+  <p-panel class="avatar-step__group" header="Carnation">
+
+    <div class="avatar-step__skin-options">
+      @for (option of skinToneOptions; track option.value) {
+        <button
+          type="button"
+          class="avatar-step__skin-option"
+          [class.avatar-step__skin-option--selected]="form.controls.skinTone.value === option.value"
+          (click)="form.controls.skinTone.setValue(option.value)"
+        >
+          <span
+            class="avatar-step__skin-swatch"
+            [style.background]="option.color"
+          ></span>
+
+          <span>{{ option.label }}</span>
+        </button>
+      }
+    </div>
+
+    <label class="avatar-step__field">
+      <span>Intensité</span>
+      <p-slider formControlName="skinIntensity" min="-2" max="2" step="1" class="max-w-3xs w-full" />
+    </label>
+  </p-panel>
+
+  <p-panel class="avatar-step__group" header="Cheveux">
+
+    <div class="avatar-step__options">
+      @for (option of hairStyleOptions; track option.value) {
+        <button
+          type="button"
+          class="avatar-step__asset-card"
+          [class.avatar-step__asset-card--selected]="form.controls.hairStyle.value === option.value"
+          (click)="form.controls.hairStyle.setValue(option.value)"
+        >
+        <span class="avatar-step__asset-visual">
+          <img
+            [src]="option.previewImageUrl"
+            [alt]="option.label"
+            loading="lazy"
+          />
+        </span>
+
+          <span class="avatar-step__asset-content">
+          <span class="avatar-step__asset-label">{{ option.label }}</span>
+
+            @if (option.description) {
+              <span class="avatar-step__asset-description">
+              {{ option.description }}
+            </span>
+            }
+        </span>
+
+          <span class="avatar-step__asset-check" aria-hidden="true">
+          ✓
+        </span>
+        </button>
+      }
+    </div>
+
+    <label class="avatar-step__field">
+      <span>Couleur des cheveux</span>
+
+      <input
+        type="color"
+        formControlName="hairColor"
+      />
+    </label>
+  </p-panel>
+
+  <p-panel class="avatar-step__group" header="Barbe">
+
+    <div class="avatar-step__options">
+      @for (option of beardStyleOptions; track option.value) {
+        <button
+          type="button"
+          class="avatar-step__asset-card"
+          [class.avatar-step__asset-card--selected]="form.controls.beardStyle.value === option.value"
+          (click)="form.controls.beardStyle.setValue(option.value)"
+        >
+        <span class="avatar-step__asset-visual">
+          <img
+            [src]="option.previewImageUrl"
+            [alt]="option.label"
+            loading="lazy"
+          />
+        </span>
+
+          <span class="avatar-step__asset-content">
+          <span class="avatar-step__asset-label">{{ option.label }}</span>
+
+            @if (option.description) {
+              <span class="avatar-step__asset-description">
+              {{ option.description }}
+            </span>
+            }
+        </span>
+
+          <span class="avatar-step__asset-check" aria-hidden="true">
+          ✓
+        </span>
+        </button>
+      }
+    </div>
+
+    <label class="avatar-step__field">
+      <span>Couleur de barbe</span>
+
+      <input
+        type="color"
+        formControlName="beardColor"
+      />
+    </label>
+  </p-panel>
+
+  <footer class="avatar-step__actions">
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      class="avatar-step__secondary"
+      [disabled]="avatarStore.isSaving() || avatarStore.isDeleting()"
+      (click)="skip()"
+    >
+      Passer
+    </button>
+
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      class="avatar-step__secondary"
+      [disabled]="avatarStore.isSaving() || avatarStore.isDeleting()"
+      (click)="reset()"
+    >
+      Réinitialiser
+    </button>
+
+    <button
+      pButton
+      type="button"
+      class="avatar-step__primary"
+      [disabled]="form.invalid || avatarStore.isSaving()"
+      (click)="continue()"
+    >
+      @if (avatarStore.isSaving()) {
+        Sauvegarde...
+      } @else {
+        Continuer
+      }
+    </button>
+  </footer>
+</form>

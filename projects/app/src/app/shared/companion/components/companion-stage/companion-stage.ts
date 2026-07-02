@@ -56,6 +56,15 @@ export class CompanionStageComponent implements AfterViewInit {
 
   constructor() {
     effect(() => {
+      const config = this.config();
+
+      if (!this.isReady()) {
+        return;
+      }
+
+      this.renderer.applyConfig(config);
+    });
+    effect(() => {
       const command = this.command();
 
       if (!this.isReady() || !command) {

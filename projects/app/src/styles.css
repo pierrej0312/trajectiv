@@ -155,3 +155,11 @@ html[data-onboarding-direction="previous"]::view-transition-new(onboarding-step)
     filter: blur(0);
   }
 }
+
+.p-panel {
+  padding: var(--p-panel-padding, 1.5rem)
+}
+/*:host ::ng-deep .p-panel,*/
+/*:host ::ng-deep .p-panel {*/
+/*  @apply rounded-[2rem];*/
+/*}*/

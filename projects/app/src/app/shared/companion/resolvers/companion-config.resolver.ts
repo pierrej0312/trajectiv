@@ -1,7 +1,15 @@
+//transformation avatar DTO → config 3D
 import { AvatarCustomizationResponseApiDto } from '@shared-api-client';
 
 import { CompanionAnimationConfig } from '../../companion/models/companion-animation.model';
-import { DEFAULT_AVATAR_CUSTOMIZATION } from '../defaults/default-avatar-customization';
+import {
+  DEFAULT_AVATAR_BODY_TYPE,
+  DEFAULT_AVATAR_CUSTOMIZATION,
+  DEFAULT_AVATAR_HAIR_COLOR,
+  DEFAULT_AVATAR_HAIR_STYLE,
+  DEFAULT_AVATAR_SKIN_INTENSITY,
+  DEFAULT_AVATAR_SKIN_TONE,
+} from '../defaults/default-avatar-customization';
 import {
   AVATAR_BODY_MODEL_URL_BY_TYPE,
   AVATAR_HAIR_MODEL_URL_BY_STYLE,
@@ -16,21 +24,24 @@ export function resolveCompanionConfig(
 ): CompanionAnimationConfig {
   const safeCustomization = customization ?? DEFAULT_AVATAR_CUSTOMIZATION;
 
+  const bodyType = safeCustomization.bodyType ?? DEFAULT_AVATAR_BODY_TYPE;
+  const skinTone = safeCustomization.skinTone ?? DEFAULT_AVATAR_SKIN_TONE;
+  const hairStyle = safeCustomization.hairStyle ?? DEFAULT_AVATAR_HAIR_STYLE;
+  const skinIntensity = safeCustomization.skinIntensity ?? DEFAULT_AVATAR_SKIN_INTENSITY;
+  const hairColor = safeCustomization.hairColor ?? DEFAULT_AVATAR_HAIR_COLOR;
+
   return {
-    modelUrl: AVATAR_BODY_MODEL_URL_BY_TYPE[safeCustomization.bodyType ?? "BASE_FEMALE"],
+    modelUrl: AVATAR_BODY_MODEL_URL_BY_TYPE[bodyType],
     skin: {
-      color: resolveSkinColor(
-        AVATAR_SKIN_BASE_COLOR_BY_TONE[safeCustomization.skinTone ?? "NEUTRAL_MEDIUM"],
-        safeCustomization.skinIntensity ?? 0,
-      ),
+      color: resolveSkinColor(AVATAR_SKIN_BASE_COLOR_BY_TONE[skinTone], skinIntensity),
       detailMapUrl: AVATAR_SKIN_TEXTURES.detailMapUrl,
       normalMapUrl: AVATAR_SKIN_TEXTURES.normalMapUrl,
       roughnessMapUrl: AVATAR_SKIN_TEXTURES.roughnessMapUrl,
       debug: false,
     },
     hair: {
-      url: AVATAR_HAIR_MODEL_URL_BY_STYLE[safeCustomization.hairStyle ?? "LONG_01"],
-      color: safeCustomization.hairColor ?? DEFAULT_AVATAR_CUSTOMIZATION.hairColor,
+      url: AVATAR_HAIR_MODEL_URL_BY_STYLE[hairStyle],
+      color: hairColor,
       detailMapUrl: AVATAR_HAIR_TEXTURES.detailMapUrl,
       normalMapUrl: AVATAR_HAIR_TEXTURES.normalMapUrl,
       roughnessMapUrl: AVATAR_HAIR_TEXTURES.roughnessMapUrl,

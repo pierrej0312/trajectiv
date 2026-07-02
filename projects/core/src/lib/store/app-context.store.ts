@@ -4,6 +4,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, EMPTY, exhaustMap, pipe, tap } from 'rxjs';
 
 import { MeControllerService, MeResponseApiDto } from '@shared-api-client';
+import { withLoadingFeature } from './with-loading.feature';
 
 export type AppContextStatus = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -24,6 +25,8 @@ export const AppContextStore = signalStore(
 
   withState(initialState),
 
+  withLoadingFeature(),
+
   withComputed((store) => ({
     isIdle: computed(() => store.status() === 'idle'),
     isLoading: computed(() => store.status() === 'loading'),
@@ -34,8 +37,6 @@ export const AppContextStore = signalStore(
 
     displayName: computed(() => {
       const me = store.me();
-
-      console.log('APP_CONTEXT_ME_SHAPE', me);
 
       return me?.displayName ?? me?.firstName ?? me?.email ?? 'Utilisateur';
     }),

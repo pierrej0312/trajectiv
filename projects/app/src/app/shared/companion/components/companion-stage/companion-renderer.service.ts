@@ -65,6 +65,56 @@ export class CompanionRendererService {
 
   private readonly textureLoader = new TextureLoader();
 
+  private currentConfig: CompanionAnimationConfig | null = null;
+  private currentModelUrl: string | null = null;
+  private currentHairUrl: string | null = null;
+  private currentFraming: CompanionStageFraming = 'full-body';
+
+  async applyConfig(config: CompanionAnimationConfig): Promise<void> {
+    if (!this.scene || !this.model) {
+      return;
+    }
+
+    const previousConfig = this.currentConfig;
+    const nextFraming = config.framing ?? 'full-body';
+
+    if (!previousConfig) {
+      this.currentConfig = config;
+      this.currentModelUrl = config.modelUrl;
+      this.currentHairUrl = config.hair?.url ?? null;
+      this.currentFraming = nextFraming;
+      return;
+    }
+
+    if (config.modelUrl !== this.currentModelUrl) {
+      await this.replaceModel(config);
+      this.currentConfig = config;
+      this.currentModelUrl = config.modelUrl;
+      this.currentHairUrl = config.hair?.url ?? null;
+      this.currentFraming = nextFraming;
+      return;
+    }
+
+    if (nextFraming !== this.currentFraming) {
+      this.fitModelToStage(this.model, nextFraming);
+      this.updateCameraFraming(nextFraming);
+      this.currentFraming = nextFraming;
+    }
+
+    if (config.skin && this.hasSkinChanged(previousConfig.skin, config.skin)) {
+      await this.applySkinMaterial(config.skin);
+    }
+
+    if (this.hasHairModelChanged(previousConfig.hair, config.hair)) {
+      await this.replaceHair(config.hair ?? null);
+      this.currentHairUrl = config.hair?.url ?? null;
+    } else if (config.hair && this.hasHairMaterialChanged(previousConfig.hair, config.hair)) {
+      await this.applyExistingHairMaterial(config.hair);
+    }
+
+    this.currentConfig = config;
+  }
+
   async init(
     host: HTMLElement,
     config: CompanionAnimationConfig,
@@ -100,6 +150,11 @@ export class CompanionRendererService {
     }
 
     onProgress(100);
+
+    this.currentConfig = config;
+    this.currentModelUrl = config.modelUrl;
+    this.currentHairUrl = config.hair?.url ?? null;
+    this.currentFraming = config.framing ?? 'full-body';
   }
 
   resize(host: HTMLElement): void {
@@ -958,5 +1013,133 @@ export class CompanionRendererService {
     });
 
     console.log('[Companion] model materials', Array.from(materials));
+  }
+
+  private async replaceHair(config: CompanionHairConfig | null): Promise<void> {
+    this.removeHair();
+
+    if (!config) {
+      return;
+    }
+
+    await this.loadHair(config);
+  }
+
+  private removeHair(): void {
+    if (!this.hair) {
+      return;
+    }
+
+    this.hair.parent?.remove(this.hair);
+    this.disposeObject(this.hair);
+    this.hair = null;
+  }
+
+  private async applyExistingHairMaterial(config: CompanionHairConfig): Promise<void> {
+    if (!this.hair) {
+      return;
+    }
+
+    await this.applyHairMaterial(this.hair, config);
+  }
+
+  private async replaceModel(config: CompanionAnimationConfig): Promise<void> {
+    this.clearFinishedHandler();
+
+    this.actions.clear();
+    this.currentAction = null;
+
+    this.removeHair();
+    this.removeModel();
+
+    await this.loadModel(config.modelUrl, config.framing ?? 'full-body');
+
+    if (config.skin) {
+      await this.applySkinMaterial(config.skin);
+    }
+
+    if (config.hair) {
+      await this.loadHair(config.hair);
+    }
+
+    await this.loadAnimations(config.animations);
+
+    this.playLoop('idle');
+  }
+
+  private removeModel(): void {
+    if (!this.model) {
+      return;
+    }
+
+    this.scene?.remove(this.model);
+    this.disposeObject(this.model);
+
+    this.model = null;
+    this.mixer = null;
+  }
+
+  private disposeObject(object: Object3D): void {
+    object.traverse((child) => {
+      if (!(child instanceof Mesh)) {
+        return;
+      }
+
+      child.geometry.dispose();
+
+      if (Array.isArray(child.material)) {
+        for (const material of child.material) {
+          material.dispose();
+        }
+
+        return;
+      }
+
+      child.material.dispose();
+    });
+  }
+
+  private updateCameraFraming(framing: CompanionStageFraming): void {
+    if (!this.camera) {
+      return;
+    }
+
+    const cameraPosition = this.getCameraPosition(framing);
+    const lookAt = this.getLookAt(framing);
+
+    this.camera.position.copy(cameraPosition);
+    this.camera.lookAt(lookAt);
+    this.camera.updateProjectionMatrix();
+  }
+
+  hasSkinChanged(
+    previous: CompanionSkinConfig | undefined,
+    next: CompanionSkinConfig | undefined,
+  ): boolean {
+    return (
+      previous?.color !== next?.color ||
+      previous?.detailMapUrl !== next?.detailMapUrl ||
+      previous?.normalMapUrl !== next?.normalMapUrl ||
+      previous?.roughnessMapUrl !== next?.roughnessMapUrl
+    );
+  }
+
+  hasHairModelChanged(
+    previous: CompanionHairConfig | undefined,
+    next: CompanionHairConfig | undefined,
+  ): boolean {
+    return previous?.url !== next?.url;
+  }
+
+  hasHairMaterialChanged(
+    previous: CompanionHairConfig | undefined,
+    next: CompanionHairConfig | undefined,
+  ): boolean {
+    return (
+      previous?.color !== next?.color ||
+      previous?.detailMapUrl !== next?.detailMapUrl ||
+      previous?.normalMapUrl !== next?.normalMapUrl ||
+      previous?.roughnessMapUrl !== next?.roughnessMapUrl
+    );
   }
 }
