@@ -1,6 +1,7 @@
 export * from './authenticatedUserClaims';
 export * from './avatarCustomizationResponseApiDto';
 export * from './createAvatarCustomizationRequestApiDto';
+export * from './jobRoleSuggestionApiDto';
 export * from './meAvatarApiDto';
 export * from './meCreditsApiDto';
 export * from './meOnboardingApiDto';

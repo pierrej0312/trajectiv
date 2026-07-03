@@ -1,19 +1,34 @@
-<header class="onboarding-page__header">
-  <p class="onboarding-page__eyebrow">Objectif principal</p>
-  <h1>Pourquoi veux-tu utiliser Trajectiv ?</h1>
-  <p>Cette réponse nous aide à personnaliser ton accompagnement.</p>
-</header>
+<section class="goal-step">
+  <header class="goal-step__header">
+    <p class="goal-step__eyebrow">Objectif principal</p>
 
-<div class="onboarding-page__cards">
-  @for (option of options; track option.value) {
-    <button
-      type="button"
-      class="onboarding-card"
-      [class.onboarding-card--selected]="onboarding.careerGoal() === option.value"
-      (click)="onboarding.setCareerGoal(option.value)"
-    >
-      <strong>{{ option.label }}</strong>
-      <span>{{ option.description }}</span>
-    </button>
-  }
-</div>
+    <h1 class="goal-step__title">
+      Quel est ton objectif principal ?
+    </h1>
+
+    <p class="goal-step__description">
+      Sélectionne la raison qui correspond le mieux à tes besoins actuels.
+    </p>
+  </header>
+
+  <p-panel class="goal-step__panel" header="Choisis ton objectif">
+    <div class="goal-step__grid">
+      @for (option of options; track option.value) {
+        <app-selectable-option-card
+          mode="choice"
+          [mobileCompact]="true"
+          [label]="option.label"
+          [description]="option.description"
+          [icon]="option.icon"
+          [selected]="onboarding.careerGoal() === option.value"
+          (selectedChange)="onboarding.setCareerGoal(option.value)"
+        />
+      }
+    </div>
+  </p-panel>
+
+  <p class="goal-step__hint">
+    <span class="pi pi-info-circle" aria-hidden="true"></span>
+    Tu pourras modifier cela à tout moment.
+  </p>
+</section>

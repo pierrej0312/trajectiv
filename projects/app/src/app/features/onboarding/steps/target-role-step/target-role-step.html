@@ -1,1 +1,166 @@
-<p>target-role-step works!</p>
+<section class="target-role-step">
+  <header class="target-role-step__header">
+    <p class="target-role-step__eyebrow">Rôle cible</p>
+    <h1>Quel est ton rôle cible ?</h1>
+    <p>
+      Indique le métier ou le rôle que tu souhaites atteindre. Tu peux choisir une
+      suggestion ou écrire ton propre intitulé.
+    </p>
+  </header>
+
+  <p-panel styleClass="target-role-step__panel target-role-step__search-panel">
+    <ng-template pTemplate="header">
+      <div class="target-role-step__panel-header">
+        <span>Recherche</span>
+
+        @if (store.hasCatalogTargetRole()) {
+          <p-tag value="Catalogue" severity="success" />
+        } @else if (store.targetRoleSelection()?.source === 'CUSTOM') {
+          <p-tag value="Personnalisé" severity="info" />
+        }
+      </div>
+    </ng-template>
+
+    <p-iconfield class="target-role-step__search-field">
+      <p-inputicon>
+        @if (store.isSearchingTargetRoles()) {
+          <i class="pi pi-spinner pi-spin"></i>
+        } @else {
+          <i class="pi pi-search"></i>
+        }
+      </p-inputicon>
+
+      <input
+        pInputText
+        type="text"
+        autocomplete="off"
+        placeholder="Ex : Développeur Angular"
+        [value]="store.targetRoleQuery()"
+        (input)="store.setTargetRoleQuery($any($event.target).value)"
+      />
+    </p-iconfield>
+
+    @if (store.targetRoleSelection(); as selection) {
+      <div class="target-role-step__selection">
+        <div class="target-role-step__selection-content">
+      <span class="target-role-step__selection-label">
+        {{ selection.label }}
+      </span>
+
+          <span class="target-role-step__selection-source">
+        {{ selection.source === 'CATALOG' ? 'Rôle du catalogue' : 'Rôle personnalisé' }}
+      </span>
+        </div>
+
+        <button
+          pButton
+          severity="danger"
+          type="button"
+          class="target-role-step__selection-clear"
+          aria-label="Supprimer le rôle sélectionné"
+          (click)="store.clearTargetRoleSelection()"
+        >
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+    }
+
+    @if (store.targetRoleSearchMessage(); as message) {
+      <p class="target-role-step__message">
+        {{ message }}
+      </p>
+    }
+  </p-panel>
+
+  <p-panel styleClass="target-role-step__panel target-role-step__families-panel">
+    <ng-template pTemplate="header">
+      <div class="target-role-step__panel-header">
+        <span>Catégories</span>
+        <span class="target-role-step__panel-hint">Filtrer les suggestions</span>
+      </div>
+    </ng-template>
+
+    <div class="target-role-step__family-list">
+      <button
+        type="button"
+        class="target-role-step__family-chip"
+        [class.is-active]="store.targetRoleFamily() === null"
+        (click)="store.setTargetRoleFamily(null)"
+      >
+        Tous
+      </button>
+
+      @for (family of store.targetRoleFamilies(); track family) {
+        <button
+          type="button"
+          class="target-role-step__family-chip"
+          [class.is-active]="store.targetRoleFamily() === family"
+          (click)="store.setTargetRoleFamily(family)"
+        >
+          {{ store.targetRoleFamilyLabels[family] }}
+        </button>
+      }
+    </div>
+  </p-panel>
+
+  <p-panel styleClass="target-role-step__panel target-role-step__suggestions-panel">
+    <ng-template pTemplate="header">
+      <div class="target-role-step__panel-header">
+        <span>Suggestions</span>
+
+        @if (store.targetRoleSuggestions().length > 0) {
+          <span class="target-role-step__panel-hint">
+            {{ store.targetRoleSuggestions().length }} résultat(s)
+          </span>
+        }
+      </div>
+    </ng-template>
+
+    @if (store.targetRoleSuggestions().length > 0) {
+      <div class="target-role-step__suggestion-list">
+        @for (suggestion of store.targetRoleSuggestions(); track suggestion.id) {
+          <button
+            type="button"
+            class="target-role-step__suggestion"
+            [class.is-selected]="store.selectedTargetRoleId() === suggestion.id"
+            (click)="store.selectTargetRoleSuggestion(suggestion)"
+          >
+            <span class="target-role-step__suggestion-main">
+              <span class="target-role-step__suggestion-label">
+                {{ suggestion.label }}
+              </span>
+
+              @if (suggestion.description) {
+                <span class="target-role-step__suggestion-description">
+                  {{ suggestion.description }}
+                </span>
+              }
+            </span>
+
+            <span class="target-role-step__suggestion-meta">
+              <span>{{ suggestion.family }}</span>
+              <i class="pi pi-arrow-right"></i>
+            </span>
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="target-role-step__empty">
+        <i class="pi pi-sparkles"></i>
+        <p>Commence à écrire pour obtenir des suggestions.</p>
+      </div>
+    }
+
+    @if (store.targetRoleQuery().trim().length >= 2 && !store.targetRoleSelection()) {
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        class="target-role-step__custom-action"
+        (click)="store.useCustomTargetRole()"
+      >
+        Utiliser “{{ store.targetRoleQuery().trim() }}”
+      </button>
+    }
+  </p-panel>
+</section>

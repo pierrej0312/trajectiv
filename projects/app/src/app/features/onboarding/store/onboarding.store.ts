@@ -1,18 +1,52 @@
 import { computed, DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, EMPTY, filter, finalize, switchMap, tap } from 'rxjs';
+import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  EMPTY,
+  filter,
+  finalize,
+  pipe,
+  switchMap,
+  tap,
+} from 'rxjs';
 
 import {
+  JobRoleControllerService,
+  JobRoleSuggestionApiDto,
   OnboardingControllerService,
   ProfileControllerService,
   UpdateMeProfileRequestApiDto,
 } from '@shared-api-client';
 import { AppContextStore } from '@core';
 import { CompanionAnimationCommand } from '@shared/companion/models/companion-animation.model';
+import { rxMethod } from '@ngrx/signals/rxjs-interop';
 
 type CareerGoal = UpdateMeProfileRequestApiDto.CareerGoalEnum;
 type ExperienceLevel = UpdateMeProfileRequestApiDto.ExperienceLevelEnum;
+
+type TargetRoleSource = UpdateMeProfileRequestApiDto.TargetRoleSourceEnum;
+
+type JobRoleFamily = JobRoleSuggestionApiDto.FamilyEnum;
+
+type TargetRoleSelection =
+  | {
+      readonly source: 'CATALOG';
+      readonly id: string;
+      readonly label: string;
+    }
+  | {
+      readonly source: 'CUSTOM';
+      readonly id: null;
+      readonly label: string;
+    };
+
+type TargetRoleSearchCriteria = {
+  readonly query: string;
+  readonly family: JobRoleFamily | null;
+};
 
 export type OnboardingStepKey =
   | 'welcome'
@@ -93,12 +127,44 @@ export class OnboardingStore {
   private readonly profileApi = inject(ProfileControllerService);
   private readonly onboardingApi = inject(OnboardingControllerService);
   private readonly appContext = inject(AppContextStore);
+  private readonly jobRoleApi = inject(JobRoleControllerService);
 
   readonly currentUrl = signal(this.normalizeUrl(this.router.url));
 
   readonly displayName = signal('');
   readonly careerGoal = signal<CareerGoal | null>(null);
-  readonly targetRole = signal('');
+
+  readonly targetRoleQuery = signal('');
+  readonly targetRoleFamily = signal<JobRoleFamily | null>(null);
+  readonly targetRoleSelection = signal<TargetRoleSelection | null>(null);
+  readonly targetRoleSuggestions = signal<readonly JobRoleSuggestionApiDto[]>([]);
+  readonly isSearchingTargetRoles = signal(false);
+  readonly targetRoleSearchMessage = signal<string | null>(null);
+
+  readonly targetRoleFamilies = signal<readonly JobRoleFamily[]>([
+    'SOFTWARE_ENGINEERING',
+    'PRODUCT_DESIGN',
+    'DATA',
+    'DEVOPS_CLOUD',
+    'PROJECT_MANAGEMENT',
+    'PRODUCT_MANAGEMENT',
+    'QUALITY_ASSURANCE',
+    'BUSINESS_ANALYSIS',
+    'OTHER',
+  ]);
+
+  readonly targetRoleFamilyLabels: Record<JobRoleFamily, string> = {
+    SOFTWARE_ENGINEERING: 'Développement logiciel',
+    PRODUCT_DESIGN: 'Product design',
+    DATA: 'Data',
+    DEVOPS_CLOUD: 'DevOps & Cloud',
+    PROJECT_MANAGEMENT: 'Gestion de projet',
+    PRODUCT_MANAGEMENT: 'Product management',
+    QUALITY_ASSURANCE: 'QA / Test',
+    BUSINESS_ANALYSIS: 'Business analysis',
+    OTHER: 'Autre',
+  };
+
   readonly experienceLevel = signal<ExperienceLevel | null>(null);
 
   readonly isSubmitting = signal(false);
@@ -153,10 +219,28 @@ export class OnboardingStore {
     return this.activeStepKey() === 'review';
   });
 
+  readonly targetRoleLabel = computed(() => {
+    return this.targetRoleSelection()?.label ?? this.targetRoleQuery().trim();
+  });
+
+  readonly hasTargetRole = computed(() => {
+    return this.targetRoleLabel().length >= 2;
+  });
+
+  readonly hasCatalogTargetRole = computed(() => {
+    return this.targetRoleSelection()?.source === 'CATALOG';
+  });
+
+  readonly selectedTargetRoleId = computed(() => {
+    const selection = this.targetRoleSelection();
+
+    return selection?.source === 'CATALOG' ? selection.id : null;
+  });
+
   readonly canComplete = computed(() => {
     return (
       this.careerGoal() !== null &&
-      this.targetRole().trim().length >= 2 &&
+      this.hasTargetRole() &&
       this.experienceLevel() !== null &&
       !this.isSubmitting()
     );
@@ -198,7 +282,7 @@ export class OnboardingStore {
     }
 
     if (key === 'target-role') {
-      return this.targetRole().trim().length >= 2;
+      return this.hasTargetRole();
     }
 
     if (key === 'experience-level') {
@@ -257,8 +341,62 @@ export class OnboardingStore {
     this.careerGoal.set(value);
   }
 
-  setTargetRole(value: string): void {
-    this.targetRole.set(value);
+  setTargetRoleQuery(value: string): void {
+    this.targetRoleQuery.set(value);
+    this.searchCurrentTargetRoles();
+  }
+
+  setTargetRoleFamily(value: JobRoleFamily | null): void {
+    this.targetRoleFamily.set(value);
+    this.searchCurrentTargetRoles();
+  }
+
+  clearTargetRole(): void {
+    this.targetRoleQuery.set('');
+    this.targetRoleSelection.set(null);
+    this.targetRoleSuggestions.set([]);
+    this.targetRoleSearchMessage.set(null);
+    this.isSearchingTargetRoles.set(false);
+  }
+
+  clearTargetRoleSelection(): void {
+    this.targetRoleSelection.set(null);
+
+    if (this.targetRoleQuery().trim().length >= 2) {
+      this.searchCurrentTargetRoles();
+    }
+  }
+
+  selectTargetRoleSuggestion(suggestion: JobRoleSuggestionApiDto): void {
+    if (!suggestion.id || !suggestion.label) {
+      return;
+    }
+
+    this.targetRoleSelection.set({
+      source: 'CATALOG',
+      id: suggestion.id,
+      label: suggestion.label,
+    });
+
+    this.targetRoleQuery.set(suggestion.label);
+    this.targetRoleSearchMessage.set(null);
+  }
+
+  useCustomTargetRole(): void {
+    const label = this.targetRoleQuery().trim();
+
+    if (label.length < 2) {
+      return;
+    }
+
+    this.targetRoleSelection.set({
+      source: 'CUSTOM',
+      id: null,
+      label,
+    });
+
+    this.targetRoleSuggestions.set([]);
+    this.targetRoleSearchMessage.set(null);
   }
 
   setExperienceLevel(value: ExperienceLevel): void {
@@ -317,6 +455,13 @@ export class OnboardingStore {
     this.setStepDirection(targetIndex > currentIndex ? 'next' : 'previous');
   }
 
+  private searchCurrentTargetRoles(): void {
+    this.searchTargetRoles({
+      query: this.targetRoleQuery(),
+      family: this.targetRoleFamily(),
+    });
+  }
+
   private isStepCompleted(key: OnboardingStepKey): boolean {
     if (key === 'welcome') {
       return true;
@@ -331,7 +476,7 @@ export class OnboardingStore {
     }
 
     if (key === 'target-role') {
-      return this.targetRole().trim().length >= 2;
+      return this.hasTargetRole();
     }
 
     if (key === 'experience-level') {
@@ -339,11 +484,7 @@ export class OnboardingStore {
     }
 
     if (key === 'review') {
-      return (
-        this.careerGoal() !== null &&
-        this.targetRole().trim().length >= 2 &&
-        this.experienceLevel() !== null
-      );
+      return this.careerGoal() !== null && this.hasTargetRole() && this.experienceLevel() !== null;
     }
 
     return false;
@@ -354,9 +495,14 @@ export class OnboardingStore {
       return;
     }
 
+    const selection = this.targetRoleSelection();
+    const fallbackLabel = this.targetRoleQuery().trim();
+
     const payload: UpdateMeProfileRequestApiDto = {
       careerGoal: this.careerGoal() ?? undefined,
-      targetRole: this.targetRole().trim(),
+      targetRoleId: selection?.source === 'CATALOG' ? selection.id : undefined,
+      targetRoleLabel: selection?.label ?? fallbackLabel,
+      targetRoleSource: selection?.source ?? 'CUSTOM',
       experienceLevel: this.experienceLevel() ?? undefined,
       preferredLanguage: 'fr',
     };
@@ -433,6 +579,60 @@ export class OnboardingStore {
       fallback,
     };
   }
+
+  readonly searchTargetRoles = rxMethod<TargetRoleSearchCriteria>(
+    pipe(
+      debounceTime(220),
+      distinctUntilChanged((previous, current) => {
+        return previous.query === current.query && previous.family === current.family;
+      }),
+      tap((criteria) => {
+        const normalizedQuery = criteria.query.trim();
+
+        if (normalizedQuery.length < 2) {
+          this.targetRoleSuggestions.set([]);
+          this.targetRoleSearchMessage.set(null);
+          this.isSearchingTargetRoles.set(false);
+          return;
+        }
+
+        this.isSearchingTargetRoles.set(true);
+        this.targetRoleSearchMessage.set(null);
+      }),
+      switchMap((criteria) => {
+        const normalizedQuery = criteria.query.trim();
+
+        if (normalizedQuery.length < 2) {
+          return EMPTY;
+        }
+
+        return this.jobRoleApi
+          .searchJobRoles(normalizedQuery, criteria.family ?? undefined, 8, 'body', false, {
+            httpHeaderAccept: 'application/json',
+            transferCache: false,
+          })
+          .pipe(
+            tap((suggestions) => {
+              this.targetRoleSuggestions.set(suggestions);
+              this.isSearchingTargetRoles.set(false);
+
+              this.targetRoleSearchMessage.set(
+                suggestions.length === 0
+                  ? 'Aucun rôle exact trouvé dans cette catégorie. Tu peux changer de catégorie ou garder ce rôle personnalisé.'
+                  : null,
+              );
+            }),
+            catchError(() => {
+              this.targetRoleSuggestions.set([]);
+              this.isSearchingTargetRoles.set(false);
+              this.targetRoleSearchMessage.set('Impossible de chercher les rôles pour le moment.');
+
+              return EMPTY;
+            }),
+          );
+      }),
+    ),
+  );
 
   private nextAnimationCommandId(): number {
     const nextId = this.animationCommandId() + 1;

@@ -1,11 +1,11 @@
 @reference "tailwindcss";
 
 :host {
-  @apply block min-h-full transition-all;
+  @apply block min-h-full w-full transition-all;
 }
 
 .onboarding-page {
-  @apply grid min-h-full items-stretch gap-8 p-6 grid-cols-1 lg:grid-cols-[minmax(0rem,1fr)_minmax(32rem,2fr)] lg:p-10 relative transition-all;
+  @apply grid min-h-full w-full items-stretch gap-8 p-6 grid-cols-1 lg:grid-cols-[minmax(0rem,1fr)_minmax(32rem,2fr)] lg:p-10 relative transition-all;
 
   background:
     radial-gradient(
@@ -30,9 +30,12 @@
 }
 
 .onboarding-page__flow {
-  @apply relative z-10 grid h-full min-h-0 w-full overflow-hidden lg:self-center transition-all;
+  @apply relative z-10 grid h-full min-h-0 w-full overflow-hidden lg:self-center transition-all items-stretch;
 
   grid-template-rows: minmax(0, 1fr) auto;
+  justify-content: stretch;
+  justify-items: stretch;
+  place-items: center stretch;
 }
 
 .onboarding-page--no-stage .onboarding-page__flow {
@@ -40,7 +43,8 @@
 }
 
 .onboarding-page__content {
-  @apply min-h-0 overflow-auto transition-all;
+  @apply min-h-0 overflow-auto transition-all justify-self-stretch;
+  justify-self: stretch;
 }
 
 .onboarding-page__footer {

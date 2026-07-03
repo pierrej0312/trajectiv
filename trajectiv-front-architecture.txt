@@ -1,6 +1,6 @@
 # Trajectiv Front Architecture Export
 
-Generated at: 2026-06-18T07:21:08.261Z
+Generated at: 2026-07-03T19:57:38.898Z
 
 ## Workspace tree
 
@@ -19,6 +19,31 @@ Generated at: 2026-06-18T07:21:08.261Z
 📁 projects/
   📁 app/
     📁 public/
+      📁 characters/
+        📁 placeholder/
+          📁 animations/
+            📄 dancing.glb
+            📄 idle_female.glb
+            📄 landing.glb
+            📄 level-down_female.glb
+            📄 level-up_female.glb
+            📄 victory_female.glb
+          📁 hair/
+            📄 hair_long_01_detail.png
+            📄 hair_long_01_normal.png
+            📄 hair_long_01_roughness.png
+            📄 hair_long_01.glb
+          📁 previews/
+            📁 body/
+              📄 base_female.png
+            📁 hair/
+              📄 long_01.png
+            📄 none.png
+          📁 skin/
+            📄 female_skin_detail.png
+            📄 female_skin_normal.png
+            📄 female_skin_roughness.png
+          📄 BASEmodel_female.glb
       📁 keycloak/
         📄 silent-check-sso.html
       📄 favicon.png
@@ -35,6 +60,42 @@ Generated at: 2026-06-18T07:21:08.261Z
             📄 me-ready.guard-helper.ts
             📄 onboarding-completed.guard.ts
             📄 onboarding-incomplete.guard.ts
+        📁 features/
+          📁 onboarding/
+            📁 pages/
+              📁 onboarding-page/
+                📄 onboarding-page.css
+                📄 onboarding-page.html
+                📄 onboarding-page.ts
+            📁 steps/
+              📁 avatar-step/
+                📄 avatar-step.css
+                📄 avatar-step.form.ts
+                📄 avatar-step.html
+                📄 avatar-step.ts
+              📁 experience-level-step/
+                📄 experience-level-step.css
+                📄 experience-level-step.html
+                📄 experience-level-step.ts
+              📁 goal-step/
+                📄 goal-step.css
+                📄 goal-step.html
+                📄 goal-step.ts
+              📁 review-step/
+                📄 review-step.css
+                📄 review-step.html
+                📄 review-step.ts
+              📁 target-role-step/
+                📄 target-role-step.css
+                📄 target-role-step.html
+                📄 target-role-step.ts
+              📁 welcome-step/
+                📄 welcome-step.css
+                📄 welcome-step.html
+                📄 welcome-step.ts
+            📁 store/
+              📄 onboarding.store.ts
+            📄 onboarding.routes.ts
         📁 layouts/
           📁 app-layout/
             📄 app-layout.css
@@ -70,10 +131,6 @@ Generated at: 2026-06-18T07:21:08.261Z
             📄 notifications-page.css
             📄 notifications-page.html
             📄 notifications-page.ts
-          📁 onboarding-page/
-            📄 onboarding-page.css
-            📄 onboarding-page.html
-            📄 onboarding-page.ts
           📁 opportunities-page/
             📄 opportunities-page.css
             📄 opportunities-page.html
@@ -103,11 +160,34 @@ Generated at: 2026-06-18T07:21:08.261Z
             📄 settings-page.html
             📄 settings-page.ts
         📁 shared/
+          📁 companion/
+            📁 components/
+              📁 companion-stage/
+                📄 companion-renderer.service.ts
+                📄 companion-stage.css
+                📄 companion-stage.html
+                📄 companion-stage.ts
+            📁 defaults/
+              📄 default-avatar-customization.ts
+            📁 models/
+              📄 avatar-customization-options.model.ts
+              📄 companion-animation.model.ts
+            📁 registries/
+              📄 avatar-assets.registry.ts
+              📄 avatar-customization-options.registry.ts
+            📁 resolvers/
+              📄 companion-config.resolver.ts
+            📁 stores/
+              📄 avatar-customization.store.ts
           📁 components/
             📁 form-errors/
               📄 form-errors.css
               📄 form-errors.html
               📄 form-errors.ts
+            📁 selectable-option-card/
+              📄 selectable-option-card.css
+              📄 selectable-option-card.html
+              📄 selectable-option-card.ts
           📁 module/
             📁 keycloak/
               📁 guards/
@@ -120,6 +200,7 @@ Generated at: 2026-06-18T07:21:08.261Z
               📄 keycloak.provider.ts
           📁 navigation/
             📄 navigation.service.ts
+            📄 navigation.store.ts
           📁 workspace/
             📁 components/
               📁 workspace-switcher/
@@ -153,6 +234,7 @@ Generated at: 2026-06-18T07:21:08.261Z
           📄 can-see-nav-item.util.ts
         📁 store/
           📄 app-context.store.ts
+          📄 with-loading.feature.ts
         📄 core.ts
       📄 public-api.ts
     📄 ng-package.json
@@ -222,6 +304,8 @@ Generated at: 2026-06-18T07:21:08.261Z
           📄 VERSION
         📁 api/
           📄 api.ts
+          📄 jobRoleController.service.ts
+          📄 jobRoleController.serviceInterface.ts
           📄 meAvatarController.service.ts
           📄 meAvatarController.serviceInterface.ts
           📄 meController.service.ts
@@ -234,6 +318,9 @@ Generated at: 2026-06-18T07:21:08.261Z
           📄 securityDebugController.serviceInterface.ts
         📁 model/
           📄 authenticatedUserClaims.ts
+          📄 avatarCustomizationResponseApiDto.ts
+          📄 createAvatarCustomizationRequestApiDto.ts
+          📄 jobRoleSuggestionApiDto.ts
           📄 meAvatarApiDto.ts
           📄 meCreditsApiDto.ts
           📄 meOnboardingApiDto.ts
@@ -241,6 +328,7 @@ Generated at: 2026-06-18T07:21:08.261Z
           📄 meResponseApiDto.ts
           📄 meSubscriptionApiDto.ts
           📄 models.ts
+          📄 patchAvatarCustomizationRequestApiDto.ts
           📄 updatedMeProfileResponseApiDto.ts
           📄 updateMeProfileRequestApiDto.ts
         📄 .gitignore
@@ -584,6 +672,7 @@ FILE: package.json
     "primeng": "^21.1.8",
     "rxjs": "~7.8.0",
     "tailwindcss-primeui": "^0.6.1",
+    "three": "^0.184.0",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
@@ -592,6 +681,7 @@ FILE: package.json
     "@angular/compiler-cli": "^21.2.0",
     "@tailwindcss/postcss": "^4.1.12",
     "@types/leaflet": "^1",
+    "@types/three": "^0.184.1",
     "jsdom": "^28.0.0",
     "ng-packagr": "^21.2.0",
     "postcss": "^8.5.3",

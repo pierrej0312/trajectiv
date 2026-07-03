@@ -1,0 +1,61 @@
+@reference 'tailwindcss';
+
+.goal-step {
+  @apply flex flex-col gap-6;
+}
+
+.goal-step__header {
+  @apply flex max-w-2xl flex-col gap-3;
+}
+
+.goal-step__eyebrow {
+  @apply text-xs uppercase tracking-[0.22em];
+  color: var(--p-text-muted-color);
+}
+
+.goal-step__title {
+  @apply text-3xl font-semibold tracking-[-0.04em];
+  color: var(--p-text-color);
+}
+
+.goal-step__description {
+  @apply text-sm leading-6;
+  color: var(--p-text-muted-color);
+}
+
+.goal-step__grid {
+  @apply grid gap-4;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.goal-step__hint {
+  @apply mx-auto inline-flex items-center gap-2 rounded-2xl px-4 py-3 text-xs;
+  color: var(--p-text-muted-color);
+  background: color-mix(in srgb, var(--p-surface-100) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--p-surface-500) 16%, transparent);
+}
+
+@media (max-width: 900px) {
+  .goal-step__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .goal-step__header {
+    @apply items-start text-left;
+  }
+
+  .goal-step__title {
+    @apply text-2xl;
+  }
+
+  .goal-step__grid {
+    @apply gap-3;
+    grid-template-columns: 1fr;
+  }
+
+  .goal-step__hint {
+    @apply w-full justify-start;
+  }
+}

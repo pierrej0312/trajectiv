@@ -19,50 +19,30 @@
   }
 
   <p-panel class="avatar-step__group" header="Silhouette">
-
-    <div class="avatar-step__card-grid">
+    <div class="avatar-step__asset-grid">
       @for (option of bodyTypeOptions; track option.value) {
-        <button
-          type="button"
-          class="avatar-step__asset-card"
-          [class.avatar-step__asset-card--selected]="form.controls.bodyType.value === option.value"
-          (click)="form.controls.bodyType.setValue(option.value)"
-        >
-        <span class="avatar-step__asset-visual">
-          <img
-            [src]="option.previewImageUrl"
-            [alt]="option.label"
-            loading="lazy"
-          />
-        </span>
-
-          <span class="avatar-step__asset-content">
-          <span class="avatar-step__asset-label">{{ option.label }}</span>
-
-            @if (option.description) {
-              <span class="avatar-step__asset-description">
-              {{ option.description }}
-            </span>
-            }
-        </span>
-
-          <span class="avatar-step__asset-check" aria-hidden="true">
-          ✓
-        </span>
-        </button>
+        <app-selectable-option-card
+          mode="asset"
+          size="large"
+          [mobileCompact]="false"
+          [label]="option.label"
+          [description]="option.description ?? null"
+          [imageUrl]="option.previewImageUrl"
+          [selected]="form.controls.bodyType.value === option.value"
+          (selectedChange)="selectBodyType(option.value)"
+        />
       }
     </div>
   </p-panel>
 
   <p-panel class="avatar-step__group" header="Carnation">
-
     <div class="avatar-step__skin-options">
       @for (option of skinToneOptions; track option.value) {
         <button
           type="button"
           class="avatar-step__skin-option"
           [class.avatar-step__skin-option--selected]="form.controls.skinTone.value === option.value"
-          (click)="form.controls.skinTone.setValue(option.value)"
+          (click)="selectSkinTone(option.value)"
         >
           <span
             class="avatar-step__skin-swatch"
@@ -76,42 +56,30 @@
 
     <label class="avatar-step__field">
       <span>Intensité</span>
-      <p-slider formControlName="skinIntensity" min="-2" max="2" step="1" class="max-w-3xs w-full" />
+
+      <p-slider
+        formControlName="skinIntensity"
+        [min]="-2"
+        [max]="2"
+        [step]="1"
+        class="max-w-3xs w-full"
+      />
     </label>
   </p-panel>
 
   <p-panel class="avatar-step__group" header="Cheveux">
-
-    <div class="avatar-step__options">
+    <div class="avatar-step__asset-grid">
       @for (option of hairStyleOptions; track option.value) {
-        <button
-          type="button"
-          class="avatar-step__asset-card"
-          [class.avatar-step__asset-card--selected]="form.controls.hairStyle.value === option.value"
-          (click)="form.controls.hairStyle.setValue(option.value)"
-        >
-        <span class="avatar-step__asset-visual">
-          <img
-            [src]="option.previewImageUrl"
-            [alt]="option.label"
-            loading="lazy"
-          />
-        </span>
-
-          <span class="avatar-step__asset-content">
-          <span class="avatar-step__asset-label">{{ option.label }}</span>
-
-            @if (option.description) {
-              <span class="avatar-step__asset-description">
-              {{ option.description }}
-            </span>
-            }
-        </span>
-
-          <span class="avatar-step__asset-check" aria-hidden="true">
-          ✓
-        </span>
-        </button>
+        <app-selectable-option-card
+          mode="asset"
+          size="large"
+          [mobileCompact]="false"
+          [label]="option.label"
+          [description]="option.description ?? null"
+          [imageUrl]="option.previewImageUrl"
+          [selected]="form.controls.hairStyle.value === option.value"
+          (selectedChange)="selectHairStyle(option.value)"
+        />
       }
     </div>
 
@@ -126,37 +94,18 @@
   </p-panel>
 
   <p-panel class="avatar-step__group" header="Barbe">
-
-    <div class="avatar-step__options">
+    <div class="avatar-step__asset-grid">
       @for (option of beardStyleOptions; track option.value) {
-        <button
-          type="button"
-          class="avatar-step__asset-card"
-          [class.avatar-step__asset-card--selected]="form.controls.beardStyle.value === option.value"
-          (click)="form.controls.beardStyle.setValue(option.value)"
-        >
-        <span class="avatar-step__asset-visual">
-          <img
-            [src]="option.previewImageUrl"
-            [alt]="option.label"
-            loading="lazy"
-          />
-        </span>
-
-          <span class="avatar-step__asset-content">
-          <span class="avatar-step__asset-label">{{ option.label }}</span>
-
-            @if (option.description) {
-              <span class="avatar-step__asset-description">
-              {{ option.description }}
-            </span>
-            }
-        </span>
-
-          <span class="avatar-step__asset-check" aria-hidden="true">
-          ✓
-        </span>
-        </button>
+        <app-selectable-option-card
+          mode="asset"
+          size="large"
+          [mobileCompact]="false"
+          [label]="option.label"
+          [description]="option.description ?? null"
+          [imageUrl]="option.previewImageUrl"
+          [selected]="form.controls.beardStyle.value === option.value"
+          (selectedChange)="selectBeardStyle(option.value)"
+        />
       }
     </div>
 
@@ -169,42 +118,4 @@
       />
     </label>
   </p-panel>
-
-  <footer class="avatar-step__actions">
-    <button
-      pButton
-      type="button"
-      severity="secondary"
-      class="avatar-step__secondary"
-      [disabled]="avatarStore.isSaving() || avatarStore.isDeleting()"
-      (click)="skip()"
-    >
-      Passer
-    </button>
-
-    <button
-      pButton
-      type="button"
-      severity="secondary"
-      class="avatar-step__secondary"
-      [disabled]="avatarStore.isSaving() || avatarStore.isDeleting()"
-      (click)="reset()"
-    >
-      Réinitialiser
-    </button>
-
-    <button
-      pButton
-      type="button"
-      class="avatar-step__primary"
-      [disabled]="form.invalid || avatarStore.isSaving()"
-      (click)="continue()"
-    >
-      @if (avatarStore.isSaving()) {
-        Sauvegarde...
-      } @else {
-        Continuer
-      }
-    </button>
-  </footer>
 </form>

@@ -1,0 +1,198 @@
+@reference "tailwindcss";
+
+.selectable-card {
+  @apply relative flex min-h-36 h-full w-full flex-col gap-4 overflow-hidden rounded-[1.35rem] border p-5 text-left transition duration-300 ease-in-out;
+  border-color: color-mix(in srgb, var(--p-surface-500) 20%, transparent);
+  color: var(--p-text-color);
+  background:
+    radial-gradient(
+      circle at 18% 0%,
+      color-mix(in srgb, var(--p-primary-color) 2%, transparent),
+      transparent 42%
+    ),
+    color-mix(in srgb, var(--p-surface-50) 5%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.selectable-card--asset {
+  @apply p-3;
+}
+
+.selectable-card--choice {
+  @apply items-center justify-center text-center;
+}
+
+.selectable-card--choice .selectable-card__content {
+  @apply items-center text-center;
+}
+
+.selectable-card--choice .selectable-card__visual--icon {
+  @apply mx-auto;
+}
+
+@media (max-width: 640px) {
+  .selectable-card--mobile-compact {
+    @apply min-h-0 flex-row items-center justify-start gap-3 rounded-full px-4 py-3 text-left;
+  }
+
+  .selectable-card--mobile-compact .selectable-card__content {
+    @apply items-start gap-0 text-left;
+  }
+}
+
+.selectable-card--large {
+  @apply min-h-48 rounded-[1.75rem];
+}
+
+.selectable-card::before {
+  content: '';
+  @apply pointer-events-none absolute inset-0 opacity-0 transition duration-300;
+  background:
+    radial-gradient(
+      circle at 72% 10%,
+      color-mix(in srgb, var(--p-primary-color) 20%, transparent),
+      transparent 36%
+    );
+}
+
+.selectable-card:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--p-primary-color) 34%, transparent);
+}
+
+.selectable-card:hover:not(:disabled)::before {
+  opacity: 1;
+}
+
+.selectable-card:disabled {
+  @apply cursor-not-allowed opacity-60;
+}
+
+.selectable-card--selected {
+  border-color: color-mix(in srgb, var(--p-primary-color) 68%, transparent);
+  background:
+    radial-gradient(
+      circle at 72% 14%,
+      color-mix(in srgb, var(--p-primary-color) 5%, transparent),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 18% 0%,
+      color-mix(in srgb, var(--p-primary-color) 5%, transparent),
+      transparent 44%
+    ),
+    color-mix(in srgb, var(--p-surface-50) 5%, transparent);
+  box-shadow:
+    0 18px 48px color-mix(in srgb, var(--p-primary-color) 12%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, white 10%, transparent);
+}
+
+.selectable-card__visual {
+  @apply relative z-10 grid place-items-center;
+}
+
+.selectable-card__visual--icon {
+  @apply h-12 w-12 rounded-2xl text-xl;
+  color: var(--p-text-muted-color);
+  background: color-mix(in srgb, var(--p-surface-100) 10%, transparent);
+}
+
+.selectable-card--selected .selectable-card__visual--icon {
+  color: var(--p-primary-color);
+  background: color-mix(in srgb, var(--p-primary-color) 12%, transparent);
+}
+
+.selectable-card__visual--image {
+  @apply flex h-32 w-full items-center justify-center overflow-hidden rounded-[1.2rem];
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      color-mix(in srgb, var(--p-primary-color) 5%, transparent),
+      transparent 52%
+    ),
+    color-mix(in srgb, var(--p-surface-100) 4%, transparent);
+}
+
+.selectable-card--large .selectable-card__visual--image {
+  @apply h-32 rounded-[1.35rem];
+}
+
+.selectable-card__visual--image img {
+  @apply block max-h-full max-w-full object-contain p-2 transition duration-300;
+  width: auto;
+  height: auto;
+}
+
+.selectable-card:hover:not(:disabled) .selectable-card__visual--image img,
+.selectable-card--selected .selectable-card__visual--image img {
+  transform: scale(1.035);
+}
+
+.selectable-card__content {
+  @apply relative z-10 flex flex-col gap-2;
+}
+
+.selectable-card--asset .selectable-card__content {
+  @apply mt-0 gap-1;
+}
+
+.selectable-card__label {
+  @apply text-sm font-semibold;
+  color: var(--p-text-color);
+}
+
+.selectable-card__description {
+  @apply text-xs leading-5;
+  color: var(--p-text-muted-color);
+}
+
+.selectable-card__check {
+  @apply absolute right-4 top-4 z-20 grid h-7 w-7 place-items-center rounded-full text-xs font-bold opacity-0 transition duration-300;
+  color: var(--p-primary-inverse-color);
+  background: var(--p-primary-color);
+  transform: scale(0.82);
+}
+
+.selectable-card--selected .selectable-card__check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.selectable-card__radio {
+  @apply hidden;
+}
+
+@media (max-width: 640px) {
+  .selectable-card--mobile-compact {
+    @apply min-h-0 flex-row items-center gap-3 rounded-full px-4 py-3;
+  }
+
+  .selectable-card--mobile-compact .selectable-card__visual,
+  .selectable-card--mobile-compact .selectable-card__description,
+  .selectable-card--mobile-compact .selectable-card__check {
+    @apply hidden;
+  }
+
+  .selectable-card--mobile-compact .selectable-card__radio {
+    @apply grid h-5 w-5 shrink-0 place-items-center rounded-full border;
+    border-color: color-mix(in srgb, var(--p-surface-500) 35%, transparent);
+  }
+
+  .selectable-card--mobile-compact .selectable-card__radio::after {
+    content: '';
+    @apply h-2 w-2 scale-0 rounded-full transition;
+    background: var(--p-primary-color);
+  }
+
+  .selectable-card--mobile-compact.selectable-card--selected .selectable-card__radio {
+    border-color: var(--p-primary-color);
+  }
+
+  .selectable-card--mobile-compact.selectable-card--selected .selectable-card__radio::after {
+    transform: scale(1);
+  }
+
+  .selectable-card--mobile-compact .selectable-card__content {
+    @apply gap-0;
+  }
+}

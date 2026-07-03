@@ -11,7 +11,9 @@
 
 export interface MeProfileApiDto { 
     careerGoal?: MeProfileApiDto.CareerGoalEnum;
-    targetRole?: string;
+    targetRoleId?: string;
+    targetRoleLabel?: string;
+    targetRoleSource?: MeProfileApiDto.TargetRoleSourceEnum;
     experienceLevel?: MeProfileApiDto.ExperienceLevelEnum;
     preferredLanguage?: string;
 }
@@ -25,6 +27,12 @@ export namespace MeProfileApiDto {
         TrackOpportunities: 'TRACK_OPPORTUNITIES'
     } as const;
     export type CareerGoalEnum = typeof CareerGoalEnum[keyof typeof CareerGoalEnum];
+    export const TargetRoleSourceEnum = {
+        Catalog: 'CATALOG',
+        Custom: 'CUSTOM',
+        OfferAnalysis: 'OFFER_ANALYSIS'
+    } as const;
+    export type TargetRoleSourceEnum = typeof TargetRoleSourceEnum[keyof typeof TargetRoleSourceEnum];
     export const ExperienceLevelEnum = {
         Student: 'STUDENT',
         Junior: 'JUNIOR',

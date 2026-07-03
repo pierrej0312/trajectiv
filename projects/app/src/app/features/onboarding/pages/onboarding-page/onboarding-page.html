@@ -30,11 +30,43 @@
           type="button"
           severity="secondary"
           class="onboarding-page__secondary"
-          [disabled]="!onboarding.canGoPrevious() || onboarding.isSubmitting()"
+          [disabled]="!onboarding.canGoPrevious() || onboarding.isSubmitting() || isAvatarBusy()"
           (click)="onboarding.goPrevious()"
         >
+          <span class="pi pi-arrow-left" aria-hidden="true"></span>
           Retour
         </button>
+
+        @if (isAvatarStep()) {
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            class="onboarding-page__secondary"
+            [disabled]="isAvatarBusy()"
+            (click)="skipAvatarStep()"
+          >
+            <span class="pi pi-forward" aria-hidden="true"></span>
+            Passer
+          </button>
+
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            class="onboarding-page__secondary"
+            [disabled]="isAvatarBusy()"
+            (click)="resetAvatarStep()"
+          >
+            @if (avatarStore.isDeleting()) {
+              <span class="pi pi-spinner pi-spin" aria-hidden="true"></span>
+              Réinitialisation...
+            } @else {
+              <span class="pi pi-refresh" aria-hidden="true"></span>
+              Réinitialiser
+            }
+          </button>
+        }
 
         @if (onboarding.isLastStep()) {
           <button
@@ -45,8 +77,10 @@
             (click)="onboarding.complete()"
           >
             @if (onboarding.isSubmitting()) {
+              <span class="pi pi-spinner pi-spin" aria-hidden="true"></span>
               Création...
             } @else {
+              <span class="pi pi-sparkles" aria-hidden="true"></span>
               Lancer ma trajectoire
             }
           </button>
@@ -55,10 +89,16 @@
             pButton
             type="button"
             class="onboarding-page__submit"
-            [disabled]="!onboarding.canGoNext() || onboarding.isSubmitting()"
-            (click)="onboarding.goNext()"
+            [disabled]="!canContinueCurrentStep()"
+            (click)="continueCurrentStep()"
           >
-            Continuer
+            @if (isAvatarStep() && avatarStore.isSaving()) {
+              <span class="pi pi-spinner pi-spin" aria-hidden="true"></span>
+              Sauvegarde...
+            } @else {
+              Continuer
+              <span class="pi pi-arrow-right" aria-hidden="true"></span>
+            }
           </button>
         }
       </footer>

@@ -1,3 +1,6 @@
+export * from './jobRoleController.service';
+import { JobRoleControllerService } from './jobRoleController.service';
+export * from './jobRoleController.serviceInterface';
 export * from './meAvatarController.service';
 import { MeAvatarControllerService } from './meAvatarController.service';
 export * from './meAvatarController.serviceInterface';
@@ -13,4 +16,4 @@ export * from './profileController.serviceInterface';
 export * from './securityDebugController.service';
 import { SecurityDebugControllerService } from './securityDebugController.service';
 export * from './securityDebugController.serviceInterface';
-export const APIS = [MeAvatarControllerService, MeControllerService, OnboardingControllerService, ProfileControllerService, SecurityDebugControllerService];
+export const APIS = [JobRoleControllerService, MeAvatarControllerService, MeControllerService, OnboardingControllerService, ProfileControllerService, SecurityDebugControllerService];

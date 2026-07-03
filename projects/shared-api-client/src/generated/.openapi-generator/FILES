@@ -3,6 +3,8 @@ README.md
 api.base.service.ts
 api.module.ts
 api/api.ts
+api/jobRoleController.service.ts
+api/jobRoleController.serviceInterface.ts
 api/meAvatarController.service.ts
 api/meAvatarController.serviceInterface.ts
 api/meController.service.ts
@@ -20,6 +22,7 @@ index.ts
 model/authenticatedUserClaims.ts
 model/avatarCustomizationResponseApiDto.ts
 model/createAvatarCustomizationRequestApiDto.ts
+model/jobRoleSuggestionApiDto.ts
 model/meAvatarApiDto.ts
 model/meCreditsApiDto.ts
 model/meOnboardingApiDto.ts

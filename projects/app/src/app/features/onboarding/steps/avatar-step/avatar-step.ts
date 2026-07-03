@@ -1,12 +1,15 @@
-import { AfterViewInit, Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { Panel } from 'primeng/panel';
-import { AVATAR_BODY_MODEL_URL_BY_TYPE } from '@shared/companion/registries/avatar-assets.registry';
-import { OnboardingStore } from '@features/onboarding/store/onboarding.store';
 import { AvatarCustomizationStore } from '@shared/companion/stores/avatar-customization.store';
-import { avatarStepFormToCreatePayload, createAvatarStepForm, patchAvatarStepFormFromCustomization } from '@features/onboarding/steps/avatar-step/avatar-step.form';
+import {
+  avatarStepFormToCreatePayload,
+  createAvatarStepForm,
+  patchAvatarStepFormFromCustomization
+} from '@features/onboarding/steps/avatar-step/avatar-step.form';
 import {
   AVATAR_BEARD_STYLE_OPTIONS,
-  AVATAR_BODY_TYPE_OPTIONS, AVATAR_HAIR_STYLE_OPTIONS,
+  AVATAR_BODY_TYPE_OPTIONS,
+  AVATAR_HAIR_STYLE_OPTIONS,
   AVATAR_SKIN_TONE_OPTIONS
 } from '@shared/companion/registries/avatar-customization-options.registry';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -17,18 +20,17 @@ import {
   AvatarBeardStyle,
   AvatarBodyType,
   AvatarHairStyle,
-  AvatarSkinTone,
+  AvatarSkinTone
 } from '@shared/companion/models/avatar-customization-options.model';
-import { DEFAULT_AVATAR_CUSTOMIZATION } from '@shared/companion/defaults/default-avatar-customization';
+import { SelectableOptionCard } from '@shared/components/selectable-option-card/selectable-option-card';
 
 @Component({
   selector: 'app-avatar-step',
-  imports: [Panel, ReactiveFormsModule, Slider],
+  imports: [Panel, ReactiveFormsModule, Slider, SelectableOptionCard],
   templateUrl: './avatar-step.html',
   styleUrl: './avatar-step.css',
 })
 export class AvatarStep {
-  readonly onboarding = inject(OnboardingStore);
   readonly avatarStore = inject(AvatarCustomizationStore);
 
   private readonly destroyRef = inject(DestroyRef);
@@ -40,45 +42,31 @@ export class AvatarStep {
   readonly hairStyleOptions = AVATAR_HAIR_STYLE_OPTIONS;
   readonly beardStyleOptions = AVATAR_BEARD_STYLE_OPTIONS;
 
-  readonly hasHydratedForm = signal(false);
-  readonly shouldGoNextAfterSave = signal(false);
+  private isPatchingForm = false;
 
   constructor() {
-    this.avatarStore.load();
-
     effect(() => {
       const customization = this.avatarStore.effectiveCustomization();
 
-      if (this.hasHydratedForm()) {
-        return;
-      }
+      this.isPatchingForm = true;
 
       patchAvatarStepFormFromCustomization(this.form, customization, {
         emitEvent: false,
       });
 
-      this.avatarStore.previewDraft(avatarStepFormToCreatePayload(this.form));
-      this.hasHydratedForm.set(true);
-    });
+      this.avatarStore.setDraftValidity(this.form.valid);
 
-    effect(() => {
-      const saveCompletedAt = this.avatarStore.saveCompletedAt();
-
-      if (!this.shouldGoNextAfterSave() || !saveCompletedAt) {
-        return;
-      }
-
-      this.shouldGoNextAfterSave.set(false);
-      this.onboarding.goNext();
+      this.isPatchingForm = false;
     });
 
     this.form.valueChanges
       .pipe(
-        startWith(this.form.getRawValue()),
         tap(() => {
-          if (!this.hasHydratedForm()) {
+          if (this.isPatchingForm) {
             return;
           }
+
+          this.avatarStore.setDraftValidity(this.form.valid);
 
           if (this.form.invalid) {
             return;
@@ -109,32 +97,5 @@ export class AvatarStep {
   selectBeardStyle(value: AvatarBeardStyle): void {
     this.form.controls.beardStyle.setValue(value);
     this.form.controls.beardStyle.markAsDirty();
-  }
-
-  continue(): void {
-    if (this.form.invalid || this.avatarStore.isSaving()) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    this.shouldGoNextAfterSave.set(true);
-    this.avatarStore.save(avatarStepFormToCreatePayload(this.form));
-  }
-
-  skip(): void {
-    this.avatarStore.clearDraft();
-    this.onboarding.goNext();
-  }
-
-  reset(): void {
-    if (this.avatarStore.hasCustomization()) {
-      this.avatarStore.delete();
-    }
-
-    patchAvatarStepFormFromCustomization(this.form, DEFAULT_AVATAR_CUSTOMIZATION, {
-      emitEvent: true,
-    });
-
-    this.avatarStore.previewDraft(avatarStepFormToCreatePayload(this.form));
   }
 }

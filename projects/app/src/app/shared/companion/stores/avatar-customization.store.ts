@@ -11,7 +11,16 @@ import {
   PatchAvatarCustomizationRequestApiDto,
 } from '@shared-api-client';
 
-import { DEFAULT_AVATAR_CUSTOMIZATION } from '../defaults/default-avatar-customization';
+import {
+  DEFAULT_AVATAR_BEARD_COLOR,
+  DEFAULT_AVATAR_BEARD_STYLE,
+  DEFAULT_AVATAR_BODY_TYPE,
+  DEFAULT_AVATAR_CUSTOMIZATION,
+  DEFAULT_AVATAR_HAIR_COLOR,
+  DEFAULT_AVATAR_HAIR_STYLE,
+  DEFAULT_AVATAR_SKIN_INTENSITY,
+  DEFAULT_AVATAR_SKIN_TONE,
+} from '../defaults/default-avatar-customization';
 import { resolveCompanionConfig } from '../resolvers/companion-config.resolver';
 
 type AvatarCustomizationStatus = 'idle' | 'loading' | 'ready' | 'saving' | 'deleting' | 'error';
@@ -19,6 +28,7 @@ type AvatarCustomizationStatus = 'idle' | 'loading' | 'ready' | 'saving' | 'dele
 type AvatarCustomizationState = {
   customization: AvatarCustomizationResponseApiDto | null;
   draftCustomization: AvatarCustomizationResponseApiDto | null;
+  draftValid: boolean;
   status: AvatarCustomizationStatus;
   errorMessage: string | null;
   saveCompletedAt: number | null;
@@ -27,6 +37,7 @@ type AvatarCustomizationState = {
 const initialState: AvatarCustomizationState = {
   customization: null,
   draftCustomization: null,
+  draftValid: true,
   status: 'idle',
   errorMessage: null,
   saveCompletedAt: null,
@@ -45,6 +56,7 @@ export const AvatarCustomizationStore = signalStore(
     isError: computed(() => store.status() === 'error'),
 
     hasCustomization: computed(() => store.customization() !== null),
+    hasDraft: computed(() => store.draftCustomization() !== null),
 
     effectiveCustomization: computed(
       () => store.draftCustomization() ?? store.customization() ?? DEFAULT_AVATAR_CUSTOMIZATION,
@@ -54,6 +66,21 @@ export const AvatarCustomizationStore = signalStore(
       resolveCompanionConfig(
         store.draftCustomization() ?? store.customization() ?? DEFAULT_AVATAR_CUSTOMIZATION,
       ),
+    ),
+    isBusy: computed(
+      () =>
+        store.status() === 'loading' ||
+        store.status() === 'saving' ||
+        store.status() === 'deleting',
+    ),
+    canSaveDraft: computed(
+      () =>
+        store.draftValid() &&
+        !(
+          store.status() === 'loading' ||
+          store.status() === 'saving' ||
+          store.status() === 'deleting'
+        ),
     ),
   })),
 
@@ -124,9 +151,12 @@ export const AvatarCustomizationStore = signalStore(
                   status: 'ready',
                   draftCustomization: null,
                   errorMessage: null,
+                  saveCompletedAt: Date.now(),
                 });
               }),
-              catchError(() => {
+              catchError((error: unknown) => {
+                console.error('[AvatarCustomizationStore] create failed', error);
+
                 patchState(store, {
                   status: 'error',
                   errorMessage: 'Impossible de créer la personnalisation de l’avatar.',
@@ -159,6 +189,7 @@ export const AvatarCustomizationStore = signalStore(
                   status: 'ready',
                   draftCustomization: null,
                   errorMessage: null,
+                  saveCompletedAt: Date.now(),
                 });
               }),
               catchError(() => {
@@ -220,6 +251,37 @@ export const AvatarCustomizationStore = signalStore(
       ),
     ),
 
+    resetDraftToDefault(): void {
+      patchState(store, {
+        draftCustomization: DEFAULT_AVATAR_CUSTOMIZATION,
+        draftValid: true,
+        errorMessage: null,
+      });
+    },
+
+    clearDraft(): void {
+      patchState(store, {
+        draftCustomization: null,
+        draftValid: true,
+      });
+    },
+
+    saveDraft(): void {
+      const customization = store.effectiveCustomization();
+
+      const payload: CreateAvatarCustomizationRequestApiDto = {
+        bodyType: customization.bodyType ?? DEFAULT_AVATAR_BODY_TYPE,
+        skinTone: customization.skinTone ?? DEFAULT_AVATAR_SKIN_TONE,
+        skinIntensity: customization.skinIntensity ?? DEFAULT_AVATAR_SKIN_INTENSITY,
+        hairStyle: customization.hairStyle ?? DEFAULT_AVATAR_HAIR_STYLE,
+        hairColor: customization.hairColor ?? DEFAULT_AVATAR_HAIR_COLOR,
+        beardStyle: customization.beardStyle ?? DEFAULT_AVATAR_BEARD_STYLE,
+        beardColor: customization.beardColor ?? DEFAULT_AVATAR_BEARD_COLOR,
+      };
+
+      this.save(payload);
+    },
+
     previewDraft(payload: CreateAvatarCustomizationRequestApiDto): void {
       patchState(store, {
         draftCustomization: {
@@ -227,12 +289,6 @@ export const AvatarCustomizationStore = signalStore(
           ...store.customization(),
           ...payload,
         },
-      });
-    },
-
-    clearDraft(): void {
-      patchState(store, {
-        draftCustomization: null,
       });
     },
 
@@ -251,6 +307,11 @@ export const AvatarCustomizationStore = signalStore(
         status: 'ready',
         draftCustomization: null,
         errorMessage: null,
+      });
+    },
+    setDraftValidity(isValid: boolean): void {
+      patchState(store, {
+        draftValid: isValid,
       });
     },
   })),

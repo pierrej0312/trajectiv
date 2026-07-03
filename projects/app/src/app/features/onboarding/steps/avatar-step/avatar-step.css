@@ -1,12 +1,6 @@
 @reference "tailwindcss";
 
 .avatar-step {
-  @apply flex flex-col gap-4;
-}
-.avatar-step__options {
-  @apply flex flex-wrap gap-4;
-}
-.avatar-step {
   @apply flex flex-col gap-6;
 }
 
@@ -35,34 +29,27 @@
   background: color-mix(in srgb, var(--p-red-500) 10%, transparent);
 }
 
-.avatar-step__group-title {
-  @apply mb-4 text-sm font-semibold;
-  color: var(--p-text-color);
+.avatar-step__asset-grid {
+  @apply grid gap-3;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 15rem));
 }
 
-.avatar-step__options,
 .avatar-step__skin-options {
-  @apply flex flex-wrap gap-3 justify-stretch w-full;
+  @apply flex w-full flex-wrap gap-3;
 }
 
-.avatar-step__option,
 .avatar-step__skin-option {
-  @apply inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition max-w-3xs min-w-fit;
+  @apply inline-flex min-w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm transition;
   border-color: color-mix(in srgb, var(--p-surface-50) 5%, transparent);
   color: var(--p-text-muted-color);
-  width: 0;
-  flex: 1;
-  max-width: 2rem !important;
   background: color-mix(in srgb, var(--p-surface-50) 5%, transparent);
 }
 
-.avatar-step__option:hover,
 .avatar-step__skin-option:hover {
   border-color: color-mix(in srgb, var(--p-primary-color) 38%, transparent);
   color: var(--p-text-color);
 }
 
-.avatar-step__option--selected,
 .avatar-step__skin-option--selected {
   border-color: color-mix(in srgb, var(--p-primary-color) 54%, transparent);
   color: var(--p-primary-color);
@@ -75,12 +62,8 @@
 }
 
 .avatar-step__field {
-  @apply mt-4 flex gap-4 text-sm items-center;
+  @apply mt-4 flex items-center gap-4 text-sm;
   color: var(--p-text-muted-color);
-}
-
-.avatar-step__field input[type='range'] {
-  @apply w-fit;
 }
 
 .avatar-step__field input[type='color'] {
@@ -88,118 +71,12 @@
   border-color: color-mix(in srgb, var(--p-surface-500) 22%, transparent);
 }
 
-.avatar-step__actions {
-  @apply flex flex-wrap items-center justify-end gap-3 pt-2;
-}
+@media (max-width: 640px) {
+  .avatar-step__asset-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
-.avatar-step__secondary,
-.avatar-step__primary {
-  @apply rounded-full;
-}
-.avatar-step__card-grid {
-  @apply grid gap-3;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-}
-
-.avatar-step__asset-card {
-  @apply relative flex min-h-48 flex-col overflow-hidden rounded-[1.75rem] border p-3 text-left transition duration-300 ease-in-out;
-  border-color: color-mix(in srgb, var(--p-surface-50) 18%, transparent);
-  color: var(--p-text-color);
-  max-width: 15rem;
-  background:
-    radial-gradient(
-      circle at 20% 0%,
-      color-mix(in srgb, var(--p-primary-color) 8%, transparent),
-      transparent 80%
-    ),
-    color-mix(in srgb, var(--p-surface-100) 1%, transparent);
-  backdrop-filter: blur(18px);
-}
-
-.avatar-step__asset-card::before {
-  content: '';
-  @apply pointer-events-none absolute inset-0 opacity-0 transition duration-300;
-  background:
-    radial-gradient(
-      circle at 70% 16%,
-      color-mix(in srgb, var(--p-primary-color) 22%, transparent),
-      transparent 38%
-    );
-}
-
-.avatar-step__asset-card:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--p-primary-color) 34%, transparent);
-}
-
-.avatar-step__asset-card:hover::before {
-  opacity: 1;
-}
-
-.avatar-step__asset-card--selected {
-  border-color: color-mix(in srgb, var(--p-primary-color) 68%, transparent);
-  background:
-    radial-gradient(
-      circle at 72% 14%,
-      color-mix(in srgb, var(--p-primary-color) 24%, transparent),
-      transparent 34%
-    ),
-    radial-gradient(
-      circle at 18% 0%,
-      color-mix(in srgb, var(--p-primary-color) 12%, transparent),
-      transparent 44%
-    ),
-    color-mix(in srgb, var(--p-surface-50) 5%, transparent);
-  box-shadow:
-    0 18px 48px color-mix(in srgb, var(--p-primary-color) 12%, transparent),
-    inset 0 0 0 1px color-mix(in srgb, var(--p-surface-50) 2%, transparent);
-}
-
-.avatar-step__asset-visual {
-  @apply relative z-10 flex h-28 items-center justify-center overflow-hidden rounded-[1.35rem];
-  background:
-    radial-gradient(
-      circle at 50% 20%,
-      color-mix(in srgb, var(--p-primary-color) 12%, transparent),
-      transparent 52%
-    ),
-    color-mix(in srgb, var(--p-surface-100) 52%, transparent);
-}
-
-.avatar-step__asset-visual img {
-  @apply h-full w-full object-contain p-2 transition duration-300;
-}
-
-.avatar-step__asset-card:hover .avatar-step__asset-visual img {
-  transform: scale(1.035);
-}
-
-.avatar-step__asset-card--selected .avatar-step__asset-visual img {
-  transform: scale(1.045);
-}
-
-.avatar-step__asset-content {
-  @apply relative z-10 mt-3 flex flex-col gap-1;
-}
-
-.avatar-step__asset-label {
-  @apply text-sm font-semibold;
-  color: var(--p-text-color);
-}
-
-.avatar-step__asset-description {
-  @apply text-xs leading-5;
-  color: var(--p-text-muted-color);
-}
-
-.avatar-step__asset-check {
-  @apply absolute right-3 top-3 z-20 grid h-7 w-7 place-items-center rounded-full text-xs font-bold opacity-0 transition duration-300;
-  color: var(--p-primary-inverse-color);
-  background: var(--p-primary-color);
-  transform: scale(0.82);
-}
-
-.avatar-step__asset-card--selected .avatar-step__asset-check {
-  opacity: 1;
-  transform: scale(1);
+  .avatar-step__field {
+    @apply flex-col items-start;
+  }
 }

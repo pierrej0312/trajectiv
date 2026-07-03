@@ -1,0 +1,43 @@
+<button
+  type="button"
+  class="selectable-card"
+  [class.selectable-card--selected]="selected()"
+  [class.selectable-card--asset]="mode() === 'asset'"
+  [class.selectable-card--choice]="mode() === 'choice'"
+  [class.selectable-card--large]="size() === 'large'"
+  [class.selectable-card--mobile-compact]="mobileCompact()"
+  [disabled]="disabled()"
+  (click)="selectedChange.emit()"
+>
+  <span class="selectable-card__radio" aria-hidden="true"></span>
+
+  @if (mode() === 'asset' && imageUrl()) {
+    <span class="selectable-card__visual selectable-card__visual--image">
+      <img
+        [src]="imageUrl()!"
+        [alt]="label()"
+        loading="lazy"
+      />
+    </span>
+  } @else if (icon()) {
+    <span class="selectable-card__visual selectable-card__visual--icon" aria-hidden="true">
+      <i [class]="icon()"></i>
+    </span>
+  }
+
+  <span class="selectable-card__content">
+    <strong class="selectable-card__label">
+      {{ label() }}
+    </strong>
+
+    @if (description()) {
+      <span class="selectable-card__description">
+        {{ description() }}
+      </span>
+    }
+  </span>
+
+  <span class="selectable-card__check" aria-hidden="true">
+    ✓
+  </span>
+</button>
