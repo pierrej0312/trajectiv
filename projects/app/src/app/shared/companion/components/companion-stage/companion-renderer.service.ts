@@ -275,6 +275,7 @@ export class CompanionRendererService {
     this.renderer = new WebGLRenderer({
       antialias: true,
       alpha: true,
+      preserveDrawingBuffer: true,
     });
 
     this.renderer.outputColorSpace = SRGBColorSpace;
@@ -296,6 +297,156 @@ export class CompanionRendererService {
     host.appendChild(this.renderer.domElement);
 
     this.applyLightingPreset('day');
+  }
+
+  async captureAvatarPreviewBlob(type = 'image/png', quality = 0.92): Promise<Blob> {
+    if (!this.renderer || !this.scene || !this.camera || !this.model) {
+      throw new Error('Companion renderer is not ready for avatar preview capture.');
+    }
+
+    const previousCameraPosition = this.camera.position.clone();
+    const previousCameraQuaternion = this.camera.quaternion.clone();
+    const previousCameraZoom = this.camera.zoom;
+    const previousCameraNear = this.camera.near;
+    const previousCameraFar = this.camera.far;
+
+    const previousAction = this.currentAction;
+    const previousMixerTimeScale = this.mixer?.timeScale ?? 1;
+
+    try {
+      this.freezeCompanionForCapture();
+
+      this.frameCameraForAvatarPreview(this.model, this.camera);
+
+      this.camera.updateProjectionMatrix();
+
+      this.renderer.render(this.scene, this.camera);
+
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => resolve());
+      });
+
+      this.renderer.render(this.scene, this.camera);
+
+      return await this.canvasToBlob(this.renderer.domElement, type, quality);
+    } finally {
+      this.camera.position.copy(previousCameraPosition);
+      this.camera.quaternion.copy(previousCameraQuaternion);
+      this.camera.zoom = previousCameraZoom;
+      this.camera.near = previousCameraNear;
+      this.camera.far = previousCameraFar;
+      this.camera.updateProjectionMatrix();
+
+      this.restoreCompanionAfterCapture(previousAction, previousMixerTimeScale);
+
+      this.renderer.render(this.scene, this.camera);
+    }
+  }
+
+  private freezeCompanionForCapture(): void {
+    const idleAction = this.actions.get('idle');
+
+    if (!this.mixer) {
+      return;
+    }
+
+    this.clearFinishedHandler();
+
+    if (idleAction) {
+      for (const action of this.actions.values()) {
+        if (action === idleAction) {
+          continue;
+        }
+
+        action.stop();
+      }
+
+      idleAction.reset();
+      idleAction.enabled = true;
+      idleAction.paused = false;
+      idleAction.time = 0;
+      idleAction.setLoop(LoopRepeat, Infinity);
+      idleAction.setEffectiveTimeScale(1);
+      idleAction.setEffectiveWeight(1);
+      idleAction.play();
+
+      this.currentAction = idleAction;
+
+      this.mixer.timeScale = 1;
+      this.mixer.update(0);
+
+      idleAction.paused = true;
+      this.mixer.timeScale = 0;
+
+      return;
+    }
+
+    this.mixer.timeScale = 0;
+    this.mixer.update(0);
+  }
+
+  private restoreCompanionAfterCapture(
+    previousAction: AnimationAction | null,
+    previousMixerTimeScale: number,
+  ): void {
+    if (!this.mixer) {
+      return;
+    }
+
+    for (const action of this.actions.values()) {
+      action.paused = false;
+    }
+
+    this.mixer.timeScale = previousMixerTimeScale;
+
+    if (previousAction && Array.from(this.actions.values()).includes(previousAction)) {
+      previousAction.reset();
+      previousAction.enabled = true;
+      previousAction.paused = false;
+      previousAction.setEffectiveTimeScale(1);
+      previousAction.setEffectiveWeight(1);
+      previousAction.play();
+
+      this.currentAction = previousAction;
+      return;
+    }
+
+    this.playLoop('idle');
+  }
+
+  private frameCameraForAvatarPreview(character: Object3D, camera: PerspectiveCamera): void {
+    const box = new Box3().setFromObject(character);
+    const center = box.getCenter(new Vector3());
+    const size = box.getSize(new Vector3());
+
+    const target = new Vector3(center.x, box.min.y + size.y * 0.76, center.z);
+
+    const frameHeight = size.y * 0.4;
+    const fovRadians = (camera.fov * Math.PI) / 180;
+    const distance = frameHeight / (2 * Math.tan(fovRadians / 2));
+
+    camera.position.set(target.x, target.y, target.z + distance * 1.35);
+
+    camera.lookAt(target);
+    camera.near = 0.01;
+    camera.far = 100;
+  }
+
+  private canvasToBlob(canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error('Avatar preview capture returned an empty blob.'));
+            return;
+          }
+
+          resolve(blob);
+        },
+        type,
+        quality,
+      );
+    });
   }
 
   setLightingPreset(preset: CompanionLightingPreset): void {
@@ -703,16 +854,19 @@ export class CompanionRendererService {
       const url = this.getAnimationUrl(source);
       const gltf = await this.loadGltf(url);
 
-      console.log('[Companion] loaded animation clips', {
-        actionName: name,
-        url,
-        clips: gltf.animations.map((clip, clipIndex) => ({
-          index: clipIndex,
-          name: clip.name,
-          duration: clip.duration,
-          tracks: clip.tracks.length,
-        })),
-      });
+      console.log(
+        `[Companion] clips for ${name}`,
+        JSON.stringify(
+          gltf.animations.map((clip, clipIndex) => ({
+            index: clipIndex,
+            name: clip.name,
+            duration: Number(clip.duration.toFixed(3)),
+            tracks: clip.tracks.length,
+          })),
+          null,
+          2,
+        ),
+      );
 
       this.registerClips(gltf.animations, name, source);
 

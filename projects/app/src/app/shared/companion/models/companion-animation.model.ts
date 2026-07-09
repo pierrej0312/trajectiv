@@ -4,7 +4,13 @@ export type CompanionAnimationName =
   | 'victory'
   | 'levelUp'
   | 'levelDown'
-  | 'dancing';
+  | 'dancing'
+  | 'excited'
+  | 'lookAround'
+  | 'surprised'
+  | 'talkingPhone'
+  | 'searchPocket'
+  | 'thinking';
 
 export type CompanionMood = 'idle' | 'focused' | 'levelUp' | 'levelDown' | 'victory' | 'ready';
 

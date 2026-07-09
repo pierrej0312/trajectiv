@@ -32,6 +32,7 @@ type AvatarCustomizationState = {
   status: AvatarCustomizationStatus;
   errorMessage: string | null;
   saveCompletedAt: number | null;
+  avatarPreviewUrl: string | null;
 };
 
 const initialState: AvatarCustomizationState = {
@@ -41,6 +42,7 @@ const initialState: AvatarCustomizationState = {
   status: 'idle',
   errorMessage: null,
   saveCompletedAt: null,
+  avatarPreviewUrl: null,
 };
 
 export const AvatarCustomizationStore = signalStore(
@@ -55,8 +57,11 @@ export const AvatarCustomizationStore = signalStore(
     isDeleting: computed(() => store.status() === 'deleting'),
     isError: computed(() => store.status() === 'error'),
 
+    isIdle: computed(() => store.status() === 'idle'),
+
     hasCustomization: computed(() => store.customization() !== null),
     hasDraft: computed(() => store.draftCustomization() !== null),
+    hasAvatarPreview: computed(() => store.avatarPreviewUrl() !== null),
 
     effectiveCustomization: computed(
       () => store.draftCustomization() ?? store.customization() ?? DEFAULT_AVATAR_CUSTOMIZATION,
@@ -109,11 +114,18 @@ export const AvatarCustomizationStore = signalStore(
               }),
               catchError((error: unknown) => {
                 if (isNotFoundError(error)) {
+                  const previousUrl = store.avatarPreviewUrl();
+
+                  if (previousUrl) {
+                    URL.revokeObjectURL(previousUrl);
+                  }
+
                   patchState(store, {
                     customization: null,
-                    draftCustomization: null,
                     status: 'ready',
+                    draftCustomization: null,
                     errorMessage: null,
+                    avatarPreviewUrl: null,
                   });
 
                   return EMPTY;
@@ -220,20 +232,34 @@ export const AvatarCustomizationStore = signalStore(
             })
             .pipe(
               tap(() => {
+                const previousUrl = store.avatarPreviewUrl();
+
+                if (previousUrl) {
+                  URL.revokeObjectURL(previousUrl);
+                }
+
                 patchState(store, {
                   customization: null,
                   status: 'ready',
                   draftCustomization: null,
                   errorMessage: null,
+                  avatarPreviewUrl: null,
                 });
               }),
               catchError((error: unknown) => {
                 if (isNotFoundError(error)) {
+                  const previousUrl = store.avatarPreviewUrl();
+
+                  if (previousUrl) {
+                    URL.revokeObjectURL(previousUrl);
+                  }
+
                   patchState(store, {
                     customization: null,
                     status: 'ready',
                     draftCustomization: null,
                     errorMessage: null,
+                    avatarPreviewUrl: null,
                   });
 
                   return EMPTY;
@@ -250,6 +276,30 @@ export const AvatarCustomizationStore = signalStore(
         ),
       ),
     ),
+
+    setAvatarPreviewBlob(blob: Blob): void {
+      const previousUrl = store.avatarPreviewUrl();
+
+      if (previousUrl) {
+        URL.revokeObjectURL(previousUrl);
+      }
+
+      patchState(store, {
+        avatarPreviewUrl: URL.createObjectURL(blob),
+      });
+    },
+
+    clearAvatarPreview(): void {
+      const previousUrl = store.avatarPreviewUrl();
+
+      if (previousUrl) {
+        URL.revokeObjectURL(previousUrl);
+      }
+
+      patchState(store, {
+        avatarPreviewUrl: null,
+      });
+    },
 
     resetDraftToDefault(): void {
       patchState(store, {

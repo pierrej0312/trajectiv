@@ -26,7 +26,7 @@ const keycloakInterceptorCondition = createInterceptorCondition<IncludeBearerTok
   urlPattern: new RegExp(`^(${environment.keycloak.config.url})(\/.*)?$`, 'i'),
 });
 const backEndInterceptorCondition = createInterceptorCondition<IncludeBearerTokenCondition>({
-  bearerPrefix: 'bearer',
+  bearerPrefix: 'Bearer',
   urlPattern: new RegExp(`^(${environment.keycloak.config.backEndUri}|${environment.uri})(\/.*)?$`, 'i'),
 });
 

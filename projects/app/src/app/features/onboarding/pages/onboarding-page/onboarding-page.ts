@@ -6,6 +6,7 @@ import {
   inject,
   OnInit,
   signal,
+  viewChild,
 } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ButtonDirective } from 'primeng/button';
@@ -28,6 +29,7 @@ export class OnboardingPage implements OnInit {
   readonly onboarding = inject(OnboardingStore);
   readonly appContext = inject(AppContextStore);
   readonly avatarStore = inject(AvatarCustomizationStore);
+  private readonly companionStage = viewChild(CompanionStageComponent);
 
   readonly isAvatarStep = computed(() => {
     return this.onboarding.activeStepKey() === 'avatar';
@@ -76,10 +78,14 @@ export class OnboardingPage implements OnInit {
     this.avatarStore.resetDraftToDefault();
   }
 
-  private continueAvatarStep(): void {
+  private async continueAvatarStep(): Promise<void> {
+    console.log('[OnboardingPage] continue avatar step');
+
     if (this.avatarStore.isSaving()) {
       return;
     }
+
+    await this.captureAvatarPreviewIfAvailable();
 
     if (!this.avatarStore.hasDraft()) {
       this.onboarding.goNext();
@@ -110,6 +116,24 @@ export class OnboardingPage implements OnInit {
   });
 
   ngOnInit(): void {
-    this.avatarStore.load();
+    if (this.avatarStore.isIdle()) {
+      this.avatarStore.load();
+    }
+  }
+
+  private async captureAvatarPreviewIfAvailable(): Promise<void> {
+    const stage = this.companionStage();
+
+    if (!stage) {
+      return;
+    }
+
+    try {
+      const blob = await stage.captureAvatarPreview();
+      this.avatarStore.setAvatarPreviewBlob(blob);
+      console.log('blob captured: ', blob);
+    } catch (error) {
+      console.warn('[OnboardingPage] Avatar preview capture failed', error);
+    }
   }
 }

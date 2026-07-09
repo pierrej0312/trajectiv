@@ -1,4 +1,4 @@
-import { computed, DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, DestroyRef, effect, inject, Injectable, signal, untracked } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -21,7 +21,7 @@ import {
   UpdateMeProfileRequestApiDto,
 } from '@shared-api-client';
 import { AppContextStore } from '@core';
-import { CompanionAnimationCommand } from '@shared/companion/models/companion-animation.model';
+import { CompanionAnimationCommand, CompanionAnimationName } from '@shared/companion/models/companion-animation.model';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 
 type CareerGoal = UpdateMeProfileRequestApiDto.CareerGoalEnum;
@@ -48,6 +48,67 @@ type TargetRoleSearchCriteria = {
   readonly family: JobRoleFamily | null;
 };
 
+type OnboardingMissingField =
+  | 'careerGoal'
+  | 'targetRole'
+  | 'targetRoleLabel'
+  | 'targetRoleId'
+  | 'targetRoleSource'
+  | 'experienceLevel';
+
+type OnboardingMissingFieldVm = {
+  readonly field: OnboardingMissingField | string;
+  readonly label: string;
+  readonly description: string;
+  readonly icon: string;
+  readonly route: string;
+};
+
+const ONBOARDING_MISSING_FIELD_BY_FIELD: Record<string, OnboardingMissingFieldVm> = {
+  careerGoal: {
+    field: 'careerGoal',
+    label: 'Objectif principal',
+    description: 'Choisis la raison principale pour laquelle tu utilises Trajectiv.',
+    icon: 'pi pi-compass',
+    route: '/app/onboarding/goal',
+  },
+  targetRole: {
+    field: 'targetRole',
+    label: 'Rôle cible',
+    description: 'Indique le métier ou le rôle que tu souhaites viser.',
+    icon: 'pi pi-briefcase',
+    route: '/app/onboarding/target-role',
+  },
+  targetRoleLabel: {
+    field: 'targetRoleLabel',
+    label: 'Rôle cible',
+    description: 'Indique le métier ou le rôle que tu souhaites viser.',
+    icon: 'pi pi-briefcase',
+    route: '/app/onboarding/target-role',
+  },
+  targetRoleId: {
+    field: 'targetRoleId',
+    label: 'Rôle cible',
+    description: 'Sélectionne un rôle du catalogue ou garde un rôle personnalisé.',
+    icon: 'pi pi-briefcase',
+    route: '/app/onboarding/target-role',
+  },
+  targetRoleSource: {
+    field: 'targetRoleSource',
+    label: 'Rôle cible',
+    description: 'Confirme ton rôle cible.',
+    icon: 'pi pi-briefcase',
+    route: '/app/onboarding/target-role',
+  },
+  experienceLevel: {
+    field: 'experienceLevel',
+    label: 'Niveau d’expérience',
+    description: 'Sélectionne ton niveau pour adapter l’accompagnement.',
+    icon: 'pi pi-chart-line',
+    route: '/app/onboarding/experience-level',
+  },
+};
+
 export type OnboardingStepKey =
   | 'welcome'
   | 'avatar'
@@ -72,7 +133,7 @@ export type OnboardingStepVm = OnboardingStep & {
   readonly disabled: boolean;
 };
 
-const ONBOARDING_STEPS: readonly OnboardingStep[] = [
+export const ONBOARDING_STEPS: readonly OnboardingStep[] = [
   {
     key: 'welcome',
     label: 'Bienvenue',
@@ -118,6 +179,33 @@ const ONBOARDING_STEPS: readonly OnboardingStep[] = [
   },
 ];
 
+const CAREER_GOAL_ANIMATION_BY_GOAL: Record<
+  UpdateMeProfileRequestApiDto.CareerGoalEnum,
+  CompanionAnimationName
+> = {
+  [UpdateMeProfileRequestApiDto.CareerGoalEnum.FindJob]: 'excited',
+  [UpdateMeProfileRequestApiDto.CareerGoalEnum.FindInternship]: 'lookAround',
+  [UpdateMeProfileRequestApiDto.CareerGoalEnum.ChangeCareer]: 'surprised',
+  [UpdateMeProfileRequestApiDto.CareerGoalEnum.PrepareInterview]: 'talkingPhone',
+  [UpdateMeProfileRequestApiDto.CareerGoalEnum.ImproveResume]: 'searchPocket',
+  [UpdateMeProfileRequestApiDto.CareerGoalEnum.TrackOpportunities]: 'thinking',
+};
+
+const EXPERIENCE_LEVEL_ORDER: readonly ExperienceLevel[] = [
+  UpdateMeProfileRequestApiDto.ExperienceLevelEnum.Student,
+  UpdateMeProfileRequestApiDto.ExperienceLevelEnum.Junior,
+  UpdateMeProfileRequestApiDto.ExperienceLevelEnum.Medior,
+  UpdateMeProfileRequestApiDto.ExperienceLevelEnum.Senior,
+  UpdateMeProfileRequestApiDto.ExperienceLevelEnum.CareerChange,
+];
+
+const EXPERIENCE_LEVEL_SCALE_ORDER: readonly ExperienceLevel[] = [
+  UpdateMeProfileRequestApiDto.ExperienceLevelEnum.Student,
+  UpdateMeProfileRequestApiDto.ExperienceLevelEnum.Junior,
+  UpdateMeProfileRequestApiDto.ExperienceLevelEnum.Medior,
+  UpdateMeProfileRequestApiDto.ExperienceLevelEnum.Senior,
+];
+
 @Injectable({
   providedIn: 'root',
 })
@@ -134,12 +222,57 @@ export class OnboardingStore {
   readonly displayName = signal('');
   readonly careerGoal = signal<CareerGoal | null>(null);
 
+  readonly onboardingMissingFields = signal<readonly string[]>([]);
+
+  readonly onboardingMissingFieldItems = computed<readonly OnboardingMissingFieldVm[]>(() => {
+    const seenRoutes = new Set<string>();
+
+    return this.onboardingMissingFields()
+      .map(
+        (field) =>
+          ONBOARDING_MISSING_FIELD_BY_FIELD[field] ??
+          this.createUnknownOnboardingMissingField(field),
+      )
+      .filter((item) => {
+        if (seenRoutes.has(item.route)) {
+          return false;
+        }
+
+        seenRoutes.add(item.route);
+        return true;
+      });
+  });
+
+  readonly hasOnboardingMissingFields = computed(() => {
+    return this.onboardingMissingFieldItems().length > 0;
+  });
+
+  readonly careerGoalLabels: Record<CareerGoal, string> = {
+    FIND_JOB: 'Trouver un emploi',
+    FIND_INTERNSHIP: 'Trouver un stage',
+    CHANGE_CAREER: 'Changer de métier',
+    PREPARE_INTERVIEW: 'Préparer un entretien',
+    IMPROVE_RESUME: 'Améliorer mon CV',
+    TRACK_OPPORTUNITIES: 'Suivre mes opportunités',
+  };
+
+  readonly careerGoalDescriptions: Record<CareerGoal, string> = {
+    FIND_JOB: 'Construire une trajectoire claire pour décrocher un emploi.',
+    FIND_INTERNSHIP: 'Préparer un profil crédible pour obtenir un stage.',
+    CHANGE_CAREER: 'Rendre ta transition lisible, cohérente et rassurante.',
+    PREPARE_INTERVIEW: 'Transformer ta préparation en réponses solides.',
+    IMPROVE_RESUME: 'Améliorer ton CV pour mieux valoriser ton parcours.',
+    TRACK_OPPORTUNITIES: 'Suivre tes candidatures et garder une vision claire.',
+  };
+
   readonly targetRoleQuery = signal('');
   readonly targetRoleFamily = signal<JobRoleFamily | null>(null);
   readonly targetRoleSelection = signal<TargetRoleSelection | null>(null);
   readonly targetRoleSuggestions = signal<readonly JobRoleSuggestionApiDto[]>([]);
   readonly isSearchingTargetRoles = signal(false);
   readonly targetRoleSearchMessage = signal<string | null>(null);
+
+  private readonly hasHydratedFromMe = signal(false);
 
   readonly targetRoleFamilies = signal<readonly JobRoleFamily[]>([
     'SOFTWARE_ENGINEERING',
@@ -165,7 +298,79 @@ export class OnboardingStore {
     OTHER: 'Autre',
   };
 
-  readonly experienceLevel = signal<ExperienceLevel | null>(null);
+  readonly experienceLevel = signal<ExperienceLevel>(
+    UpdateMeProfileRequestApiDto.ExperienceLevelEnum.Junior,
+  );
+
+  readonly experienceLevels = signal<readonly ExperienceLevel[]>(EXPERIENCE_LEVEL_ORDER);
+
+  readonly selectedExperienceLevelIndex = computed(() => {
+    const level = this.experienceLevel();
+
+    if (!level) {
+      return -1;
+    }
+
+    return EXPERIENCE_LEVEL_ORDER.indexOf(level);
+  });
+
+  readonly selectedScaleExperienceLevelIndex = computed(() => {
+    const level = this.experienceLevel();
+
+    if (!level) {
+      return -1;
+    }
+
+    return EXPERIENCE_LEVEL_SCALE_ORDER.indexOf(level);
+  });
+
+  readonly experienceProgress = computed(() => {
+    const index = this.selectedScaleExperienceLevelIndex();
+
+    if (index < 0) {
+      return this.experienceLevel() ===
+        UpdateMeProfileRequestApiDto.ExperienceLevelEnum.CareerChange
+        ? 50
+        : 0;
+    }
+
+    return Math.round(((index + 1) / EXPERIENCE_LEVEL_SCALE_ORDER.length) * 100);
+  });
+
+  readonly canDecreaseExperienceLevel = computed(() => {
+    return this.selectedExperienceLevelIndex() > 0;
+  });
+
+  readonly canIncreaseExperienceLevel = computed(() => {
+    const index = this.selectedExperienceLevelIndex();
+
+    return index >= 0 && index < EXPERIENCE_LEVEL_ORDER.length - 1;
+  });
+
+  readonly experienceLevelLabels: Record<ExperienceLevel, string> = {
+    STUDENT: 'Étudiant',
+    JUNIOR: 'Junior',
+    MEDIOR: 'Medior',
+    SENIOR: 'Senior',
+    CAREER_CHANGE: 'Reconversion',
+  };
+
+  readonly experienceLevelDescriptions: Record<ExperienceLevel, string> = {
+    STUDENT: 'Je suis encore en formation ou au tout début de mon parcours.',
+    JUNIOR: 'Je sais pratiquer, mais j’ai besoin de structurer mes réponses.',
+    MEDIOR: 'Je suis autonome sur des projets réels et je veux mieux valoriser mon expérience.',
+    SENIOR: 'Je veux affiner mon positionnement, mon discours et mes décisions techniques.',
+    CAREER_CHANGE: 'Je viens d’un autre métier et je veux rendre ma transition crédible.',
+  };
+
+  readonly experienceLevelHints: Record<ExperienceLevel, string> = {
+    STUDENT: 'Trajectiv t’aidera à transformer tes apprentissages en discours clair et rassurant.',
+    JUNIOR: 'Trajectiv t’aidera à transformer ta pratique en réponses solides d’entretien.',
+    MEDIOR: 'Trajectiv mettra davantage l’accent sur autonomie, impact projet et arbitrages.',
+    SENIOR: 'Trajectiv privilégiera les questions de profondeur, leadership et architecture.',
+    CAREER_CHANGE:
+      'Trajectiv t’aidera à relier ton ancien parcours à ton nouveau rôle cible sans te dévaloriser.',
+  };
 
   readonly isSubmitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -266,6 +471,12 @@ export class OnboardingStore {
 
   readonly canGoPrevious = computed(() => this.activeStepIndex() > 0);
 
+  readonly shouldPatchProfileBeforeNext = computed(() => {
+    const key = this.activeStepKey();
+
+    return key === 'goal' || key === 'target-role' || key === 'experience-level';
+  });
+
   readonly canGoNext = computed(() => {
     const key = this.activeStepKey();
 
@@ -306,24 +517,86 @@ export class OnboardingStore {
         this.currentUrl.set(this.normalizeUrl(event.urlAfterRedirects));
       });
 
+    effect(() => {
+      const me = this.appContext.me();
+
+      if (!me || this.hasHydratedFromMe()) {
+        return;
+      }
+
+      const profile = me.profile;
+
+      if (!profile) {
+        return;
+      }
+
+      untracked(() => {
+        this.displayName.set(me.displayName ?? this.suggestedDisplayName());
+
+        if (profile.careerGoal) {
+          this.careerGoal.set(profile.careerGoal);
+        }
+
+        if (profile.targetRoleLabel) {
+          this.targetRoleQuery.set(profile.targetRoleLabel);
+
+          if (profile.targetRoleSource === 'CATALOG' && profile.targetRoleId) {
+            this.targetRoleSelection.set({
+              source: 'CATALOG',
+              id: profile.targetRoleId,
+              label: profile.targetRoleLabel,
+            });
+          } else {
+            this.targetRoleSelection.set({
+              source: 'CUSTOM',
+              id: null,
+              label: profile.targetRoleLabel,
+            });
+          }
+        }
+
+        if (profile.experienceLevel) {
+          this.experienceLevel.set(profile.experienceLevel);
+        }
+
+        this.hasHydratedFromMe.set(true);
+      });
+    });
+
     effect((onCleanup) => {
       const step = this.activeStepKey();
 
-      this.clearIdleDanceTimer();
-      this.manualCompanionCommand.set(null);
+      untracked(() => {
+        this.clearIdleDanceTimer();
+        this.manualCompanionCommand.set(null);
+      });
 
       if (step === 'welcome') {
         return;
       }
 
       if (step === 'review') {
-        this.playCompanionOnce('victory', 'idle');
+        untracked(() => {
+          this.playCompanionOnce('victory', 'idle');
+        });
+
+        onCleanup(() => {
+          untracked(() => {
+            this.clearIdleDanceTimer();
+          });
+        });
+
+        return;
       }
 
-      this.scheduleIdleDance();
+      untracked(() => {
+        this.scheduleIdleDance();
+      });
 
       onCleanup(() => {
-        this.clearIdleDanceTimer();
+        untracked(() => {
+          this.clearIdleDanceTimer();
+        });
       });
     });
     effect(() => {
@@ -338,7 +611,16 @@ export class OnboardingStore {
   }
 
   setCareerGoal(value: CareerGoal): void {
+    if (this.careerGoal() === value) {
+      return;
+    }
+
     this.careerGoal.set(value);
+    this.clearOnboardingMissingFields('careerGoal');
+
+    const animation = CAREER_GOAL_ANIMATION_BY_GOAL[value];
+
+    this.playCompanionOnce(animation, 'idle');
   }
 
   setTargetRoleQuery(value: string): void {
@@ -379,6 +661,7 @@ export class OnboardingStore {
     });
 
     this.targetRoleQuery.set(suggestion.label);
+    this.clearTargetRoleMissingFields();
     this.targetRoleSearchMessage.set(null);
   }
 
@@ -396,11 +679,61 @@ export class OnboardingStore {
     });
 
     this.targetRoleSuggestions.set([]);
+    this.clearTargetRoleMissingFields();
     this.targetRoleSearchMessage.set(null);
   }
 
   setExperienceLevel(value: ExperienceLevel): void {
+    const previousIndex = this.selectedExperienceLevelIndex();
+    const nextIndex = EXPERIENCE_LEVEL_ORDER.indexOf(value);
+
+    if (nextIndex === -1 || this.experienceLevel() === value) {
+      return;
+    }
+
     this.experienceLevel.set(value);
+    this.clearOnboardingMissingFields('experienceLevel');
+
+    if (previousIndex === -1 || nextIndex > previousIndex) {
+      this.playCompanionOnce('levelUp', 'idle');
+      return;
+    }
+
+    this.playCompanionOnce('levelDown', 'idle');
+  }
+
+  increaseExperienceLevel(): void {
+    const currentIndex = this.selectedExperienceLevelIndex();
+
+    if (currentIndex === -1) {
+      this.setExperienceLevel(UpdateMeProfileRequestApiDto.ExperienceLevelEnum.Junior);
+      return;
+    }
+
+    const nextLevel = EXPERIENCE_LEVEL_ORDER[currentIndex + 1];
+
+    if (!nextLevel) {
+      return;
+    }
+
+    this.setExperienceLevel(nextLevel);
+  }
+
+  decreaseExperienceLevel(): void {
+    const currentIndex = this.selectedExperienceLevelIndex();
+
+    if (currentIndex === -1) {
+      this.setExperienceLevel(UpdateMeProfileRequestApiDto.ExperienceLevelEnum.Student);
+      return;
+    }
+
+    const previousLevel = EXPERIENCE_LEVEL_ORDER[currentIndex - 1];
+
+    if (!previousLevel) {
+      return;
+    }
+
+    this.setExperienceLevel(previousLevel);
   }
 
   setDisplayName(value: string): void {
@@ -424,6 +757,15 @@ export class OnboardingStore {
       return;
     }
 
+    if (this.shouldPatchProfileBeforeNext()) {
+      this.patchProfileAndGoNext();
+      return;
+    }
+
+    this.navigateToNextStep();
+  }
+
+  private navigateToNextStep(): void {
     const nextStep = ONBOARDING_STEPS[this.activeStepIndex() + 1];
 
     if (!nextStep) {
@@ -432,7 +774,54 @@ export class OnboardingStore {
 
     this.setStepDirection('next');
     void this.router.navigateByUrl(nextStep.route);
-    document.querySelector('.app-layout')!.scrollTo({ top: 0 });
+
+    document.querySelector('.app-layout')?.scrollTo({ top: 0 });
+  }
+
+  private patchProfileAndGoNext(): void {
+    if (this.isSubmitting()) {
+      return;
+    }
+
+    this.isSubmitting.set(true);
+    this.errorMessage.set(null);
+
+    this.profileApi
+      .updateProfile(this.createProfilePayloadForCurrentStep(), 'body', false, {
+        httpHeaderAccept: 'application/json',
+        transferCache: false,
+      })
+      .pipe(
+        tap((response) => {
+          if (response.onboarding?.missingFields?.length) {
+            this.errorMessage.set(
+              'Certaines informations sont encore manquantes. Vérifie les champs indiqués avant de continuer.',
+            );
+
+            return;
+          }
+
+          this.navigateToNextStep();
+        }),
+        catchError(() => {
+          this.errorMessage.set(
+            'Impossible de sauvegarder tes informations pour le moment. Réessaie dans quelques instants.',
+          );
+
+          return EMPTY;
+        }),
+        finalize(() => {
+          this.isSubmitting.set(false);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+  }
+
+  goToRoute(route: string): void {
+    this.setDirectionFromTargetRoute(route);
+    void this.router.navigateByUrl(route);
+    document.querySelector('.app-layout')?.scrollTo({ top: 0 });
   }
 
   goToStep(step: OnboardingStepVm): void {
@@ -453,6 +842,63 @@ export class OnboardingStore {
     }
 
     this.setStepDirection(targetIndex > currentIndex ? 'next' : 'previous');
+  }
+
+  private createProfilePayload(): UpdateMeProfileRequestApiDto {
+    const selection = this.targetRoleSelection();
+    const fallbackLabel = this.targetRoleQuery().trim();
+
+    return {
+      displayName: this.displayName().trim() || undefined,
+      careerGoal: this.careerGoal() ?? undefined,
+      targetRoleId: selection?.source === 'CATALOG' ? selection.id : undefined,
+      targetRoleLabel: (selection?.label ?? fallbackLabel) || undefined,
+      targetRoleSource: selection?.source ?? (fallbackLabel ? 'CUSTOM' : undefined),
+      experienceLevel: this.experienceLevel() ?? undefined,
+      preferredLanguage: 'fr',
+    };
+  }
+
+  saveProfileDraftAndGoNext(): void {
+    if (!this.canGoNext()) {
+      return;
+    }
+
+    this.isSubmitting.set(true);
+    this.errorMessage.set(null);
+
+    this.profileApi
+      .updateProfile(this.createProfilePayload(), 'body', false, {
+        httpHeaderAccept: 'application/json',
+        transferCache: false,
+      })
+      .pipe(
+        tap((response) => {
+          this.appContext.reloadMe();
+
+          if (response.onboarding?.missingFields?.length) {
+            this.errorMessage.set(
+              'Certaines informations sont encore manquantes. Vérifie les champs indiqués avant de continuer.',
+            );
+
+            return;
+          }
+
+          this.goNext();
+        }),
+        catchError(() => {
+          this.errorMessage.set(
+            'Impossible de sauvegarder tes informations pour le moment. Réessaie dans quelques instants.',
+          );
+
+          return EMPTY;
+        }),
+        finalize(() => {
+          this.isSubmitting.set(false);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   private searchCurrentTargetRoles(): void {
@@ -495,28 +941,31 @@ export class OnboardingStore {
       return;
     }
 
-    const selection = this.targetRoleSelection();
-    const fallbackLabel = this.targetRoleQuery().trim();
-
-    const payload: UpdateMeProfileRequestApiDto = {
-      careerGoal: this.careerGoal() ?? undefined,
-      targetRoleId: selection?.source === 'CATALOG' ? selection.id : undefined,
-      targetRoleLabel: selection?.label ?? fallbackLabel,
-      targetRoleSource: selection?.source ?? 'CUSTOM',
-      experienceLevel: this.experienceLevel() ?? undefined,
-      preferredLanguage: 'fr',
-    };
+    this.onboardingMissingFields.set([]);
 
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
 
     this.profileApi
-      .updateProfile(payload, 'body', false, {
+      .updateProfile(this.createProfilePayload(), 'body', false, {
         httpHeaderAccept: 'application/json',
         transferCache: false,
       })
       .pipe(
-        switchMap(() => this.onboardingApi.completeOnboarding()),
+        switchMap((response) => {
+          const missingFields = response.onboarding?.missingFields ?? [];
+
+          if (missingFields.length > 0) {
+            this.onboardingMissingFields.set(missingFields);
+            this.errorMessage.set(
+              'Certaines informations sont nécessaires pour finaliser ton onboarding.',
+            );
+
+            return EMPTY;
+          }
+
+          return this.onboardingApi.completeOnboarding();
+        }),
         tap(() => {
           this.appContext.reloadMe();
           void this.router.navigateByUrl('/app/dashboard');
@@ -534,6 +983,34 @@ export class OnboardingStore {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
+  }
+
+  private createProfilePayloadForCurrentStep(): UpdateMeProfileRequestApiDto {
+    const key = this.activeStepKey();
+
+    if (key === 'goal') {
+      return {
+        displayName: this.displayName().trim() || undefined,
+        careerGoal: this.careerGoal() ?? undefined,
+        preferredLanguage: 'fr',
+      };
+    }
+
+    if (key === 'target-role') {
+      const selection = this.targetRoleSelection();
+      const fallbackLabel = this.targetRoleQuery().trim();
+
+      return {
+        displayName: this.displayName().trim() || undefined,
+        careerGoal: this.careerGoal() ?? undefined,
+        targetRoleId: selection?.source === 'CATALOG' ? selection.id : undefined,
+        targetRoleLabel: (selection?.label ?? fallbackLabel) || undefined,
+        targetRoleSource: selection?.source ?? (fallbackLabel ? 'CUSTOM' : undefined),
+        preferredLanguage: 'fr',
+      };
+    }
+
+    return this.createProfilePayload();
   }
 
   private canReachStep(index: number): boolean {
@@ -565,7 +1042,9 @@ export class OnboardingStore {
   });
 
   readonly showCompanionStage = computed(() => {
-    return this.activeStepKey() !== 'welcome';
+    const key = this.activeStepKey();
+
+    return key !== 'welcome' && key !== 'review';
   });
   private createAnimationCommand(
     name: CompanionAnimationCommand['name'],
@@ -641,10 +1120,26 @@ export class OnboardingStore {
     return nextId;
   }
 
+  goToOnboardingMissingField(item: OnboardingMissingFieldVm): void {
+    this.goToRoute(item.route);
+  }
+
+  private createUnknownOnboardingMissingField(field: string): OnboardingMissingFieldVm {
+    return {
+      field,
+      label: 'Information manquante',
+      description: `Une information nécessaire à l’onboarding est manquante : ${field}.`,
+      icon: 'pi pi-info-circle',
+      route: '/app/onboarding/review',
+    };
+  }
+
   playCompanionOnce(
     name: CompanionAnimationCommand['name'],
     fallback: CompanionAnimationCommand['fallback'] = 'idle',
   ): void {
+    this.clearIdleDanceTimer();
+
     const id = this.nextAnimationCommandId();
 
     this.manualCompanionCommand.set({
@@ -656,6 +1151,8 @@ export class OnboardingStore {
   }
 
   playCompanionLoop(name: CompanionAnimationCommand['name']): void {
+    this.clearIdleDanceTimer();
+
     const id = this.nextAnimationCommandId();
 
     this.manualCompanionCommand.set({
@@ -693,5 +1190,21 @@ export class OnboardingStore {
   private setStepDirection(direction: 'next' | 'previous'): void {
     document.documentElement.dataset['onboardingDirection'] = direction;
     console.log('ONBOARDING_DIRECTION', direction);
+  }
+  private clearOnboardingMissingFields(...fieldsToClear: readonly string[]): void {
+    const fieldsToClearSet = new Set(fieldsToClear);
+
+    this.onboardingMissingFields.set(
+      this.onboardingMissingFields().filter((field) => !fieldsToClearSet.has(field)),
+    );
+  }
+
+  private clearTargetRoleMissingFields(): void {
+    this.clearOnboardingMissingFields(
+      'targetRole',
+      'targetRoleLabel',
+      'targetRoleId',
+      'targetRoleSource',
+    );
   }
 }

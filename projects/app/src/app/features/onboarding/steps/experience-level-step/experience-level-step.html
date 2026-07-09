@@ -1,1 +1,118 @@
-<p>experience-level-step works!</p>
+<section class="experience-level-step">
+  <header class="experience-level-step__header">
+    <p class="experience-level-step__eyebrow">Niveau actuel</p>
+
+    <h1 class="experience-level-step__title">
+      Où te situes-tu aujourd’hui ?
+    </h1>
+
+    <p class="experience-level-step__description">
+      Choisis ton niveau actuel. Il sert à adapter les questions, les explications
+      et le niveau d’exigence de ton accompagnement.
+    </p>
+  </header>
+
+  <p-panel styleClass="experience-level-step__panel experience-level-step__main-panel">
+    <ng-template pTemplate="header">
+      <div class="experience-level-step__panel-header">
+        <span>Ton niveau</span>
+
+        @if (onboarding.experienceLevel(); as level) {
+          <p-tag
+            [value]="onboarding.experienceLevelLabels[level]"
+            severity="success"
+          />
+        } @else {
+          <p-tag value="À choisir" severity="secondary" />
+        }
+      </div>
+    </ng-template>
+
+    <div class="experience-level-step__level-control">
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        class="experience-level-step__control-button"
+        [disabled]="!onboarding.canDecreaseExperienceLevel()"
+        (click)="onboarding.decreaseExperienceLevel()"
+      >
+        <i class="pi pi-minus"></i>
+      </button>
+
+      <div class="experience-level-step__current">
+        @if (onboarding.experienceLevel(); as level) {
+          <span class="experience-level-step__current-label">
+            {{ onboarding.experienceLevelLabels[level] }}
+          </span>
+
+          <span class="experience-level-step__current-description">
+            {{ onboarding.experienceLevelDescriptions[level] }}
+          </span>
+        } @else {
+          <span class="experience-level-step__current-label">
+            Choisis ton niveau
+          </span>
+
+          <span class="experience-level-step__current-description">
+            Tu peux commencer par “Junior” si tu sais coder mais que tu veux mieux
+            te préparer aux entretiens.
+          </span>
+        }
+      </div>
+
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        class="experience-level-step__control-button"
+        [disabled]="!onboarding.canIncreaseExperienceLevel()"
+        (click)="onboarding.increaseExperienceLevel()"
+      >
+        <i class="pi pi-plus"></i>
+      </button>
+    </div>
+
+    <div class="experience-level-step__meter" aria-hidden="true">
+      <div class="experience-level-step__meter-track">
+        <span
+          class="experience-level-step__meter-fill"
+          [style.width.%]="onboarding.experienceProgress()"
+        ></span>
+      </div>
+
+      <div class="experience-level-step__meter-labels">
+        @for (level of onboarding.experienceLevels(); track level) {
+          <span
+            [class.is-active]="onboarding.experienceLevel() === level"
+          >
+            {{ onboarding.experienceLevelLabels[level] }}
+          </span>
+        }
+      </div>
+    </div>
+  </p-panel>
+
+  @if (onboarding.experienceLevel(); as level) {
+    <aside class="experience-level-step__insight">
+      <span class="experience-level-step__insight-icon">
+        <i class="pi pi-compass"></i>
+      </span>
+
+      <p>
+        {{ onboarding.experienceLevelHints[level] }}
+      </p>
+    </aside>
+  } @else {
+    <aside class="experience-level-step__insight">
+      <span class="experience-level-step__insight-icon">
+        <i class="pi pi-info-circle"></i>
+      </span>
+
+      <p>
+        Il n’y a pas de mauvais choix : le niveau sert à calibrer l’accompagnement,
+        pas à te juger.
+      </p>
+    </aside>
+  }
+</section>

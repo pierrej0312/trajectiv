@@ -45,4 +45,14 @@ export const DEFAULT_COMPANION_ANIMATIONS = {
   levelUp: '/characters/placeholder/animations/level-up_female.glb',
   levelDown: '/characters/placeholder/animations/level-down_female.glb',
   dancing: '/characters/placeholder/animations/dancing.glb',
+
+  excited: '/characters/placeholder/animations/excited.glb',
+  lookAround: '/characters/placeholder/animations/look_arround.glb',
+  surprised: '/characters/placeholder/animations/surprised.glb',
+  talkingPhone: '/characters/placeholder/animations/talking_phone.glb',
+  searchPocket: {
+    url: '/characters/placeholder/animations/search_pocket.glb',
+    clipIndex: 1,
+  },
+  thinking: '/characters/placeholder/animations/thinking.glb',
 } as const;

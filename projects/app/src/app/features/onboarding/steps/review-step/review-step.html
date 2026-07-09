@@ -1,1 +1,237 @@
-<p>review-step works!</p>
+<section class="review-step">
+  <header class="review-step__header">
+    <p class="review-step__eyebrow">Récapitulatif</p>
+
+    <h1 class="review-step__title">
+      Vérifie ton espace avant de commencer
+    </h1>
+
+    <p class="review-step__description">
+      Ces informations vont permettre à Trajectiv d’adapter ton accompagnement,
+      tes recommandations et ta préparation.
+    </p>
+  </header>
+
+  <p-panel styleClass="review-step__panel">
+    <div class="review-step__profile">
+      <div class="review-step__avatar">
+        @if (avatarImageUrl(); as avatarUrl) {
+          <img [src]="avatarUrl" alt="" />
+        } @else {
+          <span>{{ initials() }}</span>
+        }
+      </div>
+
+      <div class="review-step__profile-content">
+        <strong>{{ displayName() }}</strong>
+
+        @if (email()) {
+          <span>{{ email() }}</span>
+        }
+      </div>
+
+      <p-tag
+        [value]="isReady() ? 'Prêt' : 'À compléter'"
+        [severity]="isReady() ? 'success' : 'warn'"
+      />
+    </div>
+
+    <div class="review-step__sections">
+      <article class="review-step__section">
+        <span class="review-step__section-icon">
+          <i class="pi pi-compass"></i>
+        </span>
+
+        <div class="review-step__section-content">
+          <span class="review-step__section-label">Objectif principal</span>
+
+          @if (onboarding.careerGoal(); as goal) {
+            <strong>{{ onboarding.careerGoalLabels[goal] }}</strong>
+            <p>{{ onboarding.careerGoalDescriptions[goal] }}</p>
+          } @else {
+            <strong class="review-step__missing">Non renseigné</strong>
+            <p>Choisis ton objectif principal pour personnaliser ton espace.</p>
+          }
+        </div>
+
+        <button
+          pButton
+          type="button"
+          severity="secondary"
+          size="small"
+          class="review-step__edit"
+          (click)="goToGoal()"
+        >
+          Modifier
+        </button>
+      </article>
+
+      <article class="review-step__section">
+        <span class="review-step__section-icon">
+          <i class="pi pi-briefcase"></i>
+        </span>
+
+        <div class="review-step__section-content">
+          <span class="review-step__section-label">Rôle cible</span>
+
+          @if (onboarding.targetRoleLabel(); as roleLabel) {
+            <strong>{{ roleLabel }}</strong>
+
+            @if (onboarding.targetRoleSelection()?.source === 'CATALOG') {
+              <p>Rôle sélectionné depuis le catalogue Trajectiv.</p>
+            } @else {
+              <p>Rôle personnalisé selon ton objectif.</p>
+            }
+          } @else {
+            <strong class="review-step__missing">Non renseigné</strong>
+            <p>Indique le métier ou le rôle que tu souhaites atteindre.</p>
+          }
+        </div>
+
+        <button
+          pButton
+          type="button"
+          severity="secondary"
+          size="small"
+          class="review-step__edit"
+          (click)="goToTargetRole()"
+        >
+          Modifier
+        </button>
+      </article>
+
+      <article class="review-step__section">
+        <span class="review-step__section-icon">
+          <i class="pi pi-chart-line"></i>
+        </span>
+
+        <div class="review-step__section-content">
+          <span class="review-step__section-label">Niveau d’expérience</span>
+
+          @if (onboarding.experienceLevel(); as level) {
+            <strong>{{ onboarding.experienceLevelLabels[level] }}</strong>
+            <p>{{ onboarding.experienceLevelDescriptions[level] }}</p>
+          } @else {
+            <strong class="review-step__missing">Non renseigné</strong>
+            <p>Sélectionne ton niveau pour adapter l’accompagnement.</p>
+          }
+        </div>
+
+        <button
+          pButton
+          type="button"
+          severity="secondary"
+          size="small"
+          class="review-step__edit"
+          (click)="goToExperienceLevel()"
+        >
+          Modifier
+        </button>
+      </article>
+
+      <article class="review-step__section">
+        <span class="review-step__section-icon">
+          <i class="pi pi-user"></i>
+        </span>
+
+        <div class="review-step__section-content">
+          <span class="review-step__section-label">Photo de profil</span>
+
+          @if (avatarImageUrl()) {
+            <strong>Avatar ajouté</strong>
+            <p>Ton avatar sera utilisé pour personnaliser ton espace.</p>
+          } @else {
+            <strong>Avatar personnalisé</strong>
+            <p>Tu peux ajouter une photo de profil maintenant ou plus tard.</p>
+          }
+        </div>
+
+        <button
+          pButton
+          type="button"
+          severity="secondary"
+          size="small"
+          class="review-step__edit"
+          (click)="goToAvatar()"
+        >
+          Modifier
+        </button>
+      </article>
+    </div>
+  </p-panel>
+
+  @if (onboarding.hasOnboardingMissingFields()) {
+    <aside class="review-step__missing-card">
+    <span class="review-step__missing-card-icon">
+      <i class="pi pi-exclamation-triangle"></i>
+    </span>
+
+      <div class="review-step__missing-card-content">
+        <strong>Impossible de lancer ta trajectoire pour le moment</strong>
+
+        <p>
+          Certaines informations nécessaires à l’onboarding doivent être complétées.
+        </p>
+
+        <div class="review-step__missing-items">
+          @for (item of onboarding.onboardingMissingFieldItems(); track item.field) {
+            <button
+              type="button"
+              class="review-step__missing-item"
+              (click)="onboarding.goToOnboardingMissingField(item)"
+            >
+            <span class="review-step__missing-item-icon">
+              <i [class]="item.icon"></i>
+            </span>
+
+              <span class="review-step__missing-item-content">
+              <strong>{{ item.label }}</strong>
+              <small>{{ item.description }}</small>
+            </span>
+
+              <i class="pi pi-arrow-right review-step__missing-item-arrow"></i>
+            </button>
+          }
+        </div>
+      </div>
+    </aside>
+  }
+
+  @if (isReady()) {
+    <aside class="review-step__ready">
+      <span class="review-step__ready-icon">
+        <i class="pi pi-sparkles"></i>
+      </span>
+
+      <div>
+        <strong>Ton espace est prêt</strong>
+        <p>
+          Tu peux maintenant lancer ta trajectoire. Trajectiv adaptera ton espace
+          à ton objectif, ton rôle cible et ton niveau.
+        </p>
+      </div>
+    </aside>
+  } @else {
+    <aside class="review-step__warning">
+      <span class="review-step__warning-icon">
+        <i class="pi pi-exclamation-triangle"></i>
+      </span>
+
+      <div>
+        <strong>Certaines informations sont manquantes</strong>
+        <p>
+          Reviens sur les étapes indiquées avant de lancer ta trajectoire.
+        </p>
+      </div>
+    </aside>
+  }
+
+  <aside class="review-step__legal">
+    <i class="pi pi-shield"></i>
+
+    <p>
+      En lançant ta trajectoire, tu confirmes que ces informations peuvent être
+      utilisées pour personnaliser ton accompagnement, tes recommandations et ta préparation.
+    </p>
+  </aside>
+</section>

@@ -1,0 +1,285 @@
+:host {
+  display: block;
+}
+
+.experience-level-step {
+  display: grid;
+  gap: 1rem;
+}
+
+.experience-level-step__header {
+  max-width: 42rem;
+}
+
+.experience-level-step__eyebrow {
+  margin: 0 0 0.35rem;
+  color: var(--p-text-muted-color);
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.experience-level-step__title {
+  margin: 0;
+  color: var(--p-text-color);
+  font-size: clamp(1.45rem, 2.4vw, 2rem);
+  line-height: 1.1;
+}
+
+.experience-level-step__description {
+  margin: 0.65rem 0 0;
+  color: var(--p-text-muted-color);
+  font-size: 0.95rem;
+}
+
+.experience-level-step__panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  color: var(--p-text-color);
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.experience-level-step__panel-hint {
+  color: var(--p-text-muted-color);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.experience-level-step__level-control {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.experience-level-step__control-button {
+  width: 2.85rem;
+  height: 2.85rem;
+  border-radius: 999px;
+}
+
+.experience-level-step__current {
+  position: relative;
+  display: grid;
+  gap: 0.35rem;
+  min-height: 6.4rem;
+  place-items: center;
+  padding: 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--p-primary-color) 18%, transparent);
+  border-radius: 1.25rem;
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      color-mix(in srgb, var(--p-primary-color) 14%, transparent),
+      transparent 52%
+    ),
+    color-mix(in srgb, var(--p-primary-color) 5%, transparent);
+  text-align: center;
+}
+
+.experience-level-step__current::before {
+  content: '';
+  position: absolute;
+  inset: auto 50% -0.65rem auto;
+  width: 5.5rem;
+  height: 1.4rem;
+  translate: 50% 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--p-primary-color) 16%, transparent);
+  filter: blur(14px);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.experience-level-step__current-label {
+  color: var(--p-text-color);
+  font-size: clamp(1.45rem, 3vw, 2.1rem);
+  font-weight: 820;
+  letter-spacing: -0.035em;
+}
+
+.experience-level-step__current-description {
+  max-width: 26rem;
+  color: var(--p-text-muted-color);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.experience-level-step__meter {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.experience-level-step__meter-track {
+  position: relative;
+  overflow: hidden;
+  height: 0.65rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--p-surface-300) 70%, transparent);
+}
+
+.experience-level-step__meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--p-primary-color) 75%, white),
+      var(--p-primary-color)
+    );
+  transition: width 260ms ease;
+}
+
+.experience-level-step__meter-labels {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.35rem;
+  color: var(--p-text-muted-color);
+  font-size: 0.74rem;
+  text-align: center;
+}
+
+.experience-level-step__meter-labels span {
+  transition:
+    color 180ms ease,
+    font-weight 180ms ease;
+}
+
+.experience-level-step__meter-labels span.is-active {
+  color: var(--p-text-color);
+  font-weight: 750;
+}
+
+.experience-level-step__cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.experience-level-step__card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.8rem;
+  width: 100%;
+  min-height: 7rem;
+  align-items: start;
+  border: 1px solid color-mix(in srgb, var(--p-surface-300) 58%, transparent);
+  border-radius: 1.15rem;
+  background: color-mix(in srgb, var(--p-surface-0) 74%, transparent);
+  color: var(--p-text-color);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.9rem;
+  text-align: left;
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.experience-level-step__card:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--p-primary-color) 30%, transparent);
+  background: color-mix(in srgb, var(--p-primary-color) 7%, var(--p-surface-0));
+}
+
+.experience-level-step__card.is-selected {
+  border-color: color-mix(in srgb, var(--p-primary-color) 48%, transparent);
+  background:
+    radial-gradient(
+      circle at 0% 0%,
+      color-mix(in srgb, var(--p-primary-color) 14%, transparent),
+      transparent 48%
+    ),
+    color-mix(in srgb, var(--p-primary-color) 8%, transparent);
+}
+
+.experience-level-step__card-orb {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--p-primary-color) 10%, transparent);
+  color: color-mix(in srgb, var(--p-primary-color) 72%, var(--p-text-color));
+}
+
+.experience-level-step__card.is-selected .experience-level-step__card-orb {
+  background: var(--p-primary-color);
+  color: var(--p-primary-inverse-color);
+}
+
+.experience-level-step__card-content {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.experience-level-step__card-label {
+  font-size: 0.95rem;
+  font-weight: 780;
+}
+
+.experience-level-step__card-description {
+  color: var(--p-text-muted-color);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.experience-level-step__insight {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--p-primary-color) 18%, transparent);
+  border-radius: 1.15rem;
+  background:
+    radial-gradient(
+      circle at 8% 0%,
+      color-mix(in srgb, var(--p-primary-color) 5%, transparent),
+      transparent 42%
+    ),
+    color-mix(in srgb, var(--p-surface-0) 5%, transparent);
+  color: var(--p-text-muted-color);
+}
+
+.experience-level-step__insight-icon {
+  display: grid;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--p-primary-color) 10%, transparent);
+  color: var(--p-primary-color);
+}
+
+.experience-level-step__insight p {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .experience-level-step__header {
+    text-align: left;
+  }
+
+  .experience-level-step__level-control {
+    grid-template-columns: 1fr;
+  }
+
+  .experience-level-step__control-button {
+    width: 100%;
+  }
+
+  .experience-level-step__cards {
+    grid-template-columns: 1fr;
+  }
+}

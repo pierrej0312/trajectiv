@@ -93,7 +93,7 @@ html[data-onboarding-direction="previous"]::view-transition-new(onboarding-step)
 
   to {
     opacity: 0;
-    transform: translateX(40rem);
+    transform: translateX(20rem);
     filter: blur(8px);
   }
 }

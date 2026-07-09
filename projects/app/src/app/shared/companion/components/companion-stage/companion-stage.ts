@@ -127,4 +127,7 @@ export class CompanionStageComponent implements AfterViewInit {
       this.hasError.set(true);
     }
   }
+  async captureAvatarPreview(): Promise<Blob> {
+    return this.renderer.captureAvatarPreviewBlob();
+  }
 }
