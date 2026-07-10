@@ -900,17 +900,20 @@ export class OnboardingStore {
       })
       .pipe(
         tap((response) => {
-          this.appContext.reloadMe();
+          const missingFields = response.onboarding?.missingFields ?? [];
+          const blockingMissingFields = this.getBlockingMissingFieldsForCurrentStep(missingFields);
 
-          if (response.onboarding?.missingFields?.length) {
+          if (blockingMissingFields.length > 0) {
+            this.onboardingMissingFields.set(blockingMissingFields);
             this.errorMessage.set(
-              'Certaines informations sont encore manquantes. Vérifie les champs indiqués avant de continuer.',
+              'Certaines informations nécessaires à cette étape sont encore manquantes.',
             );
 
             return;
           }
 
-          this.goNext();
+          this.onboardingMissingFields.set([]);
+          this.navigateToNextStep();
         }),
         catchError(() => {
           this.errorMessage.set(
@@ -1227,5 +1230,71 @@ export class OnboardingStore {
       'targetRoleId',
       'targetRoleSource',
     );
+  }
+
+  private getBlockingMissingFieldsForCurrentStep(
+    missingFields: readonly string[],
+  ): readonly string[] {
+    const key = this.activeStepKey();
+    const normalizedFields = missingFields.map((field) =>
+      this.normalizeOnboardingMissingField(field),
+    );
+
+    if (key === 'goal') {
+      return normalizedFields.filter((field) => field === 'careerGoal');
+    }
+
+    if (key === 'target-role') {
+      return normalizedFields.filter(
+        (field) =>
+          field === 'careerGoal' ||
+          field === 'targetRole' ||
+          field === 'targetRoleLabel' ||
+          field === 'targetRoleId' ||
+          field === 'targetRoleSource',
+      );
+    }
+
+    if (key === 'experience-level') {
+      return normalizedFields.filter(
+        (field) =>
+          field === 'careerGoal' ||
+          field === 'targetRole' ||
+          field === 'targetRoleLabel' ||
+          field === 'targetRoleId' ||
+          field === 'targetRoleSource' ||
+          field === 'experienceLevel',
+      );
+    }
+
+    return [];
+  }
+
+  private normalizeOnboardingMissingField(field: string): string {
+    if (field === 'CAREER_GOAL') {
+      return 'careerGoal';
+    }
+
+    if (field === 'TARGET_ROLE') {
+      return 'targetRole';
+    }
+
+    if (field === 'TARGET_ROLE_LABEL') {
+      return 'targetRoleLabel';
+    }
+
+    if (field === 'TARGET_ROLE_ID') {
+      return 'targetRoleId';
+    }
+
+    if (field === 'TARGET_ROLE_SOURCE') {
+      return 'targetRoleSource';
+    }
+
+    if (field === 'EXPERIENCE_LEVEL') {
+      return 'experienceLevel';
+    }
+
+    return field;
   }
 }

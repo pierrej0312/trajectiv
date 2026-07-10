@@ -9,5 +9,6 @@ export * from './meProfileApiDto';
 export * from './meResponseApiDto';
 export * from './meSubscriptionApiDto';
 export * from './patchAvatarCustomizationRequestApiDto';
+export * from './profileCompletionResponseApiDto';
 export * from './updateMeProfileRequestApiDto';
 export * from './updatedMeProfileResponseApiDto';

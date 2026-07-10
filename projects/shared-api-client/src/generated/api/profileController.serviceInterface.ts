@@ -11,6 +11,7 @@ import { HttpHeaders }                                       from '@angular/comm
 
 import { Observable }                                        from 'rxjs';
 
+import { ProfileCompletionResponseApiDto } from '../model/models';
 import { UpdateMeProfileRequestApiDto } from '../model/models';
 import { UpdatedMeProfileResponseApiDto } from '../model/models';
 
@@ -22,6 +23,13 @@ import { Configuration }                                     from '../configurat
 export interface ProfileControllerServiceInterface {
     defaultHeaders: HttpHeaders;
     configuration: Configuration;
+
+    /**
+     * Get current profile completion
+     * 
+     * @endpoint get /v1/me/profile/completion
+     */
+    getMyProfileCompletion(extraHttpRequestParams?: any): Observable<ProfileCompletionResponseApiDto>;
 
     /**
      * Update current user profile

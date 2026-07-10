@@ -31,6 +31,7 @@ model/meResponseApiDto.ts
 model/meSubscriptionApiDto.ts
 model/models.ts
 model/patchAvatarCustomizationRequestApiDto.ts
+model/profileCompletionResponseApiDto.ts
 model/updateMeProfileRequestApiDto.ts
 model/updatedMeProfileResponseApiDto.ts
 param.ts
