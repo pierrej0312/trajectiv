@@ -1,0 +1,213 @@
+<div
+  class="tr-blob-loader"
+  [class.tr-blob-loader--loading]="phase() === 'loading'"
+  [class.tr-blob-loader--settling]="phase() === 'settling'"
+  [class.tr-blob-loader--completed]="phase() === 'completed'"
+>
+  <svg
+    class="tr-blob-loader__svg"
+    xmlns="http://www.w3.org/2000/svg"
+    [attr.viewBox]="
+      '-28 -28 ' +
+      (viewBoxSize + 56) +
+      ' ' +
+      (viewBoxSize + 56)
+    "
+    aria-hidden="true"
+    focusable="false"
+  >
+    <defs>
+      <filter
+        [attr.id]="gooFilterId"
+        x="-70%"
+        y="-70%"
+        width="240%"
+        height="240%"
+        color-interpolation-filters="sRGB"
+      >
+        <feGaussianBlur
+          in="SourceAlpha"
+          stdDeviation="7"
+          result="blur"
+        />
+
+        <feColorMatrix
+          in="blur"
+          mode="matrix"
+          values="
+            0 0 0 0 0
+            0 0 0 0 0
+            0 0 0 0 0
+            0 0 0 28 -10
+          "
+          result="gooAlpha"
+        />
+
+        <feFlood
+          flood-color="#b8f85a"
+          result="gooColor"
+        />
+
+        <feComposite
+          in="gooColor"
+          in2="gooAlpha"
+          operator="in"
+          result="coloredGoo"
+        />
+
+        <feMerge>
+          <feMergeNode in="coloredGoo" />
+        </feMerge>
+      </filter>
+
+      @for (cell of cells; track cell.index) {
+        <clipPath
+          [attr.id]="
+            'tr-loader-cell-clip-' +
+            instanceId +
+            '-' +
+            cell.index
+          "
+        >
+          <rect
+            [attr.x]="cell.x"
+            [attr.y]="cell.y"
+            [attr.width]="cellSize"
+            [attr.height]="cellSize"
+            [attr.rx]="cellRadius"
+          />
+        </clipPath>
+      }
+    </defs>
+
+    <!-- Grille inactive -->
+    <g class="tr-blob-loader__grid">
+      @for (cell of cells; track cell.index) {
+        <rect
+          class="tr-blob-loader__cell"
+          [attr.x]="cell.x"
+          [attr.y]="cell.y"
+          [attr.width]="cellSize"
+          [attr.height]="cellSize"
+          [attr.rx]="cellRadius"
+        />
+      }
+    </g>
+
+    <!-- Cases occupées par le corps du snake -->
+    <g class="tr-blob-loader__filled-cells">
+      @for (cell of cells; track cell.index) {
+        <rect
+          class="tr-blob-loader__filled-cell"
+          [class.tr-blob-loader__filled-cell--visible]="
+            isBodyCell(cell.index)
+          "
+          [attr.x]="cell.x"
+          [attr.y]="cell.y"
+          [attr.width]="cellSize"
+          [attr.height]="cellSize"
+          [attr.rx]="cellRadius"
+        />
+      }
+    </g>
+
+    <!-- Injection radiale dans la nouvelle case -->
+    <g [attr.clip-path]="headCellClipUrl()">
+      @for (
+        revision of [animationRevision()];
+        track revision
+        ) {
+        <circle
+          class="tr-blob-loader__injection"
+          [attr.cx]="injectionPoint().x"
+          [attr.cy]="injectionPoint().y"
+          r="100"
+        />
+      }
+    </g>
+
+    <!--
+      Ombre extérieure.
+      Ce groupe ne porte PAS le filtre gooey.
+    -->
+    <g class="tr-blob-loader__snake-shadow">
+      <g
+        class="tr-blob-loader__snake-goo"
+        [attr.filter]="'url(#' + gooFilterId + ')'"
+      >
+        <!--
+          Le path est recréé à chaque revision.
+          L’élément SVG animate interpole l’ancien path
+          vers le nouveau sur la même durée que les carrés.
+        -->
+        @for (
+          revision of [animationRevision()];
+          track revision
+          ) {
+          <path
+            class="tr-blob-loader__snake-path"
+            [attr.d]="snakePathTo()"
+            [attr.stroke-width]="snakePathStrokeWidth"
+          >
+            <animate
+              attributeName="d"
+              [attr.from]="snakePathFrom()"
+              [attr.to]="snakePathTo()"
+              [attr.dur]="stepDurationCss()"
+              begin="0s"
+              fill="freeze"
+            />
+          </path>
+        }
+
+        <!--
+          Les trois vrais carrés mobiles.
+          Leur centre correspond exactement aux trois
+          points utilisés par le path.
+        -->
+        @for (
+          node of snakeNodes();
+          track node.id
+          ) {
+          <rect
+            class="tr-blob-loader__snake-square"
+            [attr.x]="-(cellSize / 2)"
+            [attr.y]="-(cellSize / 2)"
+            [attr.width]="cellSize"
+            [attr.height]="cellSize"
+            [attr.rx]="cellRadius"
+            [style.transform]="node.transform"
+          />
+        }
+
+        <!-- Masse de contact avec la case touchée -->
+        @for (
+          revision of [animationRevision()];
+          track revision
+          ) {
+          <circle
+            class="tr-blob-loader__contact-mass"
+            [attr.cx]="injectionPoint().x"
+            [attr.cy]="injectionPoint().y"
+            r="22"
+          />
+        }
+      </g>
+    </g>
+
+    <!-- Reflet net sur la tête -->
+    @if (headNode(); as head) {
+      <circle
+        class="tr-blob-loader__head-highlight"
+        cx="-8"
+        cy="-9"
+        r="4.5"
+        [style.transform]="head.transform"
+      />
+    }
+  </svg>
+
+  <span class="tr-blob-loader__label">
+    {{ label() }}
+  </span>
+</div>

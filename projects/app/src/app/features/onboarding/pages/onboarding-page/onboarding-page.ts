@@ -58,7 +58,6 @@ export class OnboardingPage implements OnInit {
       this.shouldGoNextAfterAvatarSave.set(false);
 
       this.onboarding.confirmCompanion();
-      this.avatarStore.uploadAvatarPreview();
       this.onboarding.goNext();
     });
   }

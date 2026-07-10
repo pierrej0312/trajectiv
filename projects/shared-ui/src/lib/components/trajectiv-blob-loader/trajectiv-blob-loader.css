@@ -1,0 +1,358 @@
+@reference "tailwindcss";
+
+:host {
+  display: inline-flex;
+
+  --tr-loader-size: 9rem;
+  --tr-loader-step-duration: 520ms;
+
+  --tr-loader-green: var(--tr-brand-lime, #b8f85a);
+
+  --tr-loader-green-soft:
+    color-mix(
+      in srgb,
+      var(--tr-loader-green) 72%,
+      white
+    );
+
+  --tr-loader-cell-background: color-mix(in srgb, #111714 12%, transparent);
+
+  --tr-loader-cell-border:
+    color-mix(
+      in srgb,
+      var(--p-text-color) 0%,
+      transparent
+    );
+
+  --tr-loader-label-color:
+    var(--p-text-muted-color);
+}
+
+:host-context(.dark) {
+  --tr-loader-cell-background: color-mix(in srgb, #d6dfd6 12%, transparent);
+
+  --tr-loader-cell-border:
+    color-mix(
+      in srgb,
+      var(--p-surface-0) 8%,
+      transparent
+    );
+}
+
+.tr-blob-loader {
+  @apply inline-flex flex-col items-center justify-center gap-5;
+  filter: drop-shadow(0 1px 50px rgb(0 0 0 / 0.2));
+}
+
+.tr-blob-loader__svg {
+  display: block;
+
+  width: var(--tr-loader-size);
+  height: var(--tr-loader-size);
+
+  overflow: visible;
+}
+
+/* ---------------------------------------------------
+   Grille
+--------------------------------------------------- */
+
+.tr-blob-loader__cell {
+  fill: var(--tr-loader-cell-background);
+  stroke: var(--tr-loader-cell-border);
+  stroke-width: 1.25;
+}
+
+/* ---------------------------------------------------
+   Cases déjà remplies
+--------------------------------------------------- */
+
+.tr-blob-loader__filled-cell {
+  fill: var(--tr-loader-green);
+
+  opacity: 0;
+
+  transform: scale(0.95);
+  transform-box: fill-box;
+  transform-origin: center;
+
+  transition:
+    opacity 120ms ease-out,
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tr-blob-loader__filled-cell--visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ---------------------------------------------------
+   Injection radiale
+--------------------------------------------------- */
+
+.tr-blob-loader__injection {
+  fill: var(--tr-loader-green);
+
+  transform-box: fill-box;
+  transform-origin: center;
+
+  animation:
+    tr-loader-inject
+    calc(var(--tr-loader-step-duration) * 0.72)
+    cubic-bezier(0.16, 1, 0.3, 1)
+    both;
+}
+
+@keyframes tr-loader-inject {
+  0% {
+    opacity: 0.78;
+    transform: scale(0.01);
+  }
+
+  35% {
+    opacity: 1;
+    transform: scale(0.18);
+  }
+
+  70% {
+    opacity: 1;
+    transform: scale(0.7);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ---------------------------------------------------
+   Barre gooey
+--------------------------------------------------- */
+
+/**
+ * L’ombre est sur le wrapper extérieur.
+ * Elle ne remplace donc pas le filtre SVG du groupe intérieur.
+ */
+.tr-blob-loader__snake-shadow {
+  filter:
+    drop-shadow(
+      0 10px 20px
+      color-mix(
+        in srgb,
+        var(--tr-loader-green) 28%,
+        transparent
+      )
+    );
+}
+
+/**
+ * Important :
+ * ne jamais mettre `filter:` sur .tr-blob-loader__snake-goo.
+ * Son filtre vient de [attr.filter] dans le SVG.
+ */
+.tr-blob-loader__snake-goo {
+  pointer-events: none;
+}
+
+.tr-blob-loader__snake-mass,
+.tr-blob-loader__contact-mass {
+  fill: #000;
+}
+
+/* ---------------------------------------------------
+   Snake : 3 carrés + path central
+--------------------------------------------------- */
+
+.tr-blob-loader__snake-goo {
+  pointer-events: none;
+}
+
+/*
+ * Sources noires utilisées uniquement comme masque.
+ * Le filtre SVG applique ensuite #b8f85a.
+ */
+.tr-blob-loader__snake-square {
+  fill: #000;
+
+  transform-box: view-box;
+  transform-origin: 0 0;
+
+  transition:
+    transform
+    var(--tr-loader-step-duration)
+    cubic-bezier(0.4, 0, 0.18, 1);
+
+  will-change: transform;
+}
+
+/*
+ * Path passant exactement par les centres
+ * des trois carrés.
+ */
+.tr-blob-loader__snake-path {
+  fill: none;
+  stroke: #000;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/*
+ * L’ombre reste sur le wrapper extérieur.
+ * Elle ne doit pas remplacer le filtre SVG gooey.
+ */
+.tr-blob-loader__snake-shadow {
+  filter:
+    drop-shadow(
+      0 10px 20px
+      color-mix(
+        in srgb,
+        var(--tr-loader-green) 28%,
+        transparent
+      )
+    );
+}
+
+/**
+ * La masse de contact gonfle rapidement.
+ * Comme elle est dans le même filtre que la barre,
+ * elle fusionne réellement avec elle.
+ */
+.tr-blob-loader__contact-mass {
+  transform-box: fill-box;
+  transform-origin: center;
+
+  animation:
+    tr-loader-contact
+    calc(var(--tr-loader-step-duration) * 0.58)
+    cubic-bezier(0.16, 1, 0.3, 1)
+    both;
+}
+
+@keyframes tr-loader-contact {
+  0% {
+    opacity: 0;
+    transform: scale(0.04);
+  }
+
+  28% {
+    opacity: 1;
+    transform: scale(0.32);
+  }
+
+  64% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+
+  100% {
+    opacity: 0.88;
+    transform: scale(0.82);
+  }
+}
+
+/* ---------------------------------------------------
+   Reflet
+--------------------------------------------------- */
+
+.tr-blob-loader__head-highlight {
+  fill: var(--tr-loader-green-soft);
+
+  opacity: 0.82;
+
+  transform-box: view-box;
+  transform-origin: 0 0;
+
+  transition:
+    transform
+    var(--tr-loader-step-duration)
+    cubic-bezier(0.4, 0, 0.18, 1);
+
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------
+   Fin
+--------------------------------------------------- */
+
+.tr-blob-loader--settling
+.tr-blob-loader__snake-square,
+.tr-blob-loader--settling
+.tr-blob-loader__snake-path {
+  animation:
+    tr-loader-settle-breathe
+    620ms ease-in-out infinite alternate;
+}
+
+.tr-blob-loader--completed
+.tr-blob-loader__snake-square,
+.tr-blob-loader--completed
+.tr-blob-loader__snake-path {
+  animation:
+    tr-loader-final-pulse
+    440ms cubic-bezier(0.16, 1, 0.3, 1)
+    both;
+}
+
+@keyframes tr-loader-settle-breathe {
+  from {
+    opacity: 0.9;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tr-loader-final-pulse {
+  0% {
+    opacity: 1;
+  }
+
+  45% {
+    opacity: 0.76;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------
+   Label
+--------------------------------------------------- */
+
+.tr-blob-loader__label {
+  color: var(--tr-loader-label-color);
+
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.012em;
+
+  text-align: center;
+}
+
+/* ---------------------------------------------------
+   Reduced motion
+--------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .tr-blob-loader__filled-cell,
+  .tr-blob-loader__snake-square,
+  .tr-blob-loader__head-highlight {
+    transition-duration: 1ms;
+  }
+
+  .tr-blob-loader__injection,
+  .tr-blob-loader__contact-mass,
+  .tr-blob-loader--settling
+  .tr-blob-loader__snake-square,
+  .tr-blob-loader--settling
+  .tr-blob-loader__snake-path,
+  .tr-blob-loader--completed
+  .tr-blob-loader__snake-square,
+  .tr-blob-loader--completed
+  .tr-blob-loader__snake-path {
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+  }
+}
