@@ -56,6 +56,9 @@ export class OnboardingPage implements OnInit {
       }
 
       this.shouldGoNextAfterAvatarSave.set(false);
+
+      this.onboarding.confirmCompanion();
+      this.avatarStore.uploadAvatarPreview();
       this.onboarding.goNext();
     });
   }
@@ -71,6 +74,8 @@ export class OnboardingPage implements OnInit {
 
   skipAvatarStep(): void {
     this.avatarStore.clearDraft();
+    this.avatarStore.clearAvatarPreview();
+    this.onboarding.skipCompanion();
     this.onboarding.goNext();
   }
 
@@ -79,18 +84,11 @@ export class OnboardingPage implements OnInit {
   }
 
   private async continueAvatarStep(): Promise<void> {
-    console.log('[OnboardingPage] continue avatar step');
-
     if (this.avatarStore.isSaving()) {
       return;
     }
 
     await this.captureAvatarPreviewIfAvailable();
-
-    if (!this.avatarStore.hasDraft()) {
-      this.onboarding.goNext();
-      return;
-    }
 
     this.shouldGoNextAfterAvatarSave.set(true);
     this.avatarStore.saveDraft();

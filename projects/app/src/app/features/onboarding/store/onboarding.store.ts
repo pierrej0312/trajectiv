@@ -23,6 +23,7 @@ import {
 import { AppContextStore } from '@core';
 import { CompanionAnimationCommand, CompanionAnimationName } from '@shared/companion/models/companion-animation.model';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
+import { AvatarCustomizationStore } from '@shared/companion/stores/avatar-customization.store';
 
 type CareerGoal = UpdateMeProfileRequestApiDto.CareerGoalEnum;
 type ExperienceLevel = UpdateMeProfileRequestApiDto.ExperienceLevelEnum;
@@ -216,11 +217,14 @@ export class OnboardingStore {
   private readonly onboardingApi = inject(OnboardingControllerService);
   private readonly appContext = inject(AppContextStore);
   private readonly jobRoleApi = inject(JobRoleControllerService);
+  private readonly companionStore = inject(AvatarCustomizationStore);
 
   readonly currentUrl = signal(this.normalizeUrl(this.router.url));
 
   readonly displayName = signal('');
   readonly careerGoal = signal<CareerGoal | null>(null);
+
+  readonly hasChosenCompanion = signal(false);
 
   readonly onboardingMissingFields = signal<readonly string[]>([]);
 
@@ -322,6 +326,20 @@ export class OnboardingStore {
     }
 
     return EXPERIENCE_LEVEL_SCALE_ORDER.indexOf(level);
+  });
+
+  readonly showCompanionStage = computed(() => {
+    const key = this.activeStepKey();
+
+    if (key === 'welcome' || key === 'review') {
+      return false;
+    }
+
+    if (key === 'avatar') {
+      return true;
+    }
+
+    return this.hasChosenCompanion();
   });
 
   readonly experienceProgress = computed(() => {
@@ -631,6 +649,14 @@ export class OnboardingStore {
   setTargetRoleFamily(value: JobRoleFamily | null): void {
     this.targetRoleFamily.set(value);
     this.searchCurrentTargetRoles();
+  }
+
+  confirmCompanion(): void {
+    this.hasChosenCompanion.set(true);
+  }
+
+  skipCompanion(): void {
+    this.hasChosenCompanion.set(false);
   }
 
   clearTargetRole(): void {
@@ -1041,11 +1067,6 @@ export class OnboardingStore {
     return this.createAnimationCommand('idle', 'loop');
   });
 
-  readonly showCompanionStage = computed(() => {
-    const key = this.activeStepKey();
-
-    return key !== 'welcome' && key !== 'review';
-  });
   private createAnimationCommand(
     name: CompanionAnimationCommand['name'],
     mode: CompanionAnimationCommand['mode'],

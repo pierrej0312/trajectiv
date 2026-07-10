@@ -21,12 +21,7 @@ export class ReviewStep {
   protected readonly avatarStore = inject(AvatarCustomizationStore);
 
   protected readonly avatarImageUrl = computed(() => {
-    return (
-      this.appContext.avatarUrl?.() ??
-      this.avatarStore.avatarPreviewUrl?.() ??
-      this.appContext.avatarUrl?.() ??
-      null
-    );
+    return this.avatarStore.avatarPreviewUrl() ?? this.appContext.avatarUrl() ?? null;
   });
 
   protected readonly displayName = computed(() => {

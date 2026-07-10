@@ -33,6 +33,7 @@ type AvatarCustomizationState = {
   errorMessage: string | null;
   saveCompletedAt: number | null;
   avatarPreviewUrl: string | null;
+  avatarPreviewBlob: Blob | null;
 };
 
 const initialState: AvatarCustomizationState = {
@@ -43,6 +44,7 @@ const initialState: AvatarCustomizationState = {
   errorMessage: null,
   saveCompletedAt: null,
   avatarPreviewUrl: null,
+  avatarPreviewBlob: null,
 };
 
 export const AvatarCustomizationStore = signalStore(
@@ -149,6 +151,7 @@ export const AvatarCustomizationStore = signalStore(
           patchState(store, {
             status: 'saving',
             errorMessage: null,
+            saveCompletedAt: null,
           });
         }),
         switchMap((payload) =>
@@ -285,6 +288,7 @@ export const AvatarCustomizationStore = signalStore(
       }
 
       patchState(store, {
+        avatarPreviewBlob: blob,
         avatarPreviewUrl: URL.createObjectURL(blob),
       });
     },
@@ -297,9 +301,50 @@ export const AvatarCustomizationStore = signalStore(
       }
 
       patchState(store, {
+        avatarPreviewBlob: null,
         avatarPreviewUrl: null,
       });
     },
+
+    uploadAvatarPreview: rxMethod<void>(
+      pipe(
+        switchMap(() => {
+          const blob = store.avatarPreviewBlob();
+
+          console.log('[AvatarStore] blob before upload', blob);
+
+          if (!blob) {
+            console.warn('[AvatarStore] no blob to upload');
+            return EMPTY;
+          }
+
+          return meAvatarApi
+            .uploadAvatar(blob, 'body', false, {
+              httpHeaderAccept: 'application/json',
+              transferCache: false,
+            })
+            .pipe(
+              tap((response) => {
+                console.log('[AvatarStore] upload succeeded', response);
+
+                patchState(store, {
+                  avatarPreviewBlob: null,
+                });
+              }),
+              catchError((error: unknown) => {
+                console.error('[AvatarStore] upload failed', error);
+
+                patchState(store, {
+                  status: 'error',
+                  errorMessage: 'Impossible d’enregistrer l’image de ton avatar.',
+                });
+
+                return EMPTY;
+              }),
+            );
+        }),
+      ),
+    ),
 
     resetDraftToDefault(): void {
       patchState(store, {
