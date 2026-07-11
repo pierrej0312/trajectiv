@@ -17,10 +17,13 @@ import { OnboardingStore } from '@features/onboarding/store/onboarding.store';
 import { CompanionStageComponent } from '@shared/companion/components/companion-stage/companion-stage';
 import { CompanionLightingPreset } from '@shared/companion/models/companion-animation.model';
 import { AvatarCustomizationStore } from '@shared/companion/stores/avatar-customization.store';
+import {
+  OnboardingCompletionOverlay
+} from '@features/onboarding/components/onboarding-completion-overlay/onboarding-completion-overlay';
 
 @Component({
   selector: 'app-onboarding-page',
-  imports: [RouterOutlet, ButtonDirective, CompanionStageComponent],
+  imports: [RouterOutlet, ButtonDirective, CompanionStageComponent, OnboardingCompletionOverlay],
   templateUrl: './onboarding-page.html',
   styleUrl: './onboarding-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

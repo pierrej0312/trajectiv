@@ -15,7 +15,7 @@
       white
     );
 
-  --tr-loader-cell-background: color-mix(in srgb, #111714 12%, transparent);
+  --tr-loader-cell-background: color-mix(in srgb, #111714 55%, transparent);
 
   --tr-loader-cell-border:
     color-mix(
@@ -29,7 +29,7 @@
 }
 
 :host-context(.dark) {
-  --tr-loader-cell-background: color-mix(in srgb, #d6dfd6 12%, transparent);
+  --tr-loader-cell-background: color-mix(in srgb, #d6dfd6 15%, transparent);
 
   --tr-loader-cell-border:
     color-mix(

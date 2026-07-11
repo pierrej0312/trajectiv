@@ -1,0 +1,192 @@
+@reference "tailwindcss";
+
+:host {
+  @apply fixed inset-0 z-[12000] grid place-items-center;
+}
+
+.onboarding-completion {
+  @apply relative grid h-full w-full place-items-center overflow-hidden px-6;
+
+  color: var(--p-text-color);
+}
+
+:host-context(.dark) .onboarding-completion {
+  background:
+    radial-gradient(
+      circle at 50% 38%,
+      color-mix(
+        in srgb,
+        #b8f85a 13%,
+        transparent
+      ),
+      transparent 42%
+    ),
+    var(--p-surface-950);
+}
+
+.onboarding-completion__ambient {
+  @apply pointer-events-none absolute inset-0;
+}
+
+.onboarding-completion__blob {
+  @apply absolute rounded-full;
+
+  filter: blur(72px);
+  opacity: 0.2;
+
+  animation:
+    onboarding-completion-float
+    7s ease-in-out infinite alternate;
+}
+
+.onboarding-completion__blob--one {
+  left: 12%;
+  top: 16%;
+
+  width: 20rem;
+  height: 20rem;
+
+  background: #b8f85a;
+}
+
+.onboarding-completion__blob--two {
+  right: 12%;
+  bottom: 10%;
+
+  width: 24rem;
+  height: 24rem;
+
+  background: #54d3b0;
+
+  animation-delay: -2.5s;
+}
+
+.onboarding-completion__content {
+  @apply relative z-10 flex w-full max-w-xl flex-col items-center gap-8 text-center;
+}
+
+.onboarding-completion__steps {
+  @apply flex flex-wrap items-center justify-center gap-3;
+}
+
+.onboarding-completion__step {
+  @apply inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-bold transition-all duration-300;
+
+  color: var(--p-text-muted-color);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--p-surface-100) 72%,
+      transparent
+    );
+}
+
+.onboarding-completion__step--active {
+  color: #111714;
+  background: #b8f85a;
+
+  box-shadow:
+    0 12px 32px
+    color-mix(
+      in srgb,
+      #b8f85a 28%,
+      transparent
+    );
+}
+
+.onboarding-completion__step--done {
+  color: #111714;
+
+  background:
+    color-mix(
+      in srgb,
+      #b8f85a 48%,
+      var(--p-surface-0)
+    );
+}
+
+.onboarding-completion__status {
+  @apply flex flex-col items-center gap-4;
+}
+
+.onboarding-completion__success-mark,
+.onboarding-completion__status-icon {
+  @apply grid h-20 w-20 place-items-center rounded-full text-3xl;
+}
+
+.onboarding-completion__success-mark {
+  color: #111714;
+  background: #b8f85a;
+
+  box-shadow:
+    0 18px 50px
+    color-mix(
+      in srgb,
+      #b8f85a 34%,
+      transparent
+    );
+
+  animation:
+    onboarding-success-enter
+    520ms cubic-bezier(0.16, 1, 0.3, 1)
+    both;
+}
+
+.onboarding-completion__status-icon {
+  color: var(--p-red-700);
+  background:
+    color-mix(
+      in srgb,
+      var(--p-red-500) 14%,
+      transparent
+    );
+}
+
+.onboarding-completion__eyebrow {
+  @apply text-xs font-black uppercase tracking-[0.16em];
+
+  color: var(--p-text-muted-color);
+}
+
+.onboarding-completion__title {
+  @apply m-0 text-3xl font-bold tracking-[-0.04em];
+
+  color: var(--p-text-color);
+}
+
+.onboarding-completion__message {
+  @apply m-0 max-w-md text-sm leading-6;
+
+  color: var(--p-text-muted-color);
+}
+
+.onboarding-completion__actions {
+  @apply mt-3 flex flex-wrap justify-center gap-3;
+}
+
+@keyframes onboarding-success-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.55) rotate(-8deg);
+  }
+
+  62% {
+    transform: scale(1.08) rotate(2deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes onboarding-completion-float {
+  from {
+    transform: translate3d(-3%, -3%, 0) scale(0.94);
+  }
+
+  to {
+    transform: translate3d(5%, 4%, 0) scale(1.08);
+  }
+}

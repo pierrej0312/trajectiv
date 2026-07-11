@@ -57,6 +57,14 @@ type OnboardingMissingField =
   | 'targetRoleSource'
   | 'experienceLevel';
 
+export type OnboardingCompletionPhase =
+  | 'idle'
+  | 'saving-profile'
+  | 'completing-onboarding'
+  | 'reloading-context'
+  | 'success'
+  | 'error';
+
 type OnboardingMissingFieldVm = {
   readonly field: OnboardingMissingField | string;
   readonly label: string;
@@ -278,6 +286,44 @@ export class OnboardingStore {
 
   private readonly hasHydratedFromMe = signal(false);
 
+  readonly completionPhase = signal<OnboardingCompletionPhase>('idle');
+
+  readonly isCompletionOverlayVisible = computed(() => {
+    return this.completionPhase() !== 'idle';
+  });
+
+  readonly isCompletingOnboarding = computed(() => {
+    const phase = this.completionPhase();
+
+    return (
+      phase === 'saving-profile' ||
+      phase === 'completing-onboarding' ||
+      phase === 'reloading-context'
+    );
+  });
+
+  readonly completionMessage = computed(() => {
+    switch (this.completionPhase()) {
+      case 'saving-profile':
+        return 'Nous enregistrons les dernières informations de ton profil…';
+
+      case 'completing-onboarding':
+        return 'Nous préparons ton espace Trajectiv…';
+
+      case 'reloading-context':
+        return 'Nous personnalisons ton tableau de bord…';
+
+      case 'success':
+        return 'Ta trajectoire est prête.';
+
+      case 'error':
+        return this.errorMessage() ?? 'Impossible de finaliser ton onboarding pour le moment.';
+
+      default:
+        return '';
+    }
+  });
+
   readonly targetRoleFamilies = signal<readonly JobRoleFamily[]>([
     'SOFTWARE_ENGINEERING',
     'PRODUCT_DESIGN',
@@ -396,12 +442,20 @@ export class OnboardingStore {
   private readonly idleDanceDelayMs = 15 * 60 * 1000;
   private readonly idleDanceCooldownMs = 17_000;
 
+  private completionPreviewTimeoutIds: ReturnType<typeof setTimeout>[] = [];
+
   private idleDanceTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private idleDanceCooldownTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   readonly animationCommandId = signal(0);
 
   readonly manualCompanionCommand = signal<CompanionAnimationCommand | null>(null);
+
+  readonly completionPreviewEnabled = signal(false);
+
+  readonly showRetryInCompletionSuccess = computed(() => {
+    return this.completionPreviewEnabled() && this.completionPhase() === 'success';
+  });
 
   readonly suggestedDisplayName = computed(() => {
     const me = this.appContext.me();
@@ -465,7 +519,8 @@ export class OnboardingStore {
       this.careerGoal() !== null &&
       this.hasTargetRole() &&
       this.experienceLevel() !== null &&
-      !this.isSubmitting()
+      !this.isSubmitting() &&
+      !this.isCompletingOnboarding()
     );
   });
 
@@ -494,6 +549,8 @@ export class OnboardingStore {
 
     return key === 'goal' || key === 'target-role' || key === 'experience-level';
   });
+
+  private completionSuccessTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   readonly canGoNext = computed(() => {
     const key = this.activeStepKey();
@@ -625,6 +682,52 @@ export class OnboardingStore {
       }
 
       this.displayName.set(suggestedDisplayName);
+    });
+
+    effect(() => {
+      const completionPhase = this.completionPhase();
+      const contextReady = this.appContext.isReady();
+      const contextHasError = this.appContext.hasError();
+      const onboardingCompleted = this.appContext.isOnboardingCompleted();
+
+      if (completionPhase !== 'reloading-context') {
+        return;
+      }
+
+      if (contextHasError) {
+        untracked(() => {
+          this.isSubmitting.set(false);
+          this.completionPhase.set('error');
+          this.errorMessage.set(
+            'Ton onboarding a été finalisé, mais ton espace n’a pas pu être rechargé. Réessaie dans quelques instants.',
+          );
+        });
+
+        return;
+      }
+
+      if (!contextReady || !onboardingCompleted) {
+        return;
+      }
+
+      untracked(() => {
+        this.completionPhase.set('success');
+
+        this.clearCompletionSuccessTimeout();
+
+        this.completionSuccessTimeoutId = setTimeout(() => {
+          void this.router.navigateByUrl('/app/dashboard').then((navigated) => {
+            if (navigated) {
+              this.completionPhase.set('idle');
+            }
+          });
+        }, 1_100);
+      });
+    });
+
+    this.destroyRef.onDestroy(() => {
+      this.clearIdleDanceTimer();
+      this.clearCompletionPreviewTimeouts();
     });
   }
 
@@ -966,14 +1069,16 @@ export class OnboardingStore {
   }
 
   complete(): void {
-    if (!this.canComplete()) {
+    if (!this.canComplete() || this.isCompletingOnboarding()) {
       return;
     }
 
-    this.onboardingMissingFields.set([]);
+    this.clearCompletionSuccessTimeout();
 
-    this.isSubmitting.set(true);
+    this.onboardingMissingFields.set([]);
     this.errorMessage.set(null);
+    this.isSubmitting.set(true);
+    this.completionPhase.set('saving-profile');
 
     this.profileApi
       .updateProfile(this.createProfilePayload(), 'body', false, {
@@ -986,32 +1091,85 @@ export class OnboardingStore {
 
           if (missingFields.length > 0) {
             this.onboardingMissingFields.set(missingFields);
+
             this.errorMessage.set(
               'Certaines informations sont nécessaires pour finaliser ton onboarding.',
             );
 
+            this.completionPhase.set('error');
+
             return EMPTY;
           }
 
+          this.completionPhase.set('completing-onboarding');
+
           return this.onboardingApi.completeOnboarding();
         }),
+
         tap(() => {
+          this.completionPhase.set('reloading-context');
           this.appContext.reloadMe();
-          void this.router.navigateByUrl('/app/dashboard');
         }),
-        catchError(() => {
+
+        catchError((error: unknown) => {
+          console.error('[OnboardingStore] Unable to complete onboarding', error);
+
           this.errorMessage.set(
             'Impossible de finaliser ton onboarding pour le moment. Réessaie dans quelques instants.',
           );
 
+          this.completionPhase.set('error');
+
           return EMPTY;
         }),
+
         finalize(() => {
+          /*
+           * Le POST onboarding est terminé, mais le reload /me peut
+           * encore être en cours. L’overlay reste piloté par completionPhase.
+           */
           this.isSubmitting.set(false);
         }),
+
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
+  }
+
+  retryCompletion(): void {
+    const phase = this.completionPhase();
+
+    if (phase === 'success' && this.completionPreviewEnabled()) {
+      this.replayCompletionPreview();
+      return;
+    }
+
+    if (phase !== 'error') {
+      return;
+    }
+
+    this.errorMessage.set(null);
+    this.completionPhase.set('idle');
+
+    this.complete();
+  }
+
+  closeCompletionError(): void {
+    if (this.completionPhase() !== 'error') {
+      return;
+    }
+
+    this.errorMessage.set(null);
+    this.completionPhase.set('idle');
+  }
+
+  private clearCompletionSuccessTimeout(): void {
+    if (this.completionSuccessTimeoutId === null) {
+      return;
+    }
+
+    clearTimeout(this.completionSuccessTimeoutId);
+    this.completionSuccessTimeoutId = null;
   }
 
   private createProfilePayloadForCurrentStep(): UpdateMeProfileRequestApiDto {
@@ -1136,6 +1294,68 @@ export class OnboardingStore {
       }),
     ),
   );
+
+  previewCompletionPhase(phase: OnboardingCompletionPhase): void {
+    if (!this.completionPreviewEnabled()) {
+      return;
+    }
+
+    this.clearCompletionPreviewTimeouts();
+
+    this.isSubmitting.set(false);
+    this.onboardingMissingFields.set([]);
+
+    if (phase === 'error') {
+      this.errorMessage.set('Exemple d’erreur de finalisation pour contrôler le rendu.');
+    } else {
+      this.errorMessage.set(null);
+    }
+
+    this.completionPhase.set(phase);
+  }
+
+  closeCompletionPreview(): void {
+    if (!this.completionPreviewEnabled()) {
+      return;
+    }
+
+    this.clearCompletionPreviewTimeouts();
+    this.errorMessage.set(null);
+    this.completionPhase.set('idle');
+  }
+
+  replayCompletionPreview(): void {
+    if (!this.completionPreviewEnabled()) {
+      return;
+    }
+
+    this.clearCompletionPreviewTimeouts();
+
+    this.errorMessage.set(null);
+    this.completionPhase.set('saving-profile');
+
+    this.scheduleCompletionPreviewPhase('completing-onboarding', 1_000);
+
+    this.scheduleCompletionPreviewPhase('reloading-context', 2_000);
+
+    this.scheduleCompletionPreviewPhase('success', 3_000);
+  }
+
+  private scheduleCompletionPreviewPhase(phase: OnboardingCompletionPhase, delayMs: number): void {
+    const timeoutId = setTimeout(() => {
+      this.completionPhase.set(phase);
+    }, delayMs);
+
+    this.completionPreviewTimeoutIds.push(timeoutId);
+  }
+
+  private clearCompletionPreviewTimeouts(): void {
+    for (const timeoutId of this.completionPreviewTimeoutIds) {
+      clearTimeout(timeoutId);
+    }
+
+    this.completionPreviewTimeoutIds = [];
+  }
 
   private nextAnimationCommandId(): number {
     const nextId = this.animationCommandId() + 1;

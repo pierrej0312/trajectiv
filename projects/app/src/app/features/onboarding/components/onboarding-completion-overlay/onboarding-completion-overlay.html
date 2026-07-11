@@ -1,0 +1,144 @@
+<section
+  class="onboarding-completion"
+  role="status"
+  aria-live="polite"
+  [attr.aria-busy]="!isSuccess() && !isError()"
+>
+  <div class="onboarding-completion__ambient">
+    <span
+      class="
+        onboarding-completion__blob
+        onboarding-completion__blob--one
+      "
+    ></span>
+
+    <span
+      class="
+        onboarding-completion__blob
+        onboarding-completion__blob--two
+      "
+    ></span>
+  </div>
+
+  <div class="onboarding-completion__content">
+    @if (isError()) {
+      <div class="onboarding-completion__status onboarding-completion__status--error">
+        <span class="onboarding-completion__status-icon">
+          <i class="pi pi-exclamation-triangle"></i>
+        </span>
+
+        <p class="onboarding-completion__eyebrow">
+          Finalisation interrompue
+        </p>
+
+        <h2 class="onboarding-completion__title">
+          Une étape n’a pas pu être terminée
+        </h2>
+
+        <p class="onboarding-completion__message">
+          {{ message() }}
+        </p>
+
+        <div class="onboarding-completion__actions">
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            (click)="closeError.emit()"
+          >
+            Revenir au récapitulatif
+          </button>
+
+          <button
+            pButton
+            type="button"
+            (click)="retry.emit()"
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    } @else if (isSuccess()) {
+      <div
+        class="
+      onboarding-completion__status
+      onboarding-completion__status--success
+    "
+      >
+    <span class="onboarding-completion__success-mark">
+      <i class="pi pi-check"></i>
+    </span>
+
+        <p class="onboarding-completion__eyebrow">
+          Tout est prêt
+        </p>
+
+        <h2 class="onboarding-completion__title">
+          Ta trajectoire commence maintenant
+        </h2>
+
+        <p class="onboarding-completion__message">
+          {{ message() }}
+        </p>
+
+        @if (showRetry()) {
+          <div class="onboarding-completion__actions">
+            <button
+              pButton
+              type="button"
+              severity="secondary"
+              (click)="retry.emit()"
+            >
+              <i class="pi pi-refresh"></i>
+              Rejouer la finalisation
+            </button>
+          </div>
+        }
+      </div>
+      } @else {
+      <lib-trajectiv-blob-loader
+        [completed]="loaderCompleted()"
+        size="9rem"
+        [label]="message()"
+      />
+
+      <div class="onboarding-completion__steps">
+        <span
+          class="onboarding-completion__step"
+          [class.onboarding-completion__step--active]="
+            phase() === 'saving-profile'
+          "
+          [class.onboarding-completion__step--done]="
+            phase() !== 'saving-profile'
+          "
+        >
+          <i class="pi pi-user-edit"></i>
+          Profil
+        </span>
+
+        <span
+          class="onboarding-completion__step"
+          [class.onboarding-completion__step--active]="
+            phase() === 'completing-onboarding'
+          "
+          [class.onboarding-completion__step--done]="
+            phase() === 'reloading-context'
+          "
+        >
+          <i class="pi pi-sparkles"></i>
+          Espace
+        </span>
+
+        <span
+          class="onboarding-completion__step"
+          [class.onboarding-completion__step--active]="
+            phase() === 'reloading-context'
+          "
+        >
+          <i class="pi pi-chart-bar"></i>
+          Dashboard
+        </span>
+      </div>
+    }
+  </div>
+</section>

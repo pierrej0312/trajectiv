@@ -167,11 +167,6 @@
   min-height: 100dvh;
 
   background:
-    radial-gradient(
-      circle at 50% 42%,
-      color-mix(in srgb, var(--p-primary-color) 5%, transparent),
-      transparent
-    ),
     color-mix(in srgb, rgb(255,255,255), transparent);;
 
   backdrop-filter: blur(18px);
@@ -189,10 +184,5 @@
 
 :host-context(.dark) .app-bootstrap-loader {
   background:
-    radial-gradient(
-      circle at 50% 42%,
-      color-mix(in srgb, var(--p-primary-color) 5%, transparent),
-      transparent
-    ),
     color-mix(in srgb, rgb(0,0,0), transparent);
 }

@@ -55,7 +55,8 @@
             type="button"
             severity="secondary"
             class="onboarding-page__secondary"
-            [disabled]="isAvatarBusy()"
+            [disabled]="isAvatarBusy() ||
+              onboarding.isCompletingOnboarding()"
             (click)="resetAvatarStep()"
           >
             @if (avatarStore.isDeleting()) {
@@ -73,7 +74,10 @@
             pButton
             type="button"
             class="onboarding-page__submit"
-            [disabled]="!onboarding.canComplete() || onboarding.isSubmitting()"
+            [disabled]="
+              !onboarding.canComplete() ||
+              onboarding.isSubmitting() ||
+              onboarding.isCompletingOnboarding()"
             (click)="onboarding.complete()"
           >
             @if (onboarding.isSubmitting()) {
@@ -104,4 +108,14 @@
       </footer>
     }
   </div>
+
+  @if (onboarding.isCompletionOverlayVisible()) {
+    <app-onboarding-completion-overlay
+      [phase]="onboarding.completionPhase()"
+      [message]="onboarding.completionMessage()"
+      [showRetry]="onboarding.showRetryInCompletionSuccess()"
+      (retry)="onboarding.retryCompletion()"
+      (closeError)="onboarding.closeCompletionError()"
+    />
+  }
 </section>
