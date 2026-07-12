@@ -1,0 +1,55 @@
+<p-card styleClass="dashboard-summary-card">
+  <ng-template #header>
+    <div class="dashboard-summary-card__header">
+      <span class="dashboard-summary-card__icon">
+        <i class="pi pi-sparkles" aria-hidden="true"></i>
+      </span>
+
+      <div>
+        <span class="dashboard-summary-card__eyebrow">
+          Abonnement
+        </span>
+
+        <h2 class="dashboard-summary-card__title">
+          Plan actuel
+        </h2>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="subscription-summary-card__plan">
+    <strong>{{ subscription().label }}</strong>
+
+    <p-tag
+      [value]="subscription().premium ? 'Premium' : 'Gratuit'"
+      [severity]="subscription().premium ? 'success' : 'secondary'"
+      rounded
+    />
+  </div>
+
+  <p class="dashboard-summary-card__description">
+    @if (subscription().premium) {
+      Tu profites des fonctionnalités avancées Trajectiv.
+    } @else {
+      Découvre les options disponibles pour aller plus loin.
+    }
+  </p>
+
+  <ng-template #footer>
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      size="small"
+      (click)="openBilling.emit()"
+    >
+      {{
+        subscription().premium
+          ? 'Gérer mon plan'
+          : 'Voir les options'
+      }}
+
+      <span class="pi pi-arrow-right" aria-hidden="true"></span>
+    </button>
+  </ng-template>
+</p-card>

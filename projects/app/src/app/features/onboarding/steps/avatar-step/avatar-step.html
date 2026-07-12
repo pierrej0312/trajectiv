@@ -118,4 +118,62 @@
       />
     </label>
   </p-panel>
+  <p-panel
+    class="avatar-step__group"
+    header="Haut"
+  >
+    <div class="avatar-step__asset-grid">
+      @for (
+        option of topStyleOptions;
+        track option.value
+        ) {
+        <app-selectable-option-card
+          mode="asset"
+          size="large"
+          [mobileCompact]="false"
+          [label]="option.label"
+          [description]="
+          option.description ?? null
+        "
+          [imageUrl]="option.previewImageUrl"
+          [selected]="
+          form.controls.topStyle.value ===
+          option.value
+        "
+          (selectedChange)="
+          selectTopStyle(option.value)
+        "
+        />
+      }
+    </div>
+  </p-panel>
+  <p-panel
+    class="avatar-step__group"
+    header="Bas"
+  >
+    <div class="avatar-step__asset-grid">
+      @for (
+        option of bottomStyleOptions;
+        track option.value
+        ) {
+        <app-selectable-option-card
+          mode="asset"
+          size="large"
+          [mobileCompact]="false"
+          [label]="option.label"
+          [description]="
+          option.description ?? null
+        "
+          [imageUrl]="option.previewImageUrl"
+          [selected]="
+          form.controls.bottomStyle.value ===
+          option.value
+        "
+          (selectedChange)="
+          selectBottomStyle(option.value)
+        "
+        />
+      }
+    </div>
+  </p-panel>
 </form>

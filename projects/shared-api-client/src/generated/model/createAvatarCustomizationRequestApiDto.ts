@@ -17,6 +17,8 @@ export interface CreateAvatarCustomizationRequestApiDto {
     hairColor: string;
     beardStyle: CreateAvatarCustomizationRequestApiDto.BeardStyleEnum;
     beardColor: string;
+    topStyle: CreateAvatarCustomizationRequestApiDto.TopStyleEnum;
+    bottomStyle: CreateAvatarCustomizationRequestApiDto.BottomStyleEnum;
 }
 export namespace CreateAvatarCustomizationRequestApiDto {
     export const BodyTypeEnum = {
@@ -42,6 +44,14 @@ export namespace CreateAvatarCustomizationRequestApiDto {
         None: 'NONE'
     } as const;
     export type BeardStyleEnum = typeof BeardStyleEnum[keyof typeof BeardStyleEnum];
+    export const TopStyleEnum = {
+        ShirtSweater01: 'SHIRT_SWEATER_01'
+    } as const;
+    export type TopStyleEnum = typeof TopStyleEnum[keyof typeof TopStyleEnum];
+    export const BottomStyleEnum = {
+        Jeans01: 'JEANS_01'
+    } as const;
+    export type BottomStyleEnum = typeof BottomStyleEnum[keyof typeof BottomStyleEnum];
 }
 
 

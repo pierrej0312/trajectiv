@@ -18,6 +18,8 @@ export interface AvatarCustomizationResponseApiDto {
     hairColor?: string;
     beardStyle?: AvatarCustomizationResponseApiDto.BeardStyleEnum;
     beardColor?: string;
+    topStyle?: AvatarCustomizationResponseApiDto.TopStyleEnum;
+    bottomStyle?: AvatarCustomizationResponseApiDto.BottomStyleEnum;
     sourcePhotoFileId?: string;
     sourcePhotoUrl?: string;
     faceTextureFileId?: string;
@@ -47,6 +49,14 @@ export namespace AvatarCustomizationResponseApiDto {
         None: 'NONE'
     } as const;
     export type BeardStyleEnum = typeof BeardStyleEnum[keyof typeof BeardStyleEnum];
+    export const TopStyleEnum = {
+        ShirtSweater01: 'SHIRT_SWEATER_01'
+    } as const;
+    export type TopStyleEnum = typeof TopStyleEnum[keyof typeof TopStyleEnum];
+    export const BottomStyleEnum = {
+        Jeans01: 'JEANS_01'
+    } as const;
+    export type BottomStyleEnum = typeof BottomStyleEnum[keyof typeof BottomStyleEnum];
 }
 
 

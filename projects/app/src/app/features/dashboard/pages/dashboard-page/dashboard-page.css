@@ -1,0 +1,29 @@
+@reference "tailwindcss";
+
+:host {
+  @apply block;
+}
+
+.dashboard-page {
+  @apply mx-auto grid w-full max-w-[100rem] gap-5 px-4 py-5;
+  @apply md:gap-6 md:px-6 md:py-7;
+  @apply xl:px-8;
+}
+
+.dashboard-page__summary {
+  @apply grid min-w-0 gap-4;
+  @apply md:grid-cols-2;
+  @apply xl:grid-cols-3;
+}
+.dashboard-page__summary-card {
+  @apply flex items-stretch flex-1;
+}
+::ng-deep .dashboard-page__summary-card .p-card {
+  @apply w-full;
+}
+::ng-deep .p-card-header > div {
+  @apply flex items-center gap-6;
+  padding-left: var(--p-card-body-padding);
+  padding-right: var(--p-card-body-padding);
+  padding-top: var(--p-card-body-padding);
+}

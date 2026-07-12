@@ -1,0 +1,141 @@
+<header class="dashboard-hero">
+  <div class="dashboard-hero__content">
+    <p class="dashboard-hero__eyebrow">
+      Ton espace
+    </p>
+
+    <h1 class="dashboard-hero__title">
+      Bonjour {{ hero().firstName }}
+      <span aria-hidden="true">👋</span>
+    </h1>
+
+    <p class="dashboard-hero__description">
+      @if (hero().targetRoleLabel; as targetRole) {
+        Prêt à avancer vers ton objectif de
+        <strong>{{ targetRole }}</strong> ?
+      } @else {
+        Prêt à faire avancer ta trajectoire aujourd’hui ?
+      }
+    </p>
+  </div>
+
+  <div
+    class="dashboard-hero__visual"
+    aria-hidden="true"
+  >
+    <svg
+      class="dashboard-hero__blob-scene"
+      viewBox="0 0 520 300"
+      preserveAspectRatio="xMidYMid slice"
+      focusable="false"
+    >
+      <defs>
+        <filter
+          id="dashboard-hero-gooey"
+          x="-50%"
+          y="-50%"
+          width="200%"
+          height="200%"
+          color-interpolation-filters="sRGB"
+        >
+          <feGaussianBlur
+            in="SourceAlpha"
+            stdDeviation="18"
+            result="blur"
+          />
+
+          <feColorMatrix
+            in="blur"
+            mode="matrix"
+            values="
+              0 0 0 0 0
+              0 0 0 0 0
+              0 0 0 0 0
+              0 0 0 24 -9
+            "
+            result="gooAlpha"
+          />
+
+          <feFlood
+            class="dashboard-hero__blob-flood"
+            result="blobColor"
+          />
+
+          <feComposite
+            in="blobColor"
+            in2="gooAlpha"
+            operator="in"
+            result="coloredGoo"
+          />
+
+          <feMerge>
+            <feMergeNode in="coloredGoo" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      <g
+        class="dashboard-hero__blob-group"
+        filter="url(#dashboard-hero-gooey)"
+      >
+        <circle
+          class="
+            dashboard-hero__blob-circle
+            dashboard-hero__blob-circle--one
+          "
+          cx="315"
+          cy="126"
+          r="76"
+        />
+
+        <circle
+          class="
+            dashboard-hero__blob-circle
+            dashboard-hero__blob-circle--two
+          "
+          cx="410"
+          cy="92"
+          r="54"
+        />
+
+        <circle
+          class="
+            dashboard-hero__blob-circle
+            dashboard-hero__blob-circle--three
+          "
+          cx="447"
+          cy="190"
+          r="68"
+        />
+
+        <circle
+          class="
+            dashboard-hero__blob-circle
+            dashboard-hero__blob-circle--four
+          "
+          cx="337"
+          cy="225"
+          r="46"
+        />
+
+        <circle
+          class="
+            dashboard-hero__blob-circle
+            dashboard-hero__blob-circle--five
+          "
+          cx="250"
+          cy="196"
+          r="34"
+        />
+      </g>
+    </svg>
+
+    <div class="dashboard-hero__companion">
+      <app-companion-stage
+        [config]="companionConfig()"
+        [command]="idleCommand"
+        [lightingPreset]="companionLightingPreset()"
+      />
+    </div>
+  </div>
+</header>

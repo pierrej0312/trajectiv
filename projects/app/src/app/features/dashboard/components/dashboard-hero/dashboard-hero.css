@@ -1,0 +1,380 @@
+@reference "tailwindcss";
+
+:host {
+  @apply block;
+}
+
+.dashboard-hero {
+  @apply relative flex min-h-48 items-center overflow-hidden rounded-[2rem];
+  @apply px-6 py-7;
+  @apply md:min-h-60 md:px-8 md:py-9;
+  @apply lg:min-h-64 lg:px-10;
+
+  isolation: isolate;
+
+  background: var(--p-primary-color);
+  color: var(--p-primary-contrast-color);
+}
+
+/* ---------------------------------------------------
+   Contenu
+--------------------------------------------------- */
+
+.dashboard-hero__content {
+  @apply relative z-20 max-w-[72%];
+  @apply sm:max-w-[60%];
+  @apply lg:max-w-2xl;
+}
+
+.dashboard-hero__eyebrow {
+  @apply mb-3 text-xs font-bold uppercase tracking-[0.16em];
+
+  color:
+    color-mix(
+      in srgb,
+      var(--p-primary-contrast-color) 72%,
+      transparent
+    );
+}
+
+.dashboard-hero__title {
+  @apply m-0 text-3xl font-bold tracking-[-0.045em];
+  @apply md:text-4xl;
+
+  color: var(--p-primary-contrast-color);
+}
+
+.dashboard-hero__description {
+  @apply mt-3 max-w-xl text-sm leading-6;
+  @apply md:text-base;
+
+  color:
+    color-mix(
+      in srgb,
+      var(--p-primary-contrast-color) 78%,
+      transparent
+    );
+}
+
+.dashboard-hero__description strong {
+  color: var(--p-primary-contrast-color);
+}
+
+/* ---------------------------------------------------
+   Zone visuelle droite
+--------------------------------------------------- */
+
+.dashboard-hero__visual {
+  @apply pointer-events-none absolute inset-y-0 right-0 z-0;
+
+  width: 50%;
+}
+
+/* ---------------------------------------------------
+   Blobs SVG
+--------------------------------------------------- */
+
+.dashboard-hero__blob-scene {
+  @apply absolute inset-0 z-0 h-full w-full;
+
+  overflow: visible;
+
+  opacity: 0.18;
+}
+
+/*
+ * La couleur est injectée après le calcul du masque gooey.
+ * Les cercles noirs ne sont donc jamais affichés directement.
+ */
+.dashboard-hero__blob-flood {
+  flood-color: var(--p-primary-contrast-color);
+}
+
+.dashboard-hero__blob-group {
+  pointer-events: none;
+}
+
+/*
+ * Formes sources du filtre.
+ * Leur fill sert uniquement à produire SourceAlpha.
+ */
+.dashboard-hero__blob-circle {
+  fill: #000;
+
+  transform-box: fill-box;
+  transform-origin: center;
+
+  will-change: transform;
+}
+
+.dashboard-hero__blob-circle--one {
+  animation:
+    dashboard-hero-blob-one
+    8.5s ease-in-out infinite alternate;
+}
+
+.dashboard-hero__blob-circle--two {
+  animation:
+    dashboard-hero-blob-two
+    7.2s ease-in-out infinite alternate;
+}
+
+.dashboard-hero__blob-circle--three {
+  animation:
+    dashboard-hero-blob-three
+    9.4s ease-in-out infinite alternate;
+}
+
+.dashboard-hero__blob-circle--four {
+  animation:
+    dashboard-hero-blob-four
+    6.8s ease-in-out infinite alternate;
+}
+
+.dashboard-hero__blob-circle--five {
+  animation:
+    dashboard-hero-blob-five
+    7.8s ease-in-out infinite alternate;
+}
+
+/* Gros blob central */
+@keyframes dashboard-hero-blob-one {
+  0% {
+    transform:
+      translate3d(-8px, 8px, 0)
+      scale(0.92);
+  }
+
+  45% {
+    transform:
+      translate3d(26px, -12px, 0)
+      scale(1.08);
+  }
+
+  100% {
+    transform:
+      translate3d(-4px, 18px, 0)
+      scale(0.98);
+  }
+}
+
+/* Blob supérieur droit */
+@keyframes dashboard-hero-blob-two {
+  0% {
+    transform:
+      translate3d(8px, -10px, 0)
+      scale(1);
+  }
+
+  55% {
+    transform:
+      translate3d(-42px, 24px, 0)
+      scale(1.16);
+  }
+
+  100% {
+    transform:
+      translate3d(-8px, 8px, 0)
+      scale(0.9);
+  }
+}
+
+/* Blob inférieur droit */
+@keyframes dashboard-hero-blob-three {
+  0% {
+    transform:
+      translate3d(18px, 14px, 0)
+      scale(0.94);
+  }
+
+  48% {
+    transform:
+      translate3d(-36px, -26px, 0)
+      scale(1.1);
+  }
+
+  100% {
+    transform:
+      translate3d(-4px, 2px, 0)
+      scale(1.02);
+  }
+}
+
+/* Blob inférieur central */
+@keyframes dashboard-hero-blob-four {
+  0% {
+    transform:
+      translate3d(-18px, 12px, 0)
+      scale(0.88);
+  }
+
+  50% {
+    transform:
+      translate3d(24px, -32px, 0)
+      scale(1.2);
+  }
+
+  100% {
+    transform:
+      translate3d(2px, -5px, 0)
+      scale(0.98);
+  }
+}
+
+/* Petit blob qui rejoint régulièrement la masse principale */
+@keyframes dashboard-hero-blob-five {
+  0% {
+    transform:
+      translate3d(-28px, 10px, 0)
+      scale(0.76);
+  }
+
+  40% {
+    transform:
+      translate3d(34px, -18px, 0)
+      scale(1.22);
+  }
+
+  72% {
+    transform:
+      translate3d(58px, -44px, 0)
+      scale(0.92);
+  }
+
+  100% {
+    transform:
+      translate3d(10px, 4px, 0)
+      scale(1.08);
+  }
+}
+
+/* ---------------------------------------------------
+   Compagnon
+--------------------------------------------------- */
+
+.dashboard-hero__companion {
+  @apply absolute inset-y-0 right-0 z-10;
+
+  width: 92%;
+
+  /*
+   * Le hero parent réalise le crop final.
+   */
+  overflow: visible;
+}
+
+.dashboard-hero__companion app-companion-stage {
+  position: absolute;
+
+  inset:
+    -14%
+    -8%
+    -86%
+    -4%;
+
+  transform:
+    translateY(3%)
+    scale(1.22);
+
+  transform-origin: center top;
+}
+
+/* ---------------------------------------------------
+   Transition avec la partie texte
+--------------------------------------------------- */
+
+.dashboard-hero__visual::before {
+  content: "";
+
+  @apply absolute inset-y-0 left-0 z-20 w-28;
+  @apply md:w-40;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--p-primary-color) 0%,
+      color-mix(
+        in srgb,
+        var(--p-primary-color) 84%,
+        transparent
+      ) 42%,
+      transparent 100%
+    );
+}
+
+/* ---------------------------------------------------
+   Mobile
+--------------------------------------------------- */
+
+@media (max-width: 639px) {
+  .dashboard-hero {
+    min-height: 13rem;
+  }
+
+  .dashboard-hero__content {
+    max-width: 74%;
+  }
+
+  .dashboard-hero__visual {
+    right: -12%;
+    width: 66%;
+  }
+
+  .dashboard-hero__blob-scene {
+    opacity: 0.12;
+  }
+
+  .dashboard-hero__companion {
+    width: 100%;
+
+    opacity: 0.78;
+  }
+
+  .dashboard-hero__companion app-companion-stage {
+    inset:
+      -6%
+      -10%
+      -82%
+      -4%;
+
+    transform:
+      translateY(8%)
+      scale(1.08);
+  }
+
+  .dashboard-hero__visual::before {
+    width: 5rem;
+  }
+}
+
+/* ---------------------------------------------------
+   Desktop large
+--------------------------------------------------- */
+
+@media (min-width: 1024px) {
+  .dashboard-hero__visual {
+    width: 46%;
+  }
+
+  .dashboard-hero__companion app-companion-stage {
+    inset:
+      -18%
+      -6%
+      -94%
+      -2%;
+
+    transform:
+      translateY(1%)
+      scale(1.28);
+  }
+}
+
+/* ---------------------------------------------------
+   Accessibilité
+--------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-hero__blob-circle {
+    animation: none;
+  }
+}

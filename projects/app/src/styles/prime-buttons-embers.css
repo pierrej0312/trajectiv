@@ -1,0 +1,545 @@
+/* =========================================================
+   Trajectiv — Primary button ember effect
+   Global stylesheet only
+========================================================= */
+
+:root {
+  --tr-button-ember-color: #8dbd77;
+
+  --tr-particle-opacity: 0.2;
+
+  --tr-button-ember-glow:
+    color-mix(
+      in srgb,
+      #304726 42%,
+      transparent
+    );
+}
+
+.dark {
+  --tr-button-ember-color: #ffffff;
+
+  --tr-particle-opacity: 1;
+
+  --tr-button-ember-glow:
+    color-mix(
+      in srgb,
+      #ffffff 28%,
+      transparent
+    );
+}
+
+/*
+ * Cible :
+ * - button PrimeNG
+ * - filled
+ * - primary par défaut
+ *
+ * Exclusions :
+ * - severities non primary
+ * - outlined / text / link
+ * - disabled
+ */
+button.p-button[data-pc-name="button"]:not(
+  .p-button-secondary,
+  .p-button-success,
+  .p-button-info,
+  .p-button-warn,
+  .p-button-help,
+  .p-button-danger,
+  .p-button-contrast,
+  .p-button-outlined,
+  .p-button-text,
+  .p-button-link,
+  :disabled
+) {
+  position: relative;
+  isolation: isolate;
+
+  /*
+   * Indispensable pour laisser les braises sortir.
+   */
+  overflow: hidden !important;
+
+  transition:
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 280ms ease,
+    filter 280ms ease;
+}
+
+/*
+ * Les éléments internes PrimeNG restent au-dessus.
+ */
+button.p-button[data-pc-name="button"]:not(
+  .p-button-secondary,
+  .p-button-success,
+  .p-button-info,
+  .p-button-warn,
+  .p-button-help,
+  .p-button-danger,
+  .p-button-contrast,
+  .p-button-outlined,
+  .p-button-text,
+  .p-button-link,
+  :disabled
+) > * {
+  position: relative;
+  z-index: 3;
+}
+/* =========================================================
+   Champs continus de braises
+========================================================= */
+
+button.p-button[data-pc-name="button"]:not(
+  .p-button-secondary,
+  .p-button-success,
+  .p-button-info,
+  .p-button-warn,
+  .p-button-help,
+  .p-button-danger,
+  .p-button-contrast,
+  .p-button-outlined,
+  .p-button-text,
+  .p-button-link,
+  :disabled
+)::before,
+button.p-button[data-pc-name="button"]:not(
+  .p-button-secondary,
+  .p-button-success,
+  .p-button-info,
+  .p-button-warn,
+  .p-button-help,
+  .p-button-danger,
+  .p-button-contrast,
+  .p-button-outlined,
+  .p-button-text,
+  .p-button-link,
+  :disabled
+)::after {
+  content: "";
+
+  position: absolute;
+  inset: -100% 0 -10%;
+
+  z-index: 1;
+
+  pointer-events: none;
+
+  color: var(--tr-button-ember-color);
+
+  opacity: 0;
+
+  /*
+   * Légère disparition progressive vers le haut.
+   * Les particules ne s’éteignent pas toutes ensemble.
+   */
+  mask-image:
+    linear-gradient(
+      to top,
+      transparent 0%,
+      black 18%,
+      black 76%,
+      transparent 100%
+    );
+
+  transition: opacity 480ms ease;
+
+  will-change: background-position, transform, opacity;
+}
+
+/*
+ * Couche principale :
+ * particules moyennes, lentes et irrégulières.
+ */
+button.p-button[data-pc-name="button"]:not(
+  .p-button-secondary,
+  .p-button-success,
+  .p-button-info,
+  .p-button-warn,
+  .p-button-help,
+  .p-button-danger,
+  .p-button-contrast,
+  .p-button-outlined,
+  .p-button-text,
+  .p-button-link,
+  :disabled
+)::before {
+  background-image:
+    radial-gradient(
+      circle,
+      currentColor 0 2px,
+      transparent 2.8px
+    ),
+    radial-gradient(
+      circle,
+      currentColor 0 1.3px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle,
+      currentColor 0 2.4px,
+      transparent 3.2px
+    ),
+    radial-gradient(
+      circle,
+      currentColor 0 1.1px,
+      transparent 1.8px
+    ),
+    radial-gradient(
+      circle,
+      currentColor 0 1.8px,
+      transparent 2.5px
+    ),
+    radial-gradient(
+      circle,
+      currentColor 0 0.9px,
+      transparent 1.6px
+    );
+
+  background-repeat:
+    repeat,
+    repeat,
+    repeat,
+    repeat,
+    repeat,
+    repeat;
+
+  background-size:
+    37px 71px,
+    53px 89px,
+    67px 113px,
+    43px 97px,
+    79px 127px,
+    31px 83px;
+
+  background-position:
+    7px 13px,
+    25px 42px,
+    48px 72px,
+    15px 81px,
+    61px 28px,
+    36px 59px;
+
+  filter:
+    drop-shadow(
+      0 0 3px
+      color-mix(
+        in srgb,
+        var(--tr-button-ember-color) 68%,
+        transparent
+      )
+    );
+}
+
+/*
+ * Couche secondaire :
+ * particules plus fines, plus rapides et plus nombreuses.
+ */
+button.p-button[data-pc-name="button"]:not(
+  .p-button-secondary,
+  .p-button-success,
+  .p-button-info,
+  .p-button-warn,
+  .p-button-help,
+  .p-button-danger,
+  .p-button-contrast,
+  .p-button-outlined,
+  .p-button-text,
+  .p-button-link,
+  :disabled
+)::after {
+  background-image:
+    radial-gradient(
+      circle,
+      currentColor 0 1.2px,
+      transparent 1.9px
+    ),
+    radial-gradient(
+      circle,
+      currentColor 0 0.8px,
+      transparent 1.4px
+    ),
+    radial-gradient(
+      circle,
+      currentColor 0 1.5px,
+      transparent 2.2px
+    ),
+    radial-gradient(
+      circle,
+      currentColor 0 0.7px,
+      transparent 1.3px
+    ),
+    radial-gradient(
+      circle,
+      currentColor 0 1px,
+      transparent 1.7px
+    ),
+    radial-gradient(
+      circle,
+      currentColor 0 1.3px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle,
+      currentColor 0 0.6px,
+      transparent 1.2px
+    );
+
+  background-repeat:
+    repeat,
+    repeat,
+    repeat,
+    repeat,
+    repeat,
+    repeat,
+    repeat;
+
+  background-size:
+    29px 61px,
+    41px 73px,
+    57px 101px,
+    35px 79px,
+    71px 119px,
+    47px 91px,
+    23px 67px;
+
+  background-position:
+    3px 21px,
+    19px 51px,
+    44px 79px,
+    11px 67px,
+    59px 35px,
+    31px 88px,
+    52px 14px;
+
+  filter:
+    drop-shadow(
+      0 0 2px
+      color-mix(
+        in srgb,
+        var(--tr-button-ember-color) 58%,
+        transparent
+      )
+    );
+}
+
+/* =========================================================
+   Hover
+========================================================= */
+
+button.p-button[data-pc-name="button"]:not(
+  .p-button-secondary,
+  .p-button-success,
+  .p-button-info,
+  .p-button-warn,
+  .p-button-help,
+  .p-button-danger,
+  .p-button-contrast,
+  .p-button-outlined,
+  .p-button-text,
+  .p-button-link,
+  :disabled
+):hover {
+  transform: translateY(-2px);
+
+  filter:
+    brightness(1.04)
+    saturate(1.08);
+
+}
+
+button.p-button[data-pc-name="button"]:not(
+  .p-button-secondary,
+  .p-button-success,
+  .p-button-info,
+  .p-button-warn,
+  .p-button-help,
+  .p-button-danger,
+  .p-button-contrast,
+  .p-button-outlined,
+  .p-button-text,
+  .p-button-link,
+  :disabled
+):hover::before {
+  opacity: var(--tr-particle-opacity);
+
+  animation:
+    tr-button-embers-main
+    10.8s linear infinite;
+}
+
+button.p-button[data-pc-name="button"]:not(
+  .p-button-secondary,
+  .p-button-success,
+  .p-button-info,
+  .p-button-warn,
+  .p-button-help,
+  .p-button-danger,
+  .p-button-contrast,
+  .p-button-outlined,
+  .p-button-text,
+  .p-button-link,
+  :disabled
+):hover::after {
+  opacity: var(--tr-particle-opacity);
+
+  animation:
+    tr-button-embers-secondary
+    10.8s linear infinite;
+
+  /*
+   * Démarrage au milieu du cycle :
+   * les deux nappes ne repartent jamais ensemble.
+   */
+  animation-delay: -2.1s;
+}
+
+/* =========================================================
+   Mouvement continu
+========================================================= */
+
+@keyframes tr-button-embers-main {
+  from {
+    background-position:
+      7px 13px,
+      25px 42px,
+      48px 72px,
+      15px 81px,
+      61px 28px,
+      36px 59px;
+
+    transform:
+      translate3d(-2px, 0, 0)
+      scaleX(0.98);
+  }
+
+  35% {
+    transform:
+      translate3d(2px, -2px, 0)
+      scaleX(1.01);
+  }
+
+  68% {
+    transform:
+      translate3d(-1px, -4px, 0)
+      scaleX(0.99);
+  }
+
+  to {
+    background-position:
+      10px -271px,
+      21px -314px,
+      53px -380px,
+      11px -307px,
+      65px -353px,
+      32px -273px;
+
+    transform:
+      translate3d(2px, -6px, 0)
+      scaleX(1);
+  }
+}
+
+@keyframes tr-button-embers-secondary {
+  from {
+    background-position:
+      3px 21px,
+      19px 51px,
+      44px 79px,
+      11px 67px,
+      59px 35px,
+      31px 88px,
+      52px 14px;
+
+    transform:
+      translate3d(2px, 0, 0)
+      scaleX(1);
+  }
+
+  42% {
+    transform:
+      translate3d(-3px, -3px, 0)
+      scaleX(0.97);
+  }
+
+  74% {
+    transform:
+      translate3d(2px, -5px, 0)
+      scaleX(1.02);
+  }
+
+  to {
+    background-position:
+      0 -223px,
+      23px -267px,
+      39px -325px,
+      15px -249px,
+      54px -322px,
+      35px -276px,
+      48px -241px;
+
+    transform:
+      translate3d(-2px, -7px, 0)
+      scaleX(0.99);
+  }
+}
+/* =========================================================
+   Active
+========================================================= */
+
+button.p-button[data-pc-name="button"]:not(
+  .p-button-secondary,
+  .p-button-success,
+  .p-button-info,
+  .p-button-warn,
+  .p-button-help,
+  .p-button-danger,
+  .p-button-contrast,
+  .p-button-outlined,
+  .p-button-text,
+  .p-button-link,
+  :disabled
+):active {
+  transform:
+    translateY(0)
+    scale(0.98);
+
+  box-shadow:
+    0 4px 14px
+    var(--tr-button-ember-glow);
+}
+
+/* =========================================================
+   Reduced motion
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  button.p-button[data-pc-name="button"]:not(
+    .p-button-secondary,
+    .p-button-success,
+    .p-button-info,
+    .p-button-warn,
+    .p-button-help,
+    .p-button-danger,
+    .p-button-contrast,
+    .p-button-outlined,
+    .p-button-text,
+    .p-button-link,
+    :disabled
+  )::before,
+  button.p-button[data-pc-name="button"]:not(
+    .p-button-secondary,
+    .p-button-success,
+    .p-button-info,
+    .p-button-warn,
+    .p-button-help,
+    .p-button-danger,
+    .p-button-contrast,
+    .p-button-outlined,
+    .p-button-text,
+    .p-button-link,
+    :disabled
+  )::after {
+    display: none;
+  }
+}

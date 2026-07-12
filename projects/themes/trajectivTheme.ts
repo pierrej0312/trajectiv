@@ -46,6 +46,11 @@ export const TrajectivTheme = definePreset(Aura, {
     },
   },
   extend: {
+    card: {
+      glassBackground: 'color-mix(in srgb, var(--p-surface-0) 86%, transparent)',
+      glassBorder: 'color-mix(in srgb, var(--p-text-color) 8%, transparent)',
+      glassBlur: '18px',
+    },
     trajectiv: {
       radius: {
         full: '999px',
@@ -102,6 +107,9 @@ export const TrajectivTheme = definePreset(Aura, {
   `,
   components: {
     button: {
+      root: {
+        borderRadius: '999px',
+      },
       colorScheme: {
         light: {
           root: {
@@ -161,6 +169,12 @@ export const TrajectivTheme = definePreset(Aura, {
       },
     },
     card: {
+      root: {
+        background: '{surface.100}',
+        color: '{text.color}',
+        borderRadius: '1.75rem',
+        shadow: '0 18px 55px color-mix(in srgb, var(--p-surface-800) 6%, transparent)',
+      },
       extend: {
         backdropFilter: 'blur(100px)',
       },
@@ -180,7 +194,6 @@ export const TrajectivTheme = definePreset(Aura, {
     panel: {
       root: {
         borderRadius: '2rem',
-
       },
       extend: {
         backdropFilter: 'blur(50px)',

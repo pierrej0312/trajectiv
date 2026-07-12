@@ -15,11 +15,13 @@ import {
   DEFAULT_AVATAR_BEARD_COLOR,
   DEFAULT_AVATAR_BEARD_STYLE,
   DEFAULT_AVATAR_BODY_TYPE,
+  DEFAULT_AVATAR_BOTTOM_STYLE,
   DEFAULT_AVATAR_CUSTOMIZATION,
   DEFAULT_AVATAR_HAIR_COLOR,
   DEFAULT_AVATAR_HAIR_STYLE,
   DEFAULT_AVATAR_SKIN_INTENSITY,
   DEFAULT_AVATAR_SKIN_TONE,
+  DEFAULT_AVATAR_TOP_STYLE,
 } from '../defaults/default-avatar-customization';
 import { resolveCompanionConfig } from '../resolvers/companion-config.resolver';
 
@@ -127,6 +129,7 @@ export const AvatarCustomizationStore = signalStore(
                     status: 'ready',
                     draftCustomization: null,
                     errorMessage: null,
+                    saveCompletedAt: null,
                     avatarPreviewUrl: null,
                   });
 
@@ -190,6 +193,7 @@ export const AvatarCustomizationStore = signalStore(
           patchState(store, {
             status: 'saving',
             errorMessage: null,
+            saveCompletedAt: null,
           });
         }),
         switchMap((payload) =>
@@ -246,6 +250,7 @@ export const AvatarCustomizationStore = signalStore(
                   status: 'ready',
                   draftCustomization: null,
                   errorMessage: null,
+                  saveCompletedAt: null,
                   avatarPreviewUrl: null,
                 });
               }),
@@ -262,6 +267,7 @@ export const AvatarCustomizationStore = signalStore(
                     status: 'ready',
                     draftCustomization: null,
                     errorMessage: null,
+                    saveCompletedAt: null,
                     avatarPreviewUrl: null,
                   });
 
@@ -372,6 +378,8 @@ export const AvatarCustomizationStore = signalStore(
         hairColor: customization.hairColor ?? DEFAULT_AVATAR_HAIR_COLOR,
         beardStyle: customization.beardStyle ?? DEFAULT_AVATAR_BEARD_STYLE,
         beardColor: customization.beardColor ?? DEFAULT_AVATAR_BEARD_COLOR,
+        topStyle: customization.topStyle ?? DEFAULT_AVATAR_TOP_STYLE,
+        bottomStyle: customization.bottomStyle ?? DEFAULT_AVATAR_BOTTOM_STYLE,
       };
 
       this.save(payload);
@@ -402,6 +410,7 @@ export const AvatarCustomizationStore = signalStore(
         status: 'ready',
         draftCustomization: null,
         errorMessage: null,
+        saveCompletedAt: null,
       });
     },
     setDraftValidity(isValid: boolean): void {

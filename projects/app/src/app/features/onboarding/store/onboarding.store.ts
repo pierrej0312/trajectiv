@@ -760,6 +760,7 @@ export class OnboardingStore {
 
   skipCompanion(): void {
     this.hasChosenCompanion.set(false);
+    this.companionStore.clearDraft();
   }
 
   clearTargetRole(): void {
@@ -887,7 +888,7 @@ export class OnboardingStore {
     }
 
     if (this.shouldPatchProfileBeforeNext()) {
-      this.patchProfileAndGoNext();
+      this.saveProfileDraftAndGoNext();
       return;
     }
 
@@ -905,46 +906,6 @@ export class OnboardingStore {
     void this.router.navigateByUrl(nextStep.route);
 
     document.querySelector('.app-layout')?.scrollTo({ top: 0 });
-  }
-
-  private patchProfileAndGoNext(): void {
-    if (this.isSubmitting()) {
-      return;
-    }
-
-    this.isSubmitting.set(true);
-    this.errorMessage.set(null);
-
-    this.profileApi
-      .updateProfile(this.createProfilePayloadForCurrentStep(), 'body', false, {
-        httpHeaderAccept: 'application/json',
-        transferCache: false,
-      })
-      .pipe(
-        tap((response) => {
-          if (response.onboarding?.missingFields?.length) {
-            this.errorMessage.set(
-              'Certaines informations sont encore manquantes. Vérifie les champs indiqués avant de continuer.',
-            );
-
-            return;
-          }
-
-          this.navigateToNextStep();
-        }),
-        catchError(() => {
-          this.errorMessage.set(
-            'Impossible de sauvegarder tes informations pour le moment. Réessaie dans quelques instants.',
-          );
-
-          return EMPTY;
-        }),
-        finalize(() => {
-          this.isSubmitting.set(false);
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe();
   }
 
   goToRoute(route: string): void {

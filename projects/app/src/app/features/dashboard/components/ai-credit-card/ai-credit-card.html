@@ -1,0 +1,54 @@
+<p-card
+  styleClass="dashboard-summary-card"
+  [class.ai-credit-card--exhausted]="credits().exhausted"
+>
+  <ng-template #header>
+    <div class="dashboard-summary-card__header">
+      <span class="dashboard-summary-card__icon">
+        <i class="pi pi-bolt" aria-hidden="true"></i>
+      </span>
+
+      <div>
+        <span class="dashboard-summary-card__eyebrow">
+          Intelligence artificielle
+        </span>
+
+        <h2 class="dashboard-summary-card__title">
+          Crédits IA
+        </h2>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="ai-credit-card__value">
+    <strong>{{ credits().remaining }}</strong>
+    <span>/ {{ credits().monthlyLimit }}</span>
+  </div>
+
+  <p-progressbar
+    [value]="credits().usedPercentage"
+    [showValue]="false"
+    aria-label="Crédits IA utilisés"
+  />
+
+  <p class="dashboard-summary-card__description">
+    @if (credits().exhausted) {
+      Tes crédits mensuels sont épuisés.
+    } @else {
+      {{ credits().used }} crédit(s) utilisé(s) ce mois-ci.
+    }
+  </p>
+
+  <ng-template #footer>
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      size="small"
+      (click)="openCredits.emit()"
+    >
+      Voir mes crédits
+      <span class="pi pi-arrow-right" aria-hidden="true"></span>
+    </button>
+  </ng-template>
+</p-card>

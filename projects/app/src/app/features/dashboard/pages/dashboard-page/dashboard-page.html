@@ -1,0 +1,31 @@
+<section class="dashboard-page">
+  <app-dashboard-hero
+    [hero]="dashboard.hero()"
+  />
+
+  <section
+    class="dashboard-page__summary"
+    aria-label="Résumé de ton espace"
+  >
+    <app-profile-completion-card
+      class="dashboard-page__summary-card"
+      [completion]="dashboard.profileCompletion()"
+      [loading]="dashboard.isProfileCompletionLoading()"
+      [error]="dashboard.hasProfileCompletionError()"
+      (openProfile)="navigation.openProfile()"
+      (retry)="dashboard.reloadProfileCompletion()"
+    />
+
+    <app-subscription-summary-card
+      class="dashboard-page__summary-card"
+      [subscription]="dashboard.subscription()"
+      (openBilling)="navigation.openBilling()"
+    />
+
+    <app-ai-credit-card
+      class="dashboard-page__summary-card"
+      [credits]="dashboard.credits()"
+      (openCredits)="navigation.openCredits()"
+    />
+  </section>
+</section>

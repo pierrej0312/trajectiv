@@ -1,9 +1,12 @@
 import {
   AvatarBodyType,
+  AvatarBottomStyle,
   AvatarHairStyle,
   AvatarSkinTone,
+  AvatarTopStyle,
 } from '../models/avatar-customization-options.model';
 import { AVATAR_SKIN_TONE_OPTIONS } from './avatar-customization-options.registry';
+import { CompanionClothingAsset } from '@shared/companion/models/companion-animation.model';
 
 //mapping technique choix → assets 3D/textures
 
@@ -31,6 +34,46 @@ export const AVATAR_HAIR_TEXTURES = {
   normalMapUrl: '/characters/placeholder/hair/hair_long_01_normal.png',
   roughnessMapUrl: '/characters/placeholder/hair/hair_long_01_roughness.png',
 } as const;
+
+export const AVATAR_FEMALE_CLOTHES_MODEL_URL =
+  '/characters/placeholder/clothes/female_clothes_01.glb';
+
+export type AvatarClothingMaterialType = 'cotton' | 'knit' | 'denim';
+
+export interface AvatarClothingAsset {
+  readonly meshName: string;
+  readonly colorMapUrl: string;
+  readonly materialType: AvatarClothingMaterialType;
+}
+
+export const AVATAR_TOP_ASSET_BY_STYLE: Record<AvatarTopStyle, CompanionClothingAsset> = {
+  SHIRT_SWEATER_01: {
+    meshes: [
+      {
+        meshName: 'chemise',
+        colorMapUrl: '/characters/placeholder/clothes/chemise_femme.png',
+        materialType: 'cotton',
+      },
+      {
+        meshName: 'pull',
+        colorMapUrl: '/characters/placeholder/clothes/pull.png',
+        materialType: 'knit',
+      },
+    ],
+  },
+};
+
+export const AVATAR_BOTTOM_ASSET_BY_STYLE: Record<AvatarBottomStyle, CompanionClothingAsset> = {
+  JEANS_01: {
+    meshes: [
+      {
+        meshName: 'pant',
+        colorMapUrl: '/characters/placeholder/clothes/pant_female.png',
+        materialType: 'denim',
+      },
+    ],
+  },
+};
 
 export const DEFAULT_COMPANION_ANIMATIONS = {
   landing: {

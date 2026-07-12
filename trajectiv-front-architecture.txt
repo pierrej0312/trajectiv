@@ -1,6 +1,6 @@
 # Trajectiv Front Architecture Export
 
-Generated at: 2026-07-03T19:57:38.898Z
+Generated at: 2026-07-11T19:58:49.309Z
 
 ## Workspace tree
 
@@ -23,10 +23,16 @@ Generated at: 2026-07-03T19:57:38.898Z
         📁 placeholder/
           📁 animations/
             📄 dancing.glb
+            📄 excited.glb
             📄 idle_female.glb
             📄 landing.glb
             📄 level-down_female.glb
             📄 level-up_female.glb
+            📄 look_arround.glb
+            📄 search_pocket.glb
+            📄 surprised.glb
+            📄 talking_phone.glb
+            📄 thinking.glb
             📄 victory_female.glb
           📁 hair/
             📄 hair_long_01_detail.png
@@ -60,8 +66,65 @@ Generated at: 2026-07-03T19:57:38.898Z
             📄 me-ready.guard-helper.ts
             📄 onboarding-completed.guard.ts
             📄 onboarding-incomplete.guard.ts
+          📁 navigation/
+            📄 router-loading.store.ts
         📁 features/
+          📁 dashboard/
+            📁 components/
+              📁 activity-summary/
+                📄 activity-summary.css
+                📄 activity-summary.html
+                📄 activity-summary.ts
+              📁 ai-credit-card/
+                📄 ai-credit-card.css
+                📄 ai-credit-card.html
+                📄 ai-credit-card.ts
+              📁 dashboard-empty-state/
+                📄 dashboard-empty-state.css
+                📄 dashboard-empty-state.html
+                📄 dashboard-empty-state.ts
+              📁 dashboard-hero/
+                📄 dashboard-hero.css
+                📄 dashboard-hero.html
+                📄 dashboard-hero.ts
+              📁 discover-panel/
+                📄 discover-panel.css
+                📄 discover-panel.html
+                📄 discover-panel.ts
+              📁 profile-completion-card/
+                📄 profile-completion-card.css
+                📄 profile-completion-card.html
+                📄 profile-completion-card.ts
+              📁 quick-action-card/
+                📄 quick-action-card.css
+                📄 quick-action-card.html
+                📄 quick-action-card.ts
+              📁 quick-actions-grid/
+                📄 quick-actions-grid.css
+                📄 quick-actions-grid.html
+                📄 quick-actions-grid.ts
+              📁 subscription-summary-card/
+                📄 subscription-summary-card.css
+                📄 subscription-summary-card.html
+                📄 subscription-summary-card.ts
+            📁 models/
+              📄 dashboard.model.ts
+            📁 pages/
+              📁 dashboard-page/
+                📄 dashboard-page.css
+                📄 dashboard-page.html
+                📄 dashboard-page.ts
+            📁 services/
+              📄 dashboard-navigation.service.ts
+            📁 store/
+              📄 dashboard.store.ts
+            📄 dashboard.routes.ts
           📁 onboarding/
+            📁 components/
+              📁 onboarding-completion-overlay/
+                📄 onboarding-completion-overlay.css
+                📄 onboarding-completion-overlay.html
+                📄 onboarding-completion-overlay.ts
             📁 pages/
               📁 onboarding-page/
                 📄 onboarding-page.css
@@ -123,10 +186,6 @@ Generated at: 2026-07-03T19:57:38.898Z
             📄 actions-page.css
             📄 actions-page.html
             📄 actions-page.ts
-          📁 dashboard-page/
-            📄 dashboard-page.css
-            📄 dashboard-page.html
-            📄 dashboard-page.ts
           📁 notifications-page/
             📄 notifications-page.css
             📄 notifications-page.html
@@ -329,6 +388,7 @@ Generated at: 2026-07-03T19:57:38.898Z
           📄 meSubscriptionApiDto.ts
           📄 models.ts
           📄 patchAvatarCustomizationRequestApiDto.ts
+          📄 profileCompletionResponseApiDto.ts
           📄 updatedMeProfileResponseApiDto.ts
           📄 updateMeProfileRequestApiDto.ts
         📄 .gitignore
@@ -390,6 +450,12 @@ Generated at: 2026-07-03T19:57:38.898Z
             📄 trajectiv-logo.html
             📄 trajectiv-logo.model.ts
             📄 trajectiv-logo.ts
+        📁 components/
+          📁 trajectiv-blob-loader/
+            📄 trajectiv-blob-loader.css
+            📄 trajectiv-blob-loader.html
+            📄 trajectiv-blob-loader.model.ts
+            📄 trajectiv-blob-loader.ts
         📄 shared-ui.spec.ts
         📄 shared-ui.ts
       📄 public-api.ts

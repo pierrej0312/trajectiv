@@ -46,16 +46,6 @@ export interface CompanionIntroConfig {
   readonly fallback?: CompanionAnimationName;
 }
 
-export interface CompanionAnimationConfig {
-  readonly modelUrl: string;
-  readonly animations: Record<CompanionAnimationName, CompanionAnimationSource>;
-  readonly framing?: CompanionStageFraming;
-  readonly lightingPreset?: CompanionLightingPreset;
-  readonly hair?: CompanionHairConfig;
-  readonly skin?: CompanionSkinConfig;
-  readonly intro?: CompanionIntroConfig;
-}
-
 export type CompanionAnimationSource =
   | string
   | {
@@ -65,3 +55,38 @@ export type CompanionAnimationSource =
     };
 
 export type CompanionLightingPreset = 'day' | 'night-studio';
+
+export type CompanionClothesSlot = 'top' | 'bottom';
+
+export type CompanionClothesMaterialType = 'cotton' | 'knit' | 'denim';
+
+export interface CompanionClothingMeshAsset {
+  readonly meshName: string;
+  readonly colorMapUrl: string;
+  readonly materialType: CompanionClothesMaterialType;
+  readonly color?: string;
+}
+
+export interface CompanionClothingAsset {
+  readonly meshes: readonly CompanionClothingMeshAsset[];
+}
+
+export interface CompanionClothingItemConfig extends CompanionClothingAsset {
+  readonly style: string;
+}
+
+export interface CompanionClothesConfig {
+  readonly url: string;
+  readonly items: readonly CompanionClothingItemConfig[];
+}
+
+export interface CompanionAnimationConfig {
+  readonly modelUrl: string;
+  readonly animations: Record<CompanionAnimationName, CompanionAnimationSource>;
+  readonly framing?: CompanionStageFraming;
+  readonly lightingPreset?: CompanionLightingPreset;
+  readonly hair?: CompanionHairConfig;
+  readonly skin?: CompanionSkinConfig;
+  readonly clothes: CompanionClothesConfig;
+  readonly intro?: CompanionIntroConfig;
+}

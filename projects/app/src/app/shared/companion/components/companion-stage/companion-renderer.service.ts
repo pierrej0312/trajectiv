@@ -7,6 +7,8 @@ import {
   AnimationMixer,
   Bone,
   Box3,
+  CanvasTexture,
+  ClampToEdgeWrapping,
   Clock,
   Color,
   DirectionalLight,
@@ -14,6 +16,7 @@ import {
   HemisphereLight,
   LoopOnce,
   LoopRepeat,
+  Material,
   Mesh,
   MeshStandardMaterial,
   Object3D,
@@ -28,6 +31,9 @@ import {
   Vector3,
   WebGLRenderer,
   RectAreaLight,
+  RepeatWrapping,
+  Skeleton,
+  SkinnedMesh,
 } from 'three';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
@@ -39,9 +45,24 @@ import {
   CompanionLightingPreset,
   CompanionSkinConfig,
   CompanionStageFraming,
+  CompanionClothesConfig,
+  CompanionClothingMeshAsset,
 } from '../../models/companion-animation.model';
 
 type CompanionLoadingProgressCallback = (progress: number) => void;
+
+type CompanionTextureTransform = {
+  readonly channel: number;
+  readonly offsetX: number;
+  readonly offsetY: number;
+  readonly repeatX: number;
+  readonly repeatY: number;
+  readonly centerX: number;
+  readonly centerY: number;
+  readonly rotation: number;
+  readonly wrapS: Texture['wrapS'];
+  readonly wrapT: Texture['wrapT'];
+};
 
 @Injectable()
 export class CompanionRendererService {
@@ -55,6 +76,9 @@ export class CompanionRendererService {
   private mixer: AnimationMixer | null = null;
   private frameId: number | null = null;
   private hair: Group | null = null;
+  private clothes: Group | null = null;
+
+  private readonly clothingMaterials = new Set<MeshStandardMaterial>();
 
   private readonly actions = new Map<CompanionAnimationName, AnimationAction>();
   private currentAction: AnimationAction | null = null;
@@ -68,6 +92,8 @@ export class CompanionRendererService {
   private currentConfig: CompanionAnimationConfig | null = null;
   private currentModelUrl: string | null = null;
   private currentHairUrl: string | null = null;
+  private currentClothesUrl: string | null = null;
+  private currentClothesSignature: string | null = null;
   private currentFraming: CompanionStageFraming = 'full-body';
 
   async applyConfig(config: CompanionAnimationConfig): Promise<void> {
@@ -82,6 +108,8 @@ export class CompanionRendererService {
       this.currentConfig = config;
       this.currentModelUrl = config.modelUrl;
       this.currentHairUrl = config.hair?.url ?? null;
+      this.currentClothesUrl = config.clothes.url;
+      this.currentClothesSignature = this.createClothesSignature(config.clothes);
       this.currentFraming = nextFraming;
       return;
     }
@@ -91,6 +119,8 @@ export class CompanionRendererService {
       this.currentConfig = config;
       this.currentModelUrl = config.modelUrl;
       this.currentHairUrl = config.hair?.url ?? null;
+      this.currentClothesUrl = config.clothes.url;
+      this.currentClothesSignature = this.createClothesSignature(config.clothes);
       this.currentFraming = nextFraming;
       return;
     }
@@ -112,6 +142,17 @@ export class CompanionRendererService {
       await this.applyExistingHairMaterial(config.hair);
     }
 
+    const nextClothesSignature = this.createClothesSignature(config.clothes);
+
+    if (config.clothes.url !== this.currentClothesUrl) {
+      await this.replaceClothes(config.clothes);
+      this.currentClothesUrl = config.clothes.url;
+      this.currentClothesSignature = nextClothesSignature;
+    } else if (nextClothesSignature !== this.currentClothesSignature) {
+      await this.applyExistingClothesSelection(config.clothes);
+      this.currentClothesSignature = nextClothesSignature;
+    }
+
     this.currentConfig = config;
   }
 
@@ -131,12 +172,15 @@ export class CompanionRendererService {
     if (config.skin) {
       await this.applySkinMaterial(config.skin);
     }
-    onProgress(48);
+    onProgress(46);
+
+    await this.loadClothes(config.clothes);
+    onProgress(58);
 
     if (config.hair) {
       await this.loadHair(config.hair);
     }
-    onProgress(64);
+    onProgress(68);
 
     await this.loadAnimations(config.animations, onProgress);
     onProgress(96);
@@ -154,6 +198,8 @@ export class CompanionRendererService {
     this.currentConfig = config;
     this.currentModelUrl = config.modelUrl;
     this.currentHairUrl = config.hair?.url ?? null;
+    this.currentClothesUrl = config.clothes.url;
+    this.currentClothesSignature = this.createClothesSignature(config.clothes);
     this.currentFraming = config.framing ?? 'full-body';
   }
 
@@ -244,6 +290,11 @@ export class CompanionRendererService {
     this.actions.clear();
     this.currentAction = null;
 
+    this.removeHair();
+    this.removeClothes();
+    this.removeModel();
+    this.clearLights();
+
     this.renderer?.dispose();
 
     if (this.renderer?.domElement.parentElement) {
@@ -255,6 +306,13 @@ export class CompanionRendererService {
     this.renderer = null;
     this.model = null;
     this.mixer = null;
+    this.hair = null;
+    this.clothes = null;
+    this.currentConfig = null;
+    this.currentModelUrl = null;
+    this.currentHairUrl = null;
+    this.currentClothesUrl = null;
+    this.currentClothesSignature = null;
   }
 
   private createScene(host: HTMLElement, framing: CompanionStageFraming): void {
@@ -676,6 +734,455 @@ export class CompanionRendererService {
     }
   }
 
+  private async loadClothes(config: CompanionClothesConfig): Promise<void> {
+    if (!this.model) {
+      throw new Error('Cannot load clothes before the companion model.');
+    }
+
+    const gltf = await this.loadGltf(config.url);
+    const clothesRoot = gltf.scene;
+
+    clothesRoot.name = 'TR_CLOTHES';
+    clothesRoot.position.set(0, 0, 0);
+    clothesRoot.rotation.set(0, 0, 0);
+    clothesRoot.scale.set(1, 1, 1);
+
+    this.logClothesStructure(clothesRoot);
+
+    const bodyBones = this.collectBonesByName(this.model);
+
+    this.bindClothesToBodySkeleton(clothesRoot, bodyBones);
+    await this.applyClothesSelection(clothesRoot, config);
+
+    this.model.add(clothesRoot);
+    this.model.updateMatrixWorld(true);
+    clothesRoot.updateMatrixWorld(true);
+
+    this.clothes = clothesRoot;
+    this.currentClothesUrl = config.url;
+    this.currentClothesSignature = this.createClothesSignature(config);
+  }
+
+  private collectBonesByName(root: Object3D): ReadonlyMap<string, Bone> {
+    const bones = new Map<string, Bone>();
+
+    root.traverse((object) => {
+      if (object instanceof Bone) {
+        bones.set(object.name, object);
+      }
+    });
+
+    return bones;
+  }
+
+  private bindClothesToBodySkeleton(
+    clothesRoot: Object3D,
+    bodyBones: ReadonlyMap<string, Bone>,
+  ): void {
+    const skinnedMeshes: SkinnedMesh[] = [];
+
+    clothesRoot.traverse((object) => {
+      if (object instanceof SkinnedMesh) {
+        skinnedMeshes.push(object);
+      }
+    });
+
+    if (skinnedMeshes.length === 0) {
+      throw new Error(
+        'The clothes GLB does not contain any SkinnedMesh. The clothes cannot follow body animations.',
+      );
+    }
+
+    for (const clothingMesh of skinnedMeshes) {
+      const sourceBoneNames = clothingMesh.skeleton.bones.map((bone) => bone.name);
+      const missingBoneNames = sourceBoneNames.filter((boneName) => !bodyBones.has(boneName));
+
+      if (missingBoneNames.length > 0) {
+        throw new Error(
+          `The clothes skeleton is incompatible with the body. Missing bones: ${missingBoneNames.join(', ')}.`,
+        );
+      }
+
+      const targetBones = sourceBoneNames.map((boneName) => {
+        const targetBone = bodyBones.get(boneName);
+
+        if (!targetBone) {
+          throw new Error(`Body bone "${boneName}" was not found.`);
+        }
+
+        return targetBone;
+      });
+
+      const targetSkeleton = new Skeleton(
+        targetBones,
+        clothingMesh.skeleton.boneInverses.map((boneInverse) => boneInverse.clone()),
+      );
+
+      clothingMesh.bind(targetSkeleton, clothingMesh.bindMatrix.clone());
+      clothingMesh.normalizeSkinWeights();
+      clothingMesh.frustumCulled = false;
+      clothingMesh.castShadow = true;
+      clothingMesh.receiveShadow = true;
+    }
+  }
+
+  private async applyClothesSelection(
+    clothesRoot: Object3D,
+    config: CompanionClothesConfig,
+  ): Promise<void> {
+    const meshConfigByMeshName = new Map<string, CompanionClothingMeshAsset>(
+      config.items.flatMap((item) =>
+        item.meshes.map(
+          (meshConfig) =>
+            [
+              this.normalizeAssetName(meshConfig.meshName),
+              meshConfig,
+            ] as const,
+        ),
+      ),
+    );
+
+    const clothingMeshes = this.collectMeshes(clothesRoot);
+
+    const textureTransformByMeshUuid = new Map<string, CompanionTextureTransform | null>(
+      clothingMeshes.map((mesh) => [
+        mesh.uuid,
+        this.readColorTextureTransform(mesh.material),
+      ]),
+    );
+
+    this.clearClothingMaterials();
+
+    for (const mesh of clothingMeshes) {
+      const meshConfig = meshConfigByMeshName.get(
+        this.normalizeAssetName(mesh.name),
+      );
+
+      mesh.visible = Boolean(meshConfig);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.frustumCulled = false;
+
+      if (!meshConfig) {
+        continue;
+      }
+
+      const material = await this.createClothingMaterial(
+        meshConfig,
+        textureTransformByMeshUuid.get(mesh.uuid) ?? null,
+      );
+
+      this.clothingMaterials.add(material);
+      mesh.material = material;
+    }
+
+    const foundMeshNames = new Set(
+      clothingMeshes.map((mesh) => this.normalizeAssetName(mesh.name)),
+    );
+
+    const expectedMeshNames = config.items.flatMap((item) =>
+      item.meshes.map((meshConfig) => meshConfig.meshName),
+    );
+
+    const missingMeshNames = expectedMeshNames.filter(
+      (meshName) => !foundMeshNames.has(this.normalizeAssetName(meshName)),
+    );
+
+    if (missingMeshNames.length > 0) {
+      throw new Error(
+        `Selected clothes meshes were not found in the GLB: ${missingMeshNames.join(', ')}.`,
+      );
+    }
+  }
+
+  private async applyExistingClothesSelection(config: CompanionClothesConfig): Promise<void> {
+    if (!this.clothes) {
+      await this.loadClothes(config);
+      return;
+    }
+
+    await this.applyClothesSelection(this.clothes, config);
+    this.currentClothesSignature = this.createClothesSignature(config);
+  }
+
+  private collectMeshes(root: Object3D): Mesh[] {
+    const meshes: Mesh[] = [];
+
+    root.traverse((object) => {
+      if (object instanceof Mesh) {
+        meshes.push(object);
+      }
+    });
+
+    return meshes;
+  }
+
+  private normalizeAssetName(value: string): string {
+    return value.trim().toLowerCase().replaceAll('_', '').replaceAll('-', '').replaceAll(' ', '');
+  }
+
+  private async createClothingMaterial(
+    config: CompanionClothingMeshAsset,
+    colorTextureTransform: CompanionTextureTransform | null,
+  ): Promise<MeshStandardMaterial> {
+    switch (config.materialType) {
+      case 'denim':
+        return this.createDenimMaterial(config, colorTextureTransform);
+
+      case 'knit':
+        return this.createKnitMaterial(config, colorTextureTransform);
+
+      case 'cotton':
+        return this.createCottonMaterial(config, colorTextureTransform);
+    }
+  }
+
+  private async createDenimMaterial(
+    config: CompanionClothingMeshAsset,
+    colorTextureTransform: CompanionTextureTransform | null,
+  ): Promise<MeshStandardMaterial> {
+    const colorMap = await this.loadColorTexture(config.colorMapUrl, colorTextureTransform);
+
+    const material = new MeshStandardMaterial({
+      color: config.color ?? '#ffffff',
+      map: colorMap,
+      roughness: 0.9,
+      metalness: 0,
+    });
+
+    material.name = 'TR_CLOTH_DENIM';
+
+    /*
+     * Le repeat concerne uniquement le micro-relief procédural.
+     * Il ne modifie jamais l'image couleur issue de l'UV Blender.
+     */
+    const weaveTexture = this.createFabricNoiseTexture({
+      size: 256,
+      horizontalFrequency: 42,
+      verticalFrequency: 34,
+      contrast: 0.42,
+      noiseStrength: 0.24,
+      diagonalStrength: 0.42,
+    });
+
+    weaveTexture.wrapS = RepeatWrapping;
+    weaveTexture.wrapT = RepeatWrapping;
+    weaveTexture.repeat.set(5, 5);
+    weaveTexture.needsUpdate = true;
+
+    material.bumpMap = weaveTexture;
+    material.bumpScale = 0.018;
+    material.roughnessMap = weaveTexture;
+    material.needsUpdate = true;
+
+    return material;
+  }
+
+  private async createKnitMaterial(
+    config: CompanionClothingMeshAsset,
+    colorTextureTransform: CompanionTextureTransform | null,
+  ): Promise<MeshStandardMaterial> {
+    const colorMap = await this.loadColorTexture(config.colorMapUrl, colorTextureTransform);
+
+    const material = new MeshStandardMaterial({
+      color: config.color ?? '#ffffff',
+      map: colorMap,
+      roughness: 0.96,
+      metalness: 0,
+    });
+
+    material.name = 'TR_CLOTH_KNIT';
+
+    const knitTexture = this.createFabricNoiseTexture({
+      size: 256,
+      horizontalFrequency: 24,
+      verticalFrequency: 52,
+      contrast: 0.3,
+      noiseStrength: 0.18,
+      diagonalStrength: 0.08,
+    });
+
+    knitTexture.wrapS = RepeatWrapping;
+    knitTexture.wrapT = RepeatWrapping;
+    knitTexture.repeat.set(4, 5);
+    knitTexture.needsUpdate = true;
+
+    material.bumpMap = knitTexture;
+    material.bumpScale = 0.028;
+    material.roughnessMap = knitTexture;
+    material.needsUpdate = true;
+
+    return material;
+  }
+
+  private async createCottonMaterial(
+    config: CompanionClothingMeshAsset,
+    colorTextureTransform: CompanionTextureTransform | null,
+  ): Promise<MeshStandardMaterial> {
+    const colorMap = await this.loadColorTexture(config.colorMapUrl, colorTextureTransform);
+
+    const material = new MeshStandardMaterial({
+      color: config.color ?? '#ffffff',
+      map: colorMap,
+      roughness: 0.84,
+      metalness: 0,
+    });
+
+    material.name = 'TR_CLOTH_COTTON';
+
+    const cottonTexture = this.createFabricNoiseTexture({
+      size: 256,
+      horizontalFrequency: 54,
+      verticalFrequency: 54,
+      contrast: 0.15,
+      noiseStrength: 0.09,
+      diagonalStrength: 0,
+    });
+
+    cottonTexture.wrapS = RepeatWrapping;
+    cottonTexture.wrapT = RepeatWrapping;
+    cottonTexture.repeat.set(7, 7);
+    cottonTexture.needsUpdate = true;
+
+    material.bumpMap = cottonTexture;
+    material.bumpScale = 0.008;
+    material.roughnessMap = cottonTexture;
+    material.needsUpdate = true;
+
+    return material;
+  }
+
+  private createFabricNoiseTexture(config: {
+    readonly size: number;
+    readonly horizontalFrequency: number;
+    readonly verticalFrequency: number;
+    readonly contrast: number;
+    readonly noiseStrength: number;
+    readonly diagonalStrength: number;
+  }): CanvasTexture {
+    const canvas = document.createElement('canvas');
+
+    canvas.width = config.size;
+    canvas.height = config.size;
+
+    const context = canvas.getContext('2d');
+
+    if (!context) {
+      throw new Error('Unable to create the procedural fabric texture.');
+    }
+
+    const imageData = context.createImageData(config.size, config.size);
+
+    for (let y = 0; y < config.size; y += 1) {
+      for (let x = 0; x < config.size; x += 1) {
+        const horizontal = Math.sin((y / config.size) * Math.PI * config.horizontalFrequency);
+
+        const vertical = Math.sin((x / config.size) * Math.PI * config.verticalFrequency);
+
+        const diagonal = Math.sin(((x + y) / config.size) * Math.PI * config.horizontalFrequency);
+
+        const deterministicNoise = this.createDeterministicNoise(x, y) * config.noiseStrength;
+
+        const weave =
+          (horizontal + vertical) * config.contrast + diagonal * config.diagonalStrength;
+
+        const value = Math.round(
+          Math.max(0, Math.min(255, 128 + weave * 90 + deterministicNoise * 255)),
+        );
+
+        const index = (y * config.size + x) * 4;
+
+        imageData.data[index] = value;
+        imageData.data[index + 1] = value;
+        imageData.data[index + 2] = value;
+        imageData.data[index + 3] = 255;
+      }
+    }
+
+    context.putImageData(imageData, 0, 0);
+
+    const texture = new CanvasTexture(canvas);
+    texture.needsUpdate = true;
+
+    return texture;
+  }
+
+  private createDeterministicNoise(x: number, y: number): number {
+    const value = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+
+    return value - Math.floor(value) - 0.5;
+  }
+
+  private createClothesSignature(config: CompanionClothesConfig): string {
+    const items = [...config.items]
+      .sort((left, right) => left.style.localeCompare(right.style))
+      .map((item) => ({
+        style: item.style,
+        meshes: [...item.meshes]
+          .sort((left, right) => left.meshName.localeCompare(right.meshName))
+          .map((meshConfig) => ({
+            meshName: meshConfig.meshName,
+            materialType: meshConfig.materialType,
+            colorMapUrl: meshConfig.colorMapUrl,
+            color: meshConfig.color ?? null,
+          })),
+      }));
+
+    return JSON.stringify({
+      url: config.url,
+      items,
+    });
+  }
+
+  private async replaceClothes(config: CompanionClothesConfig): Promise<void> {
+    this.removeClothes();
+    await this.loadClothes(config);
+  }
+
+  private removeClothes(): void {
+    if (!this.clothes) {
+      return;
+    }
+
+    this.clothes.parent?.remove(this.clothes);
+    this.clearClothingMaterials();
+    this.disposeObject(this.clothes);
+
+    this.clothes = null;
+    this.currentClothesUrl = null;
+    this.currentClothesSignature = null;
+  }
+
+  private clearClothingMaterials(): void {
+    for (const material of this.clothingMaterials) {
+      this.disposeMaterial(material);
+    }
+
+    this.clothingMaterials.clear();
+  }
+
+  private logClothesStructure(root: Object3D): void {
+    const meshes: Array<{
+      readonly name: string;
+      readonly type: string;
+      readonly bones: number;
+    }> = [];
+
+    root.traverse((object) => {
+      if (!(object instanceof Mesh)) {
+        return;
+      }
+
+      meshes.push({
+        name: object.name,
+        type: object.type,
+        bones: object instanceof SkinnedMesh ? object.skeleton.bones.length : 0,
+      });
+    });
+
+    console.log('[Companion] clothes structure', meshes);
+  }
+
   private async loadHair(config: CompanionHairConfig): Promise<void> {
     console.log('[Companion] loading hair', config);
 
@@ -778,13 +1285,67 @@ export class CompanionRendererService {
     return material;
   }
 
-  private async loadColorTexture(url: string): Promise<Texture> {
+  private async loadColorTexture(
+    url: string,
+    transform: CompanionTextureTransform | null = null,
+  ): Promise<Texture> {
     const texture = await this.textureLoader.loadAsync(url);
 
     texture.colorSpace = SRGBColorSpace;
     texture.flipY = false;
+    texture.matrixAutoUpdate = true;
+
+    if (transform) {
+      texture.channel = transform.channel;
+      texture.offset.set(transform.offsetX, transform.offsetY);
+      texture.repeat.set(transform.repeatX, transform.repeatY);
+      texture.center.set(transform.centerX, transform.centerY);
+      texture.rotation = transform.rotation;
+      texture.wrapS = transform.wrapS;
+      texture.wrapT = transform.wrapT;
+    } else {
+      texture.channel = 0;
+      texture.offset.set(0, 0);
+      texture.repeat.set(1, 1);
+      texture.center.set(0, 0);
+      texture.rotation = 0;
+      texture.wrapS = ClampToEdgeWrapping;
+      texture.wrapT = ClampToEdgeWrapping;
+    }
+
+    texture.updateMatrix();
+    texture.needsUpdate = true;
 
     return texture;
+  }
+
+  private readColorTextureTransform(
+    material: Material | readonly Material[],
+  ): CompanionTextureTransform | null {
+    const materials = Array.isArray(material) ? material : [material];
+
+    for (const candidate of materials) {
+      if (!(candidate instanceof MeshStandardMaterial) || !candidate.map) {
+        continue;
+      }
+
+      const texture = candidate.map;
+
+      return {
+        channel: texture.channel,
+        offsetX: texture.offset.x,
+        offsetY: texture.offset.y,
+        repeatX: texture.repeat.x,
+        repeatY: texture.repeat.y,
+        centerX: texture.center.x,
+        centerY: texture.center.y,
+        rotation: texture.rotation,
+        wrapS: texture.wrapS,
+        wrapT: texture.wrapT,
+      };
+    }
+
+    return null;
   }
 
   private async loadDataTexture(url: string): Promise<Texture> {
@@ -846,7 +1407,7 @@ export class CompanionRendererService {
       [CompanionAnimationName, CompanionAnimationSource]
     >;
 
-    const startProgress = 64;
+    const startProgress = 68;
     const endProgress = 96;
     const progressStep = (endProgress - startProgress) / Math.max(entries.length, 1);
 
@@ -1204,6 +1765,7 @@ export class CompanionRendererService {
     this.currentAction = null;
 
     this.removeHair();
+    this.removeClothes();
     this.removeModel();
 
     await this.loadModel(config.modelUrl, config.framing ?? 'full-body');
@@ -1211,6 +1773,8 @@ export class CompanionRendererService {
     if (config.skin) {
       await this.applySkinMaterial(config.skin);
     }
+
+    await this.loadClothes(config.clothes);
 
     if (config.hair) {
       await this.loadHair(config.hair);
@@ -1243,14 +1807,49 @@ export class CompanionRendererService {
 
       if (Array.isArray(child.material)) {
         for (const material of child.material) {
-          material.dispose();
+          this.disposeMaterial(material);
         }
 
         return;
       }
 
-      child.material.dispose();
+      this.disposeMaterial(child.material);
     });
+  }
+
+  private disposeMaterial(material: Material): void {
+    if (material instanceof MeshStandardMaterial) {
+      this.disposeMaterialTextures(material);
+    }
+
+    material.dispose();
+  }
+
+  private disposeMaterialTextures(material: MeshStandardMaterial): void {
+    const textures = new Set<Texture>();
+
+    const candidates = [
+      material.map,
+      material.normalMap,
+      material.bumpMap,
+      material.roughnessMap,
+      material.metalnessMap,
+      material.alphaMap,
+      material.aoMap,
+      material.emissiveMap,
+      material.envMap,
+      material.lightMap,
+    ];
+
+    for (const texture of candidates) {
+      if (texture) {
+        textures.add(texture);
+      }
+    }
+
+    for (const texture of textures) {
+      texture.dispose();
+    }
   }
 
   private updateCameraFraming(framing: CompanionStageFraming): void {

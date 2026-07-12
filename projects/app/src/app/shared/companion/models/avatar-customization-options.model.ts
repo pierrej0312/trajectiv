@@ -23,3 +23,11 @@ export interface AvatarSkinToneOption {
 export type AvatarBodyTypeOption = AvatarCardOption<AvatarBodyType>;
 export type AvatarHairStyleOption = AvatarCardOption<AvatarHairStyle>;
 export type AvatarBeardStyleOption = AvatarCardOption<AvatarBeardStyle>;
+
+export type AvatarTopStyle = NonNullable<AvatarCustomizationResponseApiDto['topStyle']>;
+
+export type AvatarBottomStyle = NonNullable<AvatarCustomizationResponseApiDto['bottomStyle']>;
+
+export type AvatarTopStyleOption = AvatarCardOption<AvatarTopStyle>;
+
+export type AvatarBottomStyleOption = AvatarCardOption<AvatarBottomStyle>;

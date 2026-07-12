@@ -23,7 +23,7 @@
       "@shared-ui": ["./projects/shared-ui/src/public-api.ts"],
       "@core": ["./projects/core/src/public-api.ts"],
       "@env": ["./projects/app/src/environments"],
-      "@shared-domain": ["./projects/shared-domain/src/public-api.ts"],
+//      "@shared-domain": ["./projects/shared-domain/src/public-api.ts"],
       "@shared-domain/*": ["./projects/shared-domain/src/lib/*"],
       "@shared-api-client": ["./projects/shared-api-client/src/public-api.ts"],
       "@shared-api-client/*": ["./projects/shared-api-client/src/generated/*"],

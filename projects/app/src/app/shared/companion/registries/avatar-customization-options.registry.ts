@@ -1,8 +1,10 @@
 import {
   AvatarBeardStyleOption,
   AvatarBodyTypeOption,
+  AvatarBottomStyleOption,
   AvatarHairStyleOption,
   AvatarSkinToneOption,
+  AvatarTopStyleOption,
 } from '../models/avatar-customization-options.model';
 
 export const AVATAR_BODY_TYPE_OPTIONS: readonly AvatarBodyTypeOption[] = [
@@ -73,5 +75,23 @@ export const AVATAR_BEARD_STYLE_OPTIONS: readonly AvatarBeardStyleOption[] = [
     label: 'Sans barbe',
     description: 'Aucune pilosité faciale.',
     previewImageUrl: '/characters/placeholder/previews/none.png',
+  },
+] as const;
+
+export const AVATAR_TOP_STYLE_OPTIONS: readonly AvatarTopStyleOption[] = [
+  {
+    value: 'SHIRT_SWEATER_01',
+    label: 'Chemise et pull',
+    description: 'Une chemise portée sous un pull pour un style habillé et chaleureux.',
+    previewImageUrl: '/characters/placeholder/previews/clothes/top_shirt_01_sweat_01.png',
+  },
+];
+
+export const AVATAR_BOTTOM_STYLE_OPTIONS: readonly AvatarBottomStyleOption[] = [
+  {
+    value: 'JEANS_01',
+    label: 'Jean',
+    description: 'Un jean polyvalent pour ton compagnon.',
+    previewImageUrl: '/characters/placeholder/previews/clothes/jeans_01.png',
   },
 ] as const;

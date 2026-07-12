@@ -1,0 +1,97 @@
+<p-card styleClass="dashboard-summary-card">
+  <ng-template #header>
+    <div class="dashboard-summary-card__header">
+      <span class="dashboard-summary-card__icon">
+        <i class="pi pi-user" aria-hidden="true"></i>
+      </span>
+
+      <div>
+        <span class="dashboard-summary-card__eyebrow">
+          Profil
+        </span>
+
+        <h2 class="dashboard-summary-card__title">
+          Complétion
+        </h2>
+      </div>
+    </div>
+  </ng-template>
+
+  @if (loading()) {
+    <div class="profile-completion-card__loading">
+      <p-skeleton
+        width="5rem"
+        height="2.5rem"
+        borderRadius="1rem"
+      />
+
+      <p-skeleton
+        width="100%"
+        height="0.65rem"
+        borderRadius="1rem"
+      />
+
+      <p-skeleton width="72%" height="1rem" />
+    </div>
+  } @else if (error()) {
+    <div class="dashboard-summary-card__state">
+      <p>
+        La progression du profil n’a pas pu être chargée.
+      </p>
+
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        size="small"
+        (click)="retry.emit()"
+      >
+        <span class="pi pi-refresh" aria-hidden="true"></span>
+        Réessayer
+      </button>
+    </div>
+  } @else {
+    <div class="profile-completion-card__value">
+      <strong>{{ completion().percentage }}%</strong>
+
+      <span>
+        {{ completion().complete ? 'Profil complet' : 'À poursuivre' }}
+      </span>
+    </div>
+
+    <p-progressbar
+      [value]="completion().percentage"
+      [showValue]="false"
+      aria-label="Complétion du profil"
+    />
+
+    <p class="dashboard-summary-card__description">
+      @if (completion().complete) {
+        Ton profil est prêt pour personnaliser ton expérience.
+      } @else {
+        {{ completion().missingCount }}
+        élément(s) à compléter.
+      }
+    </p>
+  }
+
+  <ng-template #footer>
+    @if (!loading() && !error()) {
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        size="small"
+        (click)="openProfile.emit()"
+      >
+        {{
+          completion().complete
+            ? 'Voir mon profil'
+            : 'Compléter mon profil'
+        }}
+
+        <span class="pi pi-arrow-right" aria-hidden="true"></span>
+      </button>
+    }
+  </ng-template>
+</p-card>
