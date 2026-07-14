@@ -27,7 +27,38 @@
     "Segoe UI",
     sans-serif;
 }
-
-
-
-
+.dashboard-summary-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+}
+.dashboard-summary-card__icon {
+  @apply flex items-center justify-center rounded-full p-3 w-10 h-10;
+}
+.dashboard-summary-card__icon.success {
+  background-color: var(--p-primary-color);
+  color: var(--p-primary-inverse-color);
+}
+.dashboard-summary-card__eyebrow {
+  color: var(--p-text-muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+}
+::ng-deep .p-card-body {
+  display: flex;
+  justify-content: stretch;
+  flex-direction: column;
+}
+.p-card-content {
+  height: 0px;
+  min-height: fit-content;
+  align-self: stretch;
+  flex: 1;
+}
+.p-card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  flex: 1px;
+}

@@ -20,35 +20,26 @@
     </div>
   </ng-template>
 
-  <div class="ai-credit-card__value">
-    <strong>{{ credits().remaining }}</strong>
-    <span>/ {{ credits().monthlyLimit }}</span>
+  <div class="flex md:flex-col gap-2 md:gap-0 mb-2 items-baseline">
+    <div class="ai-credit-card__value">
+      <strong>{{ credits().remaining }}</strong>
+      <span class="text-[var(--p-text-muted-color)]"> / {{ credits().monthlyLimit }}</span>
+    </div>
+    <p>Crédits restants</p>
   </div>
 
   <p-progressbar
-    [value]="credits().usedPercentage"
-    [showValue]="false"
+    [value]="percentLeft()"
+    [showValue]="false" [pt]="{ root: 'h-1.5! rounded-full!', value: 'bg-primary! rounded-full!' }"
     aria-label="Crédits IA utilisés"
   />
-
+  @if (credits().exhausted) {
   <p class="dashboard-summary-card__description">
-    @if (credits().exhausted) {
       Tes crédits mensuels sont épuisés.
-    } @else {
-      {{ credits().used }} crédit(s) utilisé(s) ce mois-ci.
-    }
   </p>
+  }
 
   <ng-template #footer>
-    <button
-      pButton
-      type="button"
-      severity="secondary"
-      size="small"
-      (click)="openCredits.emit()"
-    >
-      Voir mes crédits
-      <span class="pi pi-arrow-right" aria-hidden="true"></span>
-    </button>
+    <p-chip icon="pi pi-clock" [label]="'Renouvelement dans ' + 18 + ' jours'"></p-chip>
   </ng-template>
 </p-card>

@@ -1,8 +1,12 @@
-<p-card styleClass="dashboard-summary-card">
+<p-card styleClass="profile-completion-card">
   <ng-template #header>
     <div class="dashboard-summary-card__header">
-      <span class="dashboard-summary-card__icon">
-        <i class="pi pi-user" aria-hidden="true"></i>
+      <span class="dashboard-summary-card__icon" [class]="completion().complete ? 'sucess' : ''">
+        @if(completion().complete) {
+          <i class="pi pi-check" aria-hidden="true"></i>
+        } @else {
+          <i class="pi pi-user" aria-hidden="true"></i>
+        }
       </span>
 
       <div>
@@ -14,27 +18,23 @@
           Complétion
         </h2>
       </div>
+      <div class="flex-1 flex justify-end">
+        <div class="profile-completion-card__chip">
+          <strong>{{ completion().percentage }}</strong> %
+        </div>
+      </div>
     </div>
   </ng-template>
-
   @if (loading()) {
     <div class="profile-completion-card__loading">
       <p-skeleton
-        width="5rem"
-        height="2.5rem"
-        borderRadius="1rem"
+        shape="circle"
+        width="8rem"
+        height="8rem"
       />
-
-      <p-skeleton
-        width="100%"
-        height="0.65rem"
-        borderRadius="1rem"
-      />
-
-      <p-skeleton width="72%" height="1rem" />
     </div>
   } @else if (error()) {
-    <div class="dashboard-summary-card__state">
+    <div class="profile-completion-card__error">
       <p>
         La progression du profil n’a pas pu être chargée.
       </p>
@@ -46,52 +46,54 @@
         size="small"
         (click)="retry.emit()"
       >
-        <span class="pi pi-refresh" aria-hidden="true"></span>
+        <i class="pi pi-refresh" aria-hidden="true"></i>
         Réessayer
       </button>
     </div>
   } @else {
-    <div class="profile-completion-card__value">
-      <strong>{{ completion().percentage }}%</strong>
+    <div class="profile-completion-card__content">
+      <div class="profile-completion-card__copy">
 
-      <span>
-        {{ completion().complete ? 'Profil complet' : 'À poursuivre' }}
-      </span>
+        <p class="profile-completion-card__description">
+          @if (completion().complete) {
+            Ton profil est prêt pour personnaliser ton expérience.
+          } @else {
+            {{ completion().missingCount }}
+            élément(s) restent à compléter.
+          }
+        </p>
+
+        <button
+          pButton
+          type="button"
+          severity="secondary"
+          size="small"
+          fluid
+          (click)="openProfile.emit()"
+        >
+          {{
+            completion().complete
+              ? 'Voir mon profil'
+              : 'Compléter mon profil'
+          }}
+
+          <i class="pi pi-arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="profile-completion-card__chart">
+        <apx-chart
+          [series]="series()"
+          [chart]="chartOptions.chart!"
+          [colors]="chartOptions.colors!"
+          [stroke]="chartOptions.stroke!"
+          [fill]="chartOptions.fill!"
+          [plotOptions]="chartOptions.plotOptions!"
+          [dataLabels]="chartOptions.dataLabels!"
+          [tooltip]="chartOptions.tooltip!"
+          [states]="chartOptions.states!"
+        ></apx-chart>
+      </div>
     </div>
-
-    <p-progressbar
-      [value]="completion().percentage"
-      [showValue]="false"
-      aria-label="Complétion du profil"
-    />
-
-    <p class="dashboard-summary-card__description">
-      @if (completion().complete) {
-        Ton profil est prêt pour personnaliser ton expérience.
-      } @else {
-        {{ completion().missingCount }}
-        élément(s) à compléter.
-      }
-    </p>
   }
-
-  <ng-template #footer>
-    @if (!loading() && !error()) {
-      <button
-        pButton
-        type="button"
-        severity="secondary"
-        size="small"
-        (click)="openProfile.emit()"
-      >
-        {{
-          completion().complete
-            ? 'Voir mon profil'
-            : 'Compléter mon profil'
-        }}
-
-        <span class="pi pi-arrow-right" aria-hidden="true"></span>
-      </button>
-    }
-  </ng-template>
 </p-card>

@@ -1,6 +1,6 @@
 <p-card styleClass="dashboard-summary-card">
   <ng-template #header>
-    <div class="dashboard-summary-card__header">
+    <div class="dashboard-summary-card__header flex">
       <span class="dashboard-summary-card__icon">
         <i class="pi pi-sparkles" aria-hidden="true"></i>
       </span>
@@ -14,17 +14,18 @@
           Plan actuel
         </h2>
       </div>
+      <div class="flex-1 flex justify-end">
+        <p-tag
+          [value]="subscription().premium ? 'Premium' : 'Gratuit'"
+          [severity]="subscription().premium ? 'success' : 'secondary'"
+          rounded
+        />
+      </div>
     </div>
   </ng-template>
 
   <div class="subscription-summary-card__plan">
     <strong>{{ subscription().label }}</strong>
-
-    <p-tag
-      [value]="subscription().premium ? 'Premium' : 'Gratuit'"
-      [severity]="subscription().premium ? 'success' : 'secondary'"
-      rounded
-    />
   </div>
 
   <p class="dashboard-summary-card__description">
