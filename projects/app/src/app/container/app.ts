@@ -10,9 +10,7 @@ import {
 import { RouterOutlet } from '@angular/router';
 
 import { TrajectivBlobLoader } from '@shared-ui';
-import { AppContextStore } from '@core';
-
-import { RouterLoadingStore } from '@app/src/app/core/navigation/router-loading.store';
+import { AppContextStore, ShellStore } from '@core';
 import { AvatarCustomizationStore } from '@shared/companion/stores/avatar-customization.store';
 
 @Component({
@@ -24,7 +22,7 @@ import { AvatarCustomizationStore } from '@shared/companion/stores/avatar-custom
 })
 export class App {
   readonly appContext = inject(AppContextStore);
-  readonly routerLoading = inject(RouterLoadingStore);
+  readonly shell = inject(ShellStore);
   readonly avatarStore = inject(AvatarCustomizationStore);
 
   /**
@@ -51,7 +49,7 @@ export class App {
       return false;
     }
 
-    if (this.routerLoading.isAuthBridgePage()) {
+    if (this.shell.isAuthBridgePage()) {
       return false;
     }
 
@@ -64,14 +62,14 @@ export class App {
      * Dès que le bootstrap sera terminé, ce signal
      * ne pourra plus rouvrir le loader.
      */
-    const initialNavigationLoading = this.routerLoading.isNavigating();
+    const initialNavigationLoading = this.shell.navigating();
 
     /**
      * Si la destination initiale est l’onboarding,
      * on attend aussi la configuration du companion.
      */
     const onboardingConfigurationLoading =
-      this.routerLoading.isOnboardingNavigation() &&
+      this.shell.isOnboardingNavigation() &&
       (this.avatarStore.isIdle() || this.avatarStore.isLoading());
 
     return (

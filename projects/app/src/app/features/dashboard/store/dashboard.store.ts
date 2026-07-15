@@ -9,6 +9,8 @@ import {
   withState,
 } from '@ngrx/signals';
 
+import { buildRenewalLabel, daysUntilLocalDate } from '../utils/dashboard-date.util';
+
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 
 import { catchError, EMPTY, exhaustMap, pipe, tap } from 'rxjs';
@@ -87,6 +89,10 @@ export const DashboardStore = signalStore(
           ? normalizePositiveNumber(creditDto.remaining)
           : Math.max(monthlyLimit - used, 0);
 
+      const nextRenewalDate = creditDto?.nextRenewalDate ?? null;
+
+      const renewalDays = nextRenewalDate ? daysUntilLocalDate(nextRenewalDate) : null;
+
       return {
         monthlyLimit,
         used,
@@ -97,6 +103,10 @@ export const DashboardStore = signalStore(
         remainingPercentage: calculatePercentage(remaining, monthlyLimit),
 
         exhausted: monthlyLimit > 0 && remaining === 0,
+
+        nextRenewalDate,
+        renewalDays,
+        renewalLabel: buildRenewalLabel(renewalDays),
       };
     });
 

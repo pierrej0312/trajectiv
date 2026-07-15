@@ -1,108 +1,47 @@
-import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
-import { computed, inject, resource, Signal } from '@angular/core';
-import { httpResource } from '@angular/common/http';
+import { computed, inject } from '@angular/core';
+
 import { Router } from '@angular/router';
 
-import Keycloak from 'keycloak-js';
+import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
+
 import { withDevtools } from '@angular-architects/ngrx-toolkit';
 
-import { environment } from '@app/src/environments/environment';
+import Keycloak, { type KeycloakProfile, type KeycloakTokenParsed } from 'keycloak-js';
+
+import type { AccessContext } from '@core';
+
 import { KeycloakUtil } from '@shared/module/keycloak/utils/keycloak.util';
 
-import type { AccessContext, AppRole } from '@core';
 import { mapKeycloakTokenToAccessContext } from '@shared/module/keycloak/utils/keycloak-access-context.mapper';
 
-const getManagerToken = async () => {
-  return fetch(`${environment.keycloak.config.url}/realms/${environment.keycloak.config.realm}/protocol/openid-connect/token`, {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    method: 'POST',
-    body: `grant_type=client_credentials&client_id=${environment.keycloak.manager.client_id}&client_secret=${environment.keycloak.manager.secret}`
-  })
-}
+type KeycloakState = {
+  readonly user: KeycloakProfile | null;
+  readonly tokenParsed: KeycloakTokenParsed | null;
+};
 
-const usersManagerResource = () => resource(
-  {
-    loader: async () => {
-      const token = await getManagerToken()
-      const { access_token } = await token.json()
-      const users = await fetch(`${environment.keycloak.config.url}/admin/realms/${environment.keycloak.config.realm}/users`, {
-        headers: {
-          'Authorization': `Bearer ${access_token}`
-        },
-        method: 'GET'
-      })
-      return users.json()
-    }
-  }
-)
-const groupsManagerResource = () => resource(
-  {
-    loader: async () => {
-      const token = await getManagerToken()
-      const { access_token } = await token.json()
-      const groups = await fetch(`${environment.keycloak.config.url}/admin/realms/${environment.keycloak.config.realm}/groups`, {
-        headers: {
-          'Authorization': `Bearer ${access_token}`
-        },
-        method: 'GET'
-      })
-      return groups.json()
-    }
-  }
-)
-const myGroupManagerResource = (user: Signal<any>) => {
-  return resource(
-    {
-      params: () => user()?.id,
-      loader: async ({ params: userId }) => {
-        if (!userId) return undefined;
-        const token = await getManagerToken()
-        const { access_token } = await token.json()
-        const groups = await fetch(`${environment.keycloak.config.url}/admin/realms/${environment.keycloak.config.realm}/users/${userId}/groups`, {
-          headers: {
-            'Authorization': `Bearer ${access_token}`
-          },
-          method: 'GET'
-        })
+type KeycloakGroupClaim = {
+  readonly attributes?: Readonly<Record<string, unknown>>;
+};
 
-        return groups.json()
-      }
-    }
+const initialState: KeycloakState = {
+  user: null,
+  tokenParsed: null,
+};
+
+function isKeycloakGroupClaim(value: unknown): value is KeycloakGroupClaim {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const attributes = (value as Record<string, unknown>)['attributes'];
+
+  return (
+    attributes === undefined ||
+    (typeof attributes === 'object' && attributes !== null && !Array.isArray(attributes))
   );
 }
 
-const loginResource = (username: string, password: string) => {
-  //https://login.memoco.eu/realms/{{keycloak.realm}}/protocol/openid-connect/token
-  // Content-Type: application/x-www-form-urlencoded
-  // Accept: application/json
-  //
-  // grant_type = password &
-  // client_id = {{keycloak.client_id}} &
-  // username = {{keycloak.username}} &
-  // password = {{keycloak.password}}
-  //
-  // > {%
-  //   const body = response.body;
-  //   client.global.set("auth_token", body.access_token);
-  // %}
-  return httpResource(
-    () => ({
-      url: `${environment.keycloak.config.url}/realms/${environment.keycloak.config.realm}/protocol/openid-connect/token`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json'
-      },
-      body: `grant_type=password&client_id=${environment.keycloak.config.clientId}&username=${username}&password=${password}`
-    })
-  );
-}
-
-const adminBase = `${environment.keycloak.config.url}/admin/realms/${environment.keycloak.config.realm}`;
-
-const getCurrentAppRedirectUri = (router: Router): string => {
+function getCurrentAppRedirectUri(router: Router): string {
   const currentUrl = router.url;
 
   if (!currentUrl || currentUrl === '/' || currentUrl.includes('silent-check-sso')) {
@@ -110,146 +49,92 @@ const getCurrentAppRedirectUri = (router: Router): string => {
   }
 
   return `${window.location.origin}${currentUrl}`;
-};
+}
 
 export const KeycloakStore = signalStore(
   { providedIn: 'root' },
+
   withDevtools('keycloak'),
 
-  withState({
-    user: null as any,
-    tokenParsed: null as any,
-    selectedGroupId: undefined as string | undefined,
-  }),
+  withState(initialState),
+
   withComputed((state) => ({
     accessContext: computed<AccessContext>(() =>
       mapKeycloakTokenToAccessContext(state.tokenParsed()),
     ),
+
+    authenticated: computed(() => state.tokenParsed() !== null),
   })),
 
-  withMethods((state, $kc = inject(Keycloak), router = inject(Router)) => ({
-    // 6. Auth Actions
-    login: async () => {
+  withMethods((state, keycloak = inject(Keycloak), router = inject(Router)) => ({
+    async login(): Promise<void> {
       const loginUrl = await KeycloakUtil.buildLoginUrlWithTheme(
-        $kc,
+        keycloak,
         getCurrentAppRedirectUri(router),
       );
 
       window.location.href = loginUrl;
     },
-    loginLocal: (username: string, password: string) => {
-      const loginRes = loginResource(username, password);
-      setTimeout(() => {
-        const res = loginRes.value();
-        console.log('loginRes', res);
 
-        // patchState(state, { user: ...res })
-      }, 2000);
-    },
-    logout: async () => {
-      await $kc.logout({
+    async logout(): Promise<void> {
+      patchState(state, {
+        user: null,
+        tokenParsed: null,
+      });
+
+      await keycloak.logout({
         redirectUri: getCurrentAppRedirectUri(router),
       });
     },
-    register: async () => {
+
+    async register(): Promise<void> {
       const registerUrl = await KeycloakUtil.buildRegisterUrlWithTheme(
-        $kc,
+        keycloak,
         getCurrentAppRedirectUri(router),
       );
 
       window.location.href = registerUrl;
     },
 
-    // Update state from Keycloak JS
-    sync: async () => {
-      if ($kc.authenticated) {
-        const user = await $kc.loadUserProfile();
+    async sync(): Promise<void> {
+      if (!keycloak.authenticated) {
         patchState(state, {
-          tokenParsed: $kc.tokenParsed,
-          user: user,
+          user: null,
+          tokenParsed: null,
         });
-        console.log('toker ', $kc.tokenParsed);
+
+        return;
       }
-    },
 
-    // 5. Select a group to trigger the membersResource
-    viewGroupMembers: (groupId: string) => {
-      patchState(state, { ['selectedGroupId']: groupId });
-    },
+      const user = await keycloak.loadUserProfile();
 
-    // 7. Role Check
-    hasRole: (role: string) => {
-      return $kc.hasRealmRole(role) || $kc.hasResourceRole(role);
-    },
+      patchState(state, {
+        tokenParsed: keycloak.tokenParsed ?? null,
 
-    getGroupAttribute: (attribute: string): any[] => {
-      const token = state.tokenParsed();
-      const groups = token?.groups;
-      const filteredGroup = groups?.filter(
-        (group: any) => group.attributes && group.attributes[attribute],
-      );
-
-      return filteredGroup?.map((group: any) => group.attributes[attribute] ?? []);
-    },
-
-    // 2. Get all users (Declarative)
-    // const usersResource = httpResource<any[]>(() => `${adminBase}/users`);
-    usersResource: () => usersManagerResource(),
-    // 3. Get all groups
-    groupsResource: () => groupsManagerResource(),
-    // 4. Get Current User's Groups (Linked to token)
-    myGroupsResource: () => myGroupManagerResource(state.user),
-
-    // 5. Members inside a group (Reactive to selectedGroupId signal)
-    getGroupMembers: (groups: Signal<any[]>) => {
-      return resource({
-        params: () => {
-          const grps = groups();
-          return grps && grps.length > 0 ? grps : null;
-        },
-        loader: async ({ params: groups }) => {
-          if (!groups) return undefined;
-
-          const token = await getManagerToken();
-
-          const { access_token } = await token.json();
-
-          const promises = groups.map(async (group: any) => {
-            const members = fetch(`${adminBase}/groups/${group.id}/members`, {
-              headers: {
-                Authorization: `Bearer ${access_token}`,
-              },
-              method: 'GET',
-            });
-            return members
-              .then((res) => res.json())
-              .then((res) => res.map((user: any) => ({ ...user, group })));
-          });
-
-          return Promise.all(promises).then((res) => res.flat());
-        },
+        user,
       });
-      // console.log('getGroupMembers', groups())
-      // const ids = groups().map((group: any) => group.id)
-      //
-      // const promises = ids.map(async (id: string) => {
-      //   const members = await fetch(`${adminBase}/groups/${id}/members`, {
-      //     headers: {
-      //       'Authorization': `Bearer ${$kc.token}`
-      //     },
-      //     method: 'GET'
-      //   })
-      //   return members.json() || undefined
-      // })
-      // return resource({
-      //   loader: () => Promise.all(promises)
-      // });
+    },
 
-      // httpResource<any[]>(() => {
-      //   console.log('getGroupMembers', group())
-      //   const groupId = group().id;
-      //   return groupId ? `${adminBase}/groups/${groupId}/members` : undefined;
-      // })
+    hasRole(role: string): boolean {
+      return keycloak.hasRealmRole(role) || keycloak.hasResourceRole(role);
+    },
+
+    getGroupAttribute(attribute: string): string[] {
+      const rawGroups = state.tokenParsed()?.['groups'];
+
+      if (!Array.isArray(rawGroups)) {
+        return [];
+      }
+
+      return rawGroups.filter(isKeycloakGroupClaim).flatMap((group) => {
+        const attributeValue = group.attributes?.[attribute];
+
+        if (!Array.isArray(attributeValue)) {
+          return [];
+        }
+
+        return attributeValue.filter((value): value is string => typeof value === 'string');
+      });
     },
   })),
 );

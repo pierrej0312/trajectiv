@@ -1,20 +1,24 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+
 import { RouterOutlet } from '@angular/router';
-import { Navbar } from '@app/src/app/layouts/components/navbar/navbar';
-import { Sidebar } from '@app/src/app/layouts/components/sidebar/sidebar';
-import { BottomBar } from '@app/src/app/layouts/components/bottom-bar/bottom-bar';
-import { AppContextStore } from '@core';
-import { NavigationStore } from '@shared/navigation/navigation.store';
+
+import { AppContextStore, ShellStore } from '@core';
+
+import { Navbar } from '../components/navbar/navbar';
+import { Sidebar } from '../components/sidebar/sidebar';
+import { BottomBar } from '../components/bottom-bar/bottom-bar';
 
 @Component({
   selector: 'app-app-layout',
+
   imports: [RouterOutlet, Navbar, Sidebar, BottomBar],
+
   templateUrl: './app-layout.html',
   styleUrl: './app-layout.css',
 })
-export class AppLayout {
+export class AppLayout implements OnInit {
   readonly appContext = inject(AppContextStore);
-  readonly navigation = inject(NavigationStore);
+  readonly shell = inject(ShellStore);
 
   ngOnInit(): void {
     this.appContext.loadMe();

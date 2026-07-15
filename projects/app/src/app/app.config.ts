@@ -18,12 +18,18 @@ import { provideKeycloakAngular } from '@shared/module/keycloak/keycloak.provide
 import { environment } from '@app/src/environments/environment';
 
 import { provideApi } from '@shared-api-client';
+import { authDebugInterceptor } from './core/interceptors/authDebugInterceptor';
+import { KeycloakSessionLifecycleService } from '@shared/module/keycloak/keycloak-session-lifecycle.service';
+import { refreshTokenInterceptor } from './core/interceptors/refresh-token-interceptor';
 
 const localConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(),
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(withFetch(), withInterceptors([includeBearerTokenInterceptor])),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([refreshTokenInterceptor, includeBearerTokenInterceptor, authDebugInterceptor]),
+    ),
     provideRouter(
       routes,
       withViewTransitions({
@@ -32,6 +38,7 @@ const localConfig: ApplicationConfig = {
       withComponentInputBinding(),
     ),
     provideEnvironmentInitializer(() => {
+      inject(KeycloakSessionLifecycleService);
       inject(ThemeService).init();
     }),
     provideKeycloakAngular({

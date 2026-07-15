@@ -17,6 +17,10 @@ export type DashboardCreditsVm = {
   readonly usedPercentage: number;
   readonly remainingPercentage: number;
   readonly exhausted: boolean;
+
+  readonly nextRenewalDate: string | null;
+  readonly renewalDays: number | null;
+  readonly renewalLabel: string | null;
 };
 
 export type DashboardProfileCompletionVm = {

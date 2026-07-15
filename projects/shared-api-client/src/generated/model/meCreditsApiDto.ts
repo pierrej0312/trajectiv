@@ -13,5 +13,8 @@ export interface MeCreditsApiDto {
     monthlyLimit?: number;
     used?: number;
     remaining?: number;
+    periodStart?: string;
+    periodEnd?: string;
+    nextRenewalDate?: string;
 }
 

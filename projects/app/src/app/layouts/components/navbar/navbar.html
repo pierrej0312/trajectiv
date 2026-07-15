@@ -1,69 +1,196 @@
-
-<nav class="navbar">
+<nav
+  class="navbar"
+  aria-label="Navigation supérieure"
+>
   <p-menubar
     [model]="emptyMenuItems()"
     styleClass="tr-navbar-menubar"
-    ariaLabel="Application actions"
+    ariaLabel="Navigation et actions de l’application"
   >
     <ng-template #start>
-      <a
-        routerLink="/app/dashboard"
-        class="navbar__brand"
-        aria-label="Trajectiv dashboard"
-      >
-        <lib-trajectiv-logo
-          variant="mark"
-          size="2.35rem"
-        ></lib-trajectiv-logo>
-      </a>
-    </ng-template>
+      <div class="navbar__start">
+        <a
+          routerLink="/app/dashboard"
+          class="navbar__brand"
+          aria-label="Retourner au tableau de bord Trajectiv"
+        >
+          <lib-trajectiv-logo
+            variant="mark"
+            size="2.35rem"
+          />
+        </a>
 
+        @if (shell.navbarVariant() === 'onboarding') {
+          <div class="navbar__onboarding-context">
+            <span class="navbar__context-eyebrow">
+              Trajectiv
+            </span>
+
+            <span class="navbar__context-title">
+              {{ shell.pageTitle() ?? 'Configuration de ton espace' }}
+            </span>
+          </div>
+        } @else if (shell.navbarVariant() === 'immersive') {
+          <div class="navbar__page-context navbar__page-context--immersive">
+            @if (shell.showBackButton()) {
+              <button
+                type="button"
+                pButton
+                severity="secondary"
+                text
+                rounded
+                class="navbar__back-button"
+                aria-label="Revenir à la page précédente"
+                (click)="goBack()"
+              >
+                <i
+                  class="pi pi-arrow-left"
+                  aria-hidden="true"
+                ></i>
+              </button>
+            }
+
+            @if (shell.pageIcon(); as pageIcon) {
+              <span
+                class="navbar__page-icon"
+                aria-hidden="true"
+              >
+                <i [class]="pageIcon"></i>
+              </span>
+            }
+
+            <div class="navbar__page-copy">
+              @if (shell.pageTitle(); as pageTitle) {
+                <h1 class="navbar__page-title">
+                  {{ pageTitle }}
+                </h1>
+              }
+
+              @if (shell.pageSubtitle(); as pageSubtitle) {
+                <p class="navbar__page-subtitle">
+                  {{ pageSubtitle }}
+                </p>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="navbar__page-context">
+            @if (shell.showBackButton()) {
+              <button
+                type="button"
+                pButton
+                severity="secondary"
+                text
+                rounded
+                class="navbar__back-button"
+                aria-label="Revenir à la page précédente"
+                (click)="goBack()"
+              >
+                <i
+                  class="pi pi-arrow-left"
+                  aria-hidden="true"
+                ></i>
+              </button>
+            }
+
+            @if (shell.pageIcon(); as pageIcon) {
+              <span
+                class="navbar__page-icon"
+                aria-hidden="true"
+              >
+                <i [class]="pageIcon"></i>
+              </span>
+            }
+
+            <div class="navbar__page-copy">
+              @if (shell.pageTitle(); as pageTitle) {
+                <h1 class="navbar__page-title">
+                  {{ pageTitle }}
+                </h1>
+              }
+
+              @if (shell.pageSubtitle(); as pageSubtitle) {
+                <p class="navbar__page-subtitle">
+                  {{ pageSubtitle }}
+                </p>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </ng-template>
 
     <ng-template #end>
       <div class="navbar__end">
-        @if (shellNavigation.navbarVariant() === 'onboarding') {
-          <div class="navbar__onboarding-context">
-            <span>Configuration de ton espace</span>
-          </div>
-        } @else {
-          <div class="navbar__search">
-            <i class="pi pi-search"></i>
-            <input
-              type="text"
-              pInputText
-              placeholder="Search"
-              aria-label="Search"
-            />
-          </div>
+        @if (shell.navbarVariant() === 'app') {
+          @if (shell.showSearch()) {
+            <label class="navbar__search">
+              <i
+                class="pi pi-search"
+                aria-hidden="true"
+              ></i>
+
+              <input
+                type="search"
+                pInputText
+                placeholder="Rechercher dans Trajectiv"
+                aria-label="Rechercher dans Trajectiv"
+                autocomplete="off"
+              />
+            </label>
+          }
 
           <div class="navbar__desktop-actions">
-
             <button
               type="button"
               class="navbar__icon-button"
-              aria-label="Notifications"
+              aria-label="Ouvrir les notifications"
+              routerLink="/app/notifications"
             >
-              <i class="pi pi-bell"></i>
-              <span class="navbar__notification-dot"></span>
+              <i
+                class="pi pi-bell"
+                aria-hidden="true"
+              ></i>
+
+              <span
+                class="navbar__notification-dot"
+                aria-hidden="true"
+              ></span>
             </button>
 
             <button
               type="button"
               class="navbar__profile-button"
-              aria-label="Open profile menu"
+              aria-label="Ouvrir le menu du profil"
+              aria-haspopup="menu"
               (click)="toggleProfileMenu($event)"
             >
               @if (appContext.avatarUrl(); as avatarUrl) {
                 <p-avatar
                   [image]="avatarUrl"
                   shape="circle"
-                ></p-avatar>
+                />
               } @else {
                 <p-avatar
                   [label]="appContext.initials()"
                   shape="circle"
-                ></p-avatar>
+                />
               }
+
+              <span class="navbar__profile-copy">
+                <span class="navbar__profile-name">
+                  {{ appContext.displayName() }}
+                </span>
+
+                <span class="navbar__profile-workspace">
+                  {{ activeWorkspace()?.label ?? 'Compte personnel' }}
+                </span>
+              </span>
+
+              <i
+                class="navbar__profile-chevron pi pi-angle-down"
+                aria-hidden="true"
+              ></i>
             </button>
 
             <p-menu
@@ -77,29 +204,58 @@
                 #item
                 let-item
               >
-                @if (item.kind === 'theme-toggle') {
-                  <div class="navbar-profile-theme">
+                @if (item.kind === 'workspace-switcher') {
+                  <app-workspace-switcher
+                    variant="menu"
+                    (click)="$event.stopPropagation()"
+                  />
+                } @else if (item.kind === 'theme-toggle') {
+                  <div
+                    class="navbar-profile-theme"
+                    (click)="$event.stopPropagation()"
+                    (keydown)="$event.stopPropagation()"
+                  >
                     <p-togglebutton
                       styleClass="tr-theme-toggle"
                       [ngModel]="isDarkTheme()"
                       (ngModelChange)="setDarkTheme($event)"
-                      onLabel="Dark mode"
-                      offLabel="Light mode"
+                      onLabel="Mode sombre"
+                      offLabel="Mode clair"
                       onIcon="pi pi-moon"
                       offIcon="pi pi-sun"
                       fluid
-                      ariaLabel="Toggle light or dark theme"
-                    ></p-togglebutton>
+                      ariaLabel="Changer le thème clair ou sombre"></p-togglebutton>
                   </div>
-                } @else {
+                } @else if (item.command) {
+                  <button
+                    type="button"
+                    pRipple
+                    class="navbar-profile-menu__item navbar-profile-menu__item--button"
+                    (click)="item.command({
+                      originalEvent: $event,
+                      item
+                    })"
+                  >
+                    @if (item.icon) {
+                      <i
+                        [class]="item.icon"
+                        aria-hidden="true"
+                      ></i>
+                    }
+
+                    <span>{{ item.label }}</span>
+                  </button>
+                } @else if (item.routerLink) {
                   <a
                     pRipple
                     class="navbar-profile-menu__item"
                     [routerLink]="item.routerLink"
-                    (click)="item.command?.({ originalEvent: $event, item })"
                   >
                     @if (item.icon) {
-                      <i [class]="item.icon"></i>
+                      <i
+                        [class]="item.icon"
+                        aria-hidden="true"
+                      ></i>
                     }
 
                     <span>{{ item.label }}</span>
@@ -109,33 +265,48 @@
             </p-menu>
           </div>
         }
-      </div>
 
-      <div class="navbar__mobile-actions">
-        @if (shellNavigation.navbarVariant() === 'app') {
-          <button
-            type="button"
-            class="navbar__icon-button"
-            aria-label="Notifications"
-          >
-            <i class="pi pi-bell"></i>
-            <span class="navbar__notification-dot"></span>
-          </button>
-        }
+        <div class="navbar__mobile-actions">
+          @if (shell.navbarVariant() === 'app') {
+            <button
+              type="button"
+              class="navbar__icon-button"
+              aria-label="Ouvrir les notifications"
+              routerLink="/app/notifications"
+            >
+              <i
+                class="pi pi-bell"
+                aria-hidden="true"
+              ></i>
 
-        <button
-          pButton
-          type="button"
-          icon="pi pi-bars"
-          severity="secondary"
-          text
-          rounded
-          class="navbar__mobile-button"
-          [attr.aria-controls]="drawerVisible() ? 'navbar-mobile-drawer' : null"
-          [attr.aria-expanded]="drawerVisible()"
-          aria-label="Open navigation menu"
-          (click)="openDrawer()"
-        ></button>
+              <span
+                class="navbar__notification-dot"
+                aria-hidden="true"
+              ></span>
+            </button>
+          }
+
+          @if (shell.navbarVariant() !== 'immersive') {
+            <button
+              pButton
+              type="button"
+              icon="pi pi-bars"
+              severity="secondary"
+              text
+              rounded
+              class="navbar__mobile-button"
+              aria-label="Ouvrir le menu de navigation"
+              aria-haspopup="dialog"
+              [attr.aria-controls]="
+                drawerVisible()
+                  ? 'navbar-mobile-drawer'
+                  : null
+              "
+              [attr.aria-expanded]="drawerVisible()"
+              (click)="openDrawer()"
+            ></button>
+          }
+        </div>
       </div>
     </ng-template>
   </p-menubar>
@@ -151,34 +322,97 @@
   [modal]="true"
   [dismissible]="true"
   [showCloseIcon]="true"
-  ariaCloseLabel="Close navigation menu"
+  ariaCloseLabel="Fermer le menu de navigation"
 >
+  <ng-template #header>
+    <div class="navbar-drawer__header">
+      <lib-trajectiv-logo
+        variant="mark"
+        size="2rem"
+      />
+
+      <div class="navbar-drawer__identity">
+        <strong>
+          {{ appContext.displayName() }}
+        </strong>
+
+        <span>
+          {{ activeWorkspace()?.label ?? 'Compte personnel' }}
+        </span>
+      </div>
+    </div>
+  </ng-template>
 
   <div class="navbar-drawer__content">
-    <div class="navbar-drawer__section">
-      <a
-        class="navbar-drawer__link"
-        routerLink="/app/account"
-        (click)="closeDrawer()"
+    @if (activeWorkspace()) {
+      <section
+        class="navbar-drawer__section"
+        aria-labelledby="mobile-workspace-title"
       >
-        <i class="pi pi-user"></i>
-        <span>Account</span>
-      </a>
+        <h2
+          id="mobile-workspace-title"
+          class="navbar-drawer__section-title"
+        >
+          Espace actif
+        </h2>
 
-      <a
-        class="navbar-drawer__link"
-        routerLink="/app/settings"
-        (click)="closeDrawer()"
+        <app-workspace-switcher variant="dropdown" />
+      </section>
+    }
+
+    <section
+      class="navbar-drawer__section"
+      aria-labelledby="mobile-navigation-title"
+    >
+      <h2
+        id="mobile-navigation-title"
+        class="navbar-drawer__section-title"
       >
-        <i class="pi pi-cog"></i>
-        <span>Settings</span>
-      </a>
-    </div>
+        Navigation
+      </h2>
 
-    <div class="navbar-drawer__section">
+      @for (item of drawerItems(); track item.id) {
+        @if (item.route) {
+          <a
+            pRipple
+            class="navbar-drawer__link"
+            [routerLink]="item.route"
+            [attr.aria-label]="item.ariaLabel ?? item.label"
+            (click)="closeDrawer()"
+          >
+            <i
+              [class]="item.icon"
+              aria-hidden="true"
+            ></i>
+
+            <span>{{ item.label }}</span>
+          </a>
+        }
+      } @empty {
+        <p class="navbar-drawer__empty">
+          Aucune navigation disponible.
+        </p>
+      }
+    </section>
+
+    <section
+      class="navbar-drawer__section"
+      aria-labelledby="mobile-appearance-title"
+    >
+      <h2
+        id="mobile-appearance-title"
+        class="navbar-drawer__section-title"
+      >
+        Apparence
+      </h2>
+
       <div class="navbar-drawer__theme-row">
         <div class="navbar-drawer__theme-label">
-          <i [class]="themeIcon()"></i>
+          <i
+            [class]="themeIcon()"
+            aria-hidden="true"
+          ></i>
+
           <span>{{ themeLabel() }}</span>
         </div>
 
@@ -190,19 +424,24 @@
           offLabel=""
           onIcon="pi pi-moon"
           offIcon="pi pi-sun"
-          ariaLabel="Toggle light or dark theme"
-        ></p-togglebutton>
+          ariaLabel="Changer le thème clair ou sombre"></p-togglebutton>
       </div>
-    </div>
+    </section>
 
-    <div class="navbar-drawer__section">
+    <section class="navbar-drawer__section navbar-drawer__section--footer">
       <button
         type="button"
-        class="navbar-drawer__link"
+        pRipple
+        class="navbar-drawer__link navbar-drawer__link--danger"
+        (click)="logout()"
       >
-        <i class="pi pi-sign-out"></i>
-        <span>Logout</span>
+        <i
+          class="pi pi-sign-out"
+          aria-hidden="true"
+        ></i>
+
+        <span>Se déconnecter</span>
       </button>
-    </div>
+    </section>
   </div>
 </p-drawer>

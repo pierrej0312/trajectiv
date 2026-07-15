@@ -2,11 +2,10 @@
   class="bottom-bar"
   aria-label="Navigation principale mobile"
 >
-
   <ul class="bottom-bar__list">
     @for (item of items(); track item.key) {
       <li class="bottom-bar__item">
-        @if (item.children?.length) {
+        @if (item.children.length > 0) {
           <button
             type="button"
             pRipple
@@ -16,18 +15,37 @@
             [class.bottom-bar__link--active-compact]="isCompactActive(item)"
             [attr.aria-label]="item.ariaLabel"
             [attr.aria-expanded]="isChildrenMenuOpen(item)"
+            [attr.aria-controls]="
+              isChildrenMenuOpen(item)
+                ? 'bottom-bar-children-' + item.key
+                : null
+            "
             (click)="toggleChildrenMenu(item)"
           >
             @if (item.badge) {
-              <span class="bottom-bar__blob" aria-hidden="true">
-                <span class="bottom-bar__blob-shape bottom-bar__blob-shape--icon"></span>
-                <span class="bottom-bar__blob-shape bottom-bar__blob-shape--bridge"></span>
-                <span class="bottom-bar__blob-shape bottom-bar__blob-shape--badge"></span>
+              <span
+                class="bottom-bar__blob"
+                aria-hidden="true"
+              >
+                <span
+                  class="bottom-bar__blob-shape bottom-bar__blob-shape--icon"
+                ></span>
+
+                <span
+                  class="bottom-bar__blob-shape bottom-bar__blob-shape--bridge"
+                ></span>
+
+                <span
+                  class="bottom-bar__blob-shape bottom-bar__blob-shape--badge"
+                ></span>
               </span>
             }
 
             <span class="bottom-bar__icon">
-              <i [class]="item.icon"></i>
+              <i
+                [class]="item.icon"
+                aria-hidden="true"
+              ></i>
             </span>
 
             <span class="bottom-bar__label">
@@ -44,19 +62,31 @@
           </button>
 
           @if (isChildrenMenuOpen(item)) {
-            <div class="bottom-bar__children-menu">
+            <div
+              class="bottom-bar__children-menu"
+              [id]="'bottom-bar-children-' + item.key"
+            >
               @for (child of item.children; track child.key) {
                 <button
                   type="button"
                   class="bottom-bar__child-action"
-                  [class.bottom-bar__child-action--active]="isChildActive(item, child)"
-                  [attr.aria-current]="isChildActive(item, child) ? 'page' : null"
+                  [class.bottom-bar__child-action--active]="
+                    isChildActive(item, child)
+                  "
+                  [attr.aria-current]="
+                    isChildActive(item, child)
+                      ? 'page'
+                      : null
+                  "
                   [style.--child-index]="$index"
                   [attr.aria-label]="child.ariaLabel"
                   (click)="navigateToChild(child)"
                 >
                   <span class="bottom-bar__child-icon">
-                    <i [class]="child.icon"></i>
+                    <i
+                      [class]="child.icon"
+                      aria-hidden="true"
+                    ></i>
                   </span>
 
                   <span class="bottom-bar__child-label">
@@ -82,11 +112,12 @@
             [class.bottom-bar__link--active-compact]="isCompactActive(item)"
             [routerLink]="item.routerLink"
             routerLinkActive="bottom-bar__link--active"
-            [routerLinkActiveOptions]="{ exact: false }"
+            [routerLinkActiveOptions]="{
+              exact: false
+            }"
             [attr.aria-label]="item.ariaLabel"
             (click)="closeChildrenMenu()"
           >
-
             <span
               class="bottom-bar__icon"
               [class.bottom-bar__icon--avatar]="item.isProfile"
@@ -103,7 +134,10 @@
                   </span>
                 }
               } @else {
-                <i [class]="item.icon"></i>
+                <i
+                  [class]="item.icon"
+                  aria-hidden="true"
+                ></i>
               }
             </span>
 

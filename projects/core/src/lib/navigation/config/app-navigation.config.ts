@@ -1,4 +1,5 @@
-import type { AppNavItem } from './app-navigation.model';
+import type { AppNavItem } from '../models/app-navigation.model';
+import { APP_ACCESS_REQUIREMENTS } from '../../access/config/app-access-requirements.config';
 
 export const APP_NAVIGATION = [
   {
@@ -7,77 +8,114 @@ export const APP_NAVIGATION = [
     icon: 'pi pi-chart-line',
     route: '/app/dashboard',
     section: 'main',
-    desktop: true,
-    mobile: true,
-    drawer: true,
+
+    placements: ['sidebar', 'bottom-bar', 'drawer'],
+
+    order: 10,
+    mobileOrder: 10,
+
+    ...APP_ACCESS_REQUIREMENTS.personalWorkspace,
+
     ariaLabel: 'Aller au pilotage',
   },
+
   {
     id: 'opportunities',
     label: 'Opportunités',
     icon: 'pi pi-bullseye',
     route: '/app/opportunities',
     section: 'main',
-    desktop: true,
-    mobile: true,
-    drawer: true,
+
+    placements: ['sidebar', 'bottom-bar', 'drawer'],
+
+    order: 20,
+    mobileOrder: 20,
+
+    ...APP_ACCESS_REQUIREMENTS.personalWorkspace,
+
     ariaLabel: 'Voir les opportunités',
+
     children: [
       {
         id: 'opportunities-all',
         label: 'Toutes',
         icon: 'pi pi-list',
         route: '/app/opportunities',
+        order: 10,
+
+        ...APP_ACCESS_REQUIREMENTS.personalWorkspace,
+
         ariaLabel: 'Voir toutes les opportunités',
       },
+
       {
         id: 'opportunities-new',
         label: 'Nouvelle',
         icon: 'pi pi-plus',
         route: '/app/opportunities/new',
-        ariaLabel: 'Créer une nouvelle opportunité',
+        order: 20,
+
+        ...APP_ACCESS_REQUIREMENTS.personalWorkspace,
+
+        ariaLabel: 'Créer une opportunité',
       },
     ],
   },
+
   {
     id: 'questions',
     label: 'Questions',
     icon: 'pi pi-comments',
     route: '/app/questions',
     section: 'main',
-    desktop: true,
-    mobile: true,
-    drawer: true,
+
+    placements: ['sidebar', 'bottom-bar', 'drawer'],
+
+    order: 30,
+    mobileOrder: 30,
+
+    ...APP_ACCESS_REQUIREMENTS.personalWorkspace,
+
     ariaLabel: 'Voir les questions',
+
     children: [
       {
         id: 'questions-radar',
         label: 'Radar',
         icon: 'pi pi-compass',
         route: '/app/questions/radar',
-        ariaLabel: 'Ouvrir le radar de questions',
+        order: 10,
+        ariaLabel: 'Ouvrir le radar',
       },
       {
         id: 'questions-training',
-        label: 'Training',
+        label: 'Entraînement',
         icon: 'pi pi-microphone',
         route: '/app/questions/training',
+        order: 20,
         ariaLabel: 'Démarrer un entraînement',
       },
     ],
   },
+
   {
     id: 'actions',
     label: 'Actions',
     icon: 'pi pi-sparkles',
     route: '/app/actions',
     section: 'main',
-    desktop: true,
-    mobile: true,
-    drawer: true,
-    badge: '4',
-    ariaLabel: 'Voir les actions',
+
+    placements: ['sidebar', 'drawer'],
+
+    order: 40,
+
+    ...APP_ACCESS_REQUIREMENTS.personalWorkspace,
+
+    badgeKey: 'recommended-actions',
+
+    ariaLabel: 'Voir les actions recommandées',
   },
+
   {
     id: 'opportunity-create',
     label: 'Ajouter opportunité',
@@ -85,47 +123,72 @@ export const APP_NAVIGATION = [
     route: '/app/opportunities/new',
     type: 'button',
     section: 'main',
-    desktop: true,
-    drawer: true,
-    ariaLabel: 'Créer une nouvelle opportunité',
+
+    placements: ['sidebar', 'drawer'],
+
+    order: 50,
+
+    ...APP_ACCESS_REQUIREMENTS.personalWorkspace,
+
+    ariaLabel: 'Créer une opportunité',
   },
+
   {
     id: 'notifications',
     label: 'Notifications',
     icon: 'pi pi-bell',
     route: '/app/notifications',
     section: 'system',
-    desktop: true,
-    drawer: true,
-    badge: '2',
+
+    placements: ['sidebar', 'drawer', 'top-navigation'],
+
+    order: 10,
+
+    badgeKey: 'notifications',
+
     ariaLabel: 'Voir les notifications',
   },
-  {
-    id: 'settings',
-    label: 'Settings',
-    icon: 'pi pi-cog',
-    route: '/app/settings',
-    section: 'system',
-    desktop: true,
-    drawer: true,
-    ariaLabel: 'Ouvrir les paramètres',
-  },
+
   {
     id: 'profile',
     label: 'Profil',
     icon: 'pi pi-user',
     route: '/app/profile',
     section: 'system',
-    drawer: true,
+
+    placements: ['bottom-bar', 'drawer', 'profile-menu'],
+
+    order: 20,
+    mobileOrder: 50,
+
     ariaLabel: 'Ouvrir le profil',
   },
+
   {
     id: 'account',
     label: 'Compte',
     icon: 'pi pi-id-card',
     route: '/app/account',
     section: 'system',
-    drawer: true,
+
+    placements: ['drawer', 'profile-menu'],
+
+    order: 30,
+
     ariaLabel: 'Ouvrir le compte',
+  },
+
+  {
+    id: 'settings',
+    label: 'Paramètres',
+    icon: 'pi pi-cog',
+    route: '/app/settings',
+    section: 'system',
+
+    placements: ['sidebar', 'drawer', 'profile-menu'],
+
+    order: 40,
+
+    ariaLabel: 'Ouvrir les paramètres',
   },
 ] as const satisfies readonly AppNavItem[];

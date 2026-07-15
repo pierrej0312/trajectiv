@@ -9,10 +9,11 @@ import type { WorkspaceContext } from '@core';
 export type WorkspaceSwitcherVariant = 'menu' | 'dropdown' | 'compact';
 
 type WorkspaceOption = {
-  label: string;
-  value: string;
-  kind: WorkspaceContext['kind'];
-  organizationId?: string;
+  readonly label: string;
+  readonly value: string;
+  readonly kind: WorkspaceContext['kind'];
+  readonly organizationId?: string;
+  readonly organizationRole?: string;
 };
 
 @Component({
@@ -30,12 +31,15 @@ export class WorkspaceSwitcher {
   readonly activeWorkspace = this.workspaceStore.activeWorkspace;
 
   readonly options = computed<WorkspaceOption[]>(() =>
-    this.workspaceStore.workspaces().map((workspace) => ({
-      label: workspace.label,
-      value: workspace.id,
-      kind: workspace.kind,
-      organizationId: workspace.organizationId,
-    })),
+    this.workspaceStore.workspaces().map(
+      (workspace): WorkspaceOption => ({
+        label: workspace.label,
+        value: workspace.id,
+        kind: workspace.kind,
+        organizationId: workspace.organizationId,
+        organizationRole: workspace.organizationRole,
+      }),
+    ),
   );
 
   readonly selectedWorkspaceId = computed(() => {
@@ -54,7 +58,11 @@ export class WorkspaceSwitcher {
     return kind === 'organization' ? 'pi pi-building' : 'pi pi-user';
   }
 
-  getMeta(kind: WorkspaceContext['kind']): string {
-    return kind === 'organization' ? 'Organisation' : 'Personnel';
+  getMeta(option: WorkspaceOption): string {
+    if (option.kind === 'personal') {
+      return 'Personnel';
+    }
+
+    return option.organizationRole ? `Organisation · ${option.organizationRole}` : 'Organisation';
   }
 }

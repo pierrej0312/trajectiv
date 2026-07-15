@@ -6,8 +6,15 @@
   <section class="min-h-screen grid place-items-center">
     <div>
       <h1>Impossible de charger ton espace</h1>
-      <p>Une erreur est survenue lors du chargement de ton profil.</p>
-      <button type="button" (click)="appContext.reloadMe()">
+
+      <p>
+        Une erreur est survenue lors du chargement de ton profil.
+      </p>
+
+      <button
+        type="button"
+        (click)="appContext.reloadMe()"
+      >
         Réessayer
       </button>
     </div>
@@ -16,36 +23,42 @@
   <section class="min-h-screen grid place-items-center">
     <div>
       <h1>Compte désactivé</h1>
-      <p>Ton compte Trajectiv n’est actuellement pas actif.</p>
+
+      <p>
+        Ton compte Trajectiv n’est actuellement pas actif.
+      </p>
     </div>
   </section>
 } @else if (appContext.isReady()) {
   <div
     class="app-layout"
-    [class.app-layout--onboarding]="navigation.shellMode() === 'onboarding'"
+    [class.app-layout--app]="shell.isAppShell()"
+    [class.app-layout--onboarding]="shell.isOnboardingShell()"
+    [class.app-layout--immersive]="shell.isImmersiveShell()"
+    [attr.data-shell-mode]="shell.shellMode()"
   >
-    @if (navigation.showNavbar()) {
+    @if (shell.showNavbar()) {
       <header class="app-layout__navbar">
-        <app-navbar></app-navbar>
+        <app-navbar />
       </header>
     }
 
     <div class="app-layout__main">
-      @if (navigation.showSidebar()) {
+      @if (shell.showSidebar()) {
         <aside class="app-layout__sidebar">
-          <app-sidebar></app-sidebar>
+          <app-sidebar />
         </aside>
       }
 
       <main class="app-layout__content">
-        <router-outlet/>
+        <router-outlet />
       </main>
     </div>
 
-    @if (navigation.showBottomBar()) {
-      <nav class="app-layout__bottom-bar">
-        <app-bottom-bar></app-bottom-bar>
-      </nav>
+    @if (shell.showBottomBar()) {
+      <div class="app-layout__bottom-bar">
+        <app-bottom-bar />
+      </div>
     }
   </div>
 }

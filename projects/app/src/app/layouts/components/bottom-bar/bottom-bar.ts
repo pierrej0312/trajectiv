@@ -1,30 +1,31 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { BadgeModule } from 'primeng/badge';
 import { RippleModule } from 'primeng/ripple';
 
-import { NavigationService } from '@shared/navigation/navigation.service';
-import { AppContextStore } from '@core';
+import { AppContextStore, ShellStore } from '@core';
+import { NavigationStore } from '@app/src/app/core/navigation/navigation.store';
 
 type BottomBarChildItem = {
-  key: string;
-  label: string;
-  icon: string;
-  routerLink: string;
-  ariaLabel: string;
-  badge?: string;
+  readonly key: string;
+  readonly label: string;
+  readonly icon: string;
+  readonly routerLink: string;
+  readonly ariaLabel: string;
+  readonly badge: string | null;
 };
 
 type BottomBarItem = {
-  key: string;
-  label: string;
-  icon: string;
-  ariaLabel: string;
-  routerLink: string;
-  badge?: string;
-  isProfile?: boolean;
-  children?: BottomBarChildItem[];
+  readonly key: string;
+  readonly label: string;
+  readonly icon: string;
+  readonly ariaLabel: string;
+  readonly routerLink: string;
+  readonly badge: string | null;
+  readonly isProfile: boolean;
+  readonly children: readonly BottomBarChildItem[];
 };
 
 type WithRoute<T extends { readonly route?: string }> = T & {
@@ -33,27 +34,26 @@ type WithRoute<T extends { readonly route?: string }> = T & {
 
 @Component({
   selector: 'app-bottom-bar',
+
   imports: [RouterLink, RouterLinkActive, RippleModule, BadgeModule],
+
   templateUrl: './bottom-bar.html',
   styleUrl: './bottom-bar.css',
+
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BottomBar {
   readonly appContext = inject(AppContextStore);
+  readonly shell = inject(ShellStore);
+
   private readonly router = inject(Router);
-  private readonly navigationService = inject(NavigationService);
+  private readonly navigation = inject(NavigationStore);
 
   readonly activeChildrenMenuKey = signal<string | null>(null);
 
-  readonly currentUrl = computed(() => {
-    const lastNavigation = this.router.lastSuccessfulNavigation();
-
-    return this.normalizeUrl(lastNavigation?.finalUrl?.toString() ?? this.router.url);
-  });
-
-  readonly items = computed<BottomBarItem[]>(() => {
-    const navigationItems = this.navigationService
-      .mobileItems()
+  readonly items = computed<readonly BottomBarItem[]>(() => {
+    return this.navigation
+      .bottomBarItems()
       .filter((item) => this.hasRoute(item))
       .map(
         (item): BottomBarItem => ({
@@ -61,35 +61,37 @@ export class BottomBar {
           label: item.label,
           icon: item.icon,
           routerLink: item.route,
+
           ariaLabel: item.ariaLabel ?? `Aller à ${item.label}`,
-          badge: item.badge,
+
+          /*
+           * Le badge sera résolu ultérieurement depuis badgeKey.
+           * Pour le moment, aucune valeur statique n’est affichée.
+           */
+          badge: null,
+
           isProfile: item.id === 'profile',
-          children: item.children
-            ?.filter((child) => this.hasRoute(child))
+
+          children: (item.children ?? [])
+            .filter((child) => this.hasRoute(child))
             .map(
               (child): BottomBarChildItem => ({
                 key: child.id,
                 label: child.label,
                 icon: child.icon,
                 routerLink: child.route,
+
                 ariaLabel: child.ariaLabel ?? `Aller à ${child.label}`,
-                badge: child.badge,
+
+                badge: null,
               }),
             ),
         }),
       );
-
-    const hasProfileItem = navigationItems.some((item) => item.key === 'profile');
-
-    if (hasProfileItem) {
-      return navigationItems;
-    }
-
-    return [...navigationItems, this.createProfileItem()];
   });
 
   toggleChildrenMenu(item: BottomBarItem): void {
-    if (!item.children?.length) {
+    if (item.children.length === 0) {
       return;
     }
 
@@ -107,11 +109,7 @@ export class BottomBar {
   isCompactActive(item: BottomBarItem): boolean {
     const openedKey = this.activeChildrenMenuKey();
 
-    if (openedKey === null) {
-      return false;
-    }
-
-    if (openedKey === item.key) {
+    if (openedKey === null || openedKey === item.key) {
       return false;
     }
 
@@ -119,9 +117,9 @@ export class BottomBar {
   }
 
   isParentActive(item: BottomBarItem): boolean {
-    const currentUrl = this.currentUrl();
+    const currentUrl = this.shell.currentUrl();
 
-    if (item.children?.length) {
+    if (item.children.length > 0) {
       return item.children.some((child) => this.isRouteMatch(currentUrl, child.routerLink));
     }
 
@@ -136,41 +134,26 @@ export class BottomBar {
 
   navigateToChild(child: BottomBarChildItem): void {
     this.closeChildrenMenu();
-    void this.router.navigateByUrl(child.routerLink);
-  }
 
-  private createProfileItem(): BottomBarItem {
-    return {
-      key: 'profile',
-      label: 'Compte',
-      icon: 'pi pi-user',
-      routerLink: '/app/account',
-      ariaLabel: 'Aller au compte',
-      isProfile: true,
-    };
+    void this.router.navigateByUrl(child.routerLink);
   }
 
   private hasRoute<T extends { readonly route?: string }>(item: T): item is WithRoute<T> {
     return typeof item.route === 'string' && item.route.length > 0;
   }
+
   private getActiveChild(parent: BottomBarItem): BottomBarChildItem | null {
-    const currentUrl = this.currentUrl();
+    const currentUrl = this.shell.currentUrl();
 
-    return (
-      parent.children
-        ?.filter((child) => this.isRouteMatch(currentUrl, child.routerLink))
-        .reduce<BottomBarChildItem | null>((bestMatch, child) => {
-          if (!bestMatch) {
-            return child;
-          }
+    return parent.children
+      .filter((child) => this.isRouteMatch(currentUrl, child.routerLink))
+      .reduce<BottomBarChildItem | null>((bestMatch, child) => {
+        if (!bestMatch) {
+          return child;
+        }
 
-          return child.routerLink.length > bestMatch.routerLink.length ? child : bestMatch;
-        }, null) ?? null
-    );
-  }
-
-  private normalizeUrl(url: string): string {
-    return url.split('?')[0]?.split('#')[0] ?? url;
+        return child.routerLink.length > bestMatch.routerLink.length ? child : bestMatch;
+      }, null);
   }
 
   private isRouteMatch(currentUrl: string, route: string): boolean {

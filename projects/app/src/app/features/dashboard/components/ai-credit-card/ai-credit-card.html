@@ -29,10 +29,13 @@
   </div>
 
   <p-progressbar
-    [value]="percentLeft()"
-    [showValue]="false" [pt]="{ root: 'h-1.5! rounded-full!', value: 'bg-primary! rounded-full!' }"
-    aria-label="Crédits IA utilisés"
-  />
+    [value]="credits().remainingPercentage"
+    [showValue]="false"
+    [pt]="{
+    root: 'h-1.5! rounded-full!',
+    value: 'bg-primary! rounded-full!'
+  }"
+    aria-label="Crédits IA restants"></p-progressbar>
   @if (credits().exhausted) {
   <p class="dashboard-summary-card__description">
       Tes crédits mensuels sont épuisés.
@@ -40,6 +43,11 @@
   }
 
   <ng-template #footer>
-    <p-chip icon="pi pi-clock" [label]="'Renouvelement dans ' + 18 + ' jours'"></p-chip>
+    @if (credits().renewalLabel; as renewalLabel) {
+      <p-chip
+        icon="pi pi-clock"
+        [label]="renewalLabel"
+      />
+    }
   </ng-template>
 </p-card>

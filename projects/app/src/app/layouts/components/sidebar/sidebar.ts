@@ -6,53 +6,63 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
+
 import { Router, RouterLink } from '@angular/router';
 
 import { MenuItem } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { BadgeModule } from 'primeng/badge';
+import { ButtonModule } from 'primeng/button';
 import { Menu, MenuModule } from 'primeng/menu';
 import { RippleModule } from 'primeng/ripple';
 import { ToggleButtonModule } from 'primeng/togglebutton';
-import { ButtonModule } from 'primeng/button';
+
+import { AppContextStore, ShellStore, type AppNavItem } from '@core';
 
 import { TrajectivLogo } from '@shared-ui';
 import { ThemeService } from '@themes/theme.service';
-import { KeycloakStore } from '@shared/module/keycloak/keycloak-store';
-import { NavigationService } from '@shared/navigation/navigation.service';
-import { WorkspaceStore } from '@shared/workspace/workspace.store';
-import { WorkspaceSwitcher } from '@shared/workspace/components/workspace-switcher/workspace-switcher';
-import { AppContextStore } from '@core';
-import { NavigationStore } from '@shared/navigation/navigation.store';
+
 import { OnboardingStore } from '@features/onboarding/store/onboarding.store';
 
+import { KeycloakStore } from '@shared/module/keycloak/keycloak-store';
+
+import { WorkspaceStore } from '@shared/workspace/workspace.store';
+
+import { WorkspaceSwitcher } from '@shared/workspace/components/workspace-switcher/workspace-switcher';
+import { NavigationStore } from '@app/src/app/core/navigation/navigation.store';
+
 type SidebarChildItem = {
-  label: string;
-  icon: string;
-  routerLink: string;
-  badge?: string;
+  readonly key: string;
+  readonly label: string;
+  readonly icon: string;
+  readonly routerLink: string;
+  readonly badge: string | null;
 };
 
 type SidebarNavItem = MenuItem & {
-  id?: string;
-  routerLink?: string;
-  badge?: string;
-  children?: SidebarChildItem[];
-  type?: 'link' | 'button' | 'toggle';
+  readonly id?: string;
+  readonly routerLink?: string;
+  readonly badge?: string | null;
+  readonly children?: SidebarChildItem[];
+
+  readonly type?: 'link' | 'button';
 };
 
-type SidebarSection = {
-  label: string;
-  items: SidebarNavItem[];
+type SidebarSection = MenuItem & {
+  readonly key: string;
+  readonly label: string;
+  readonly items: SidebarNavItem[];
 };
 
 type ProfileMenuItem = MenuItem & {
-  kind?: 'theme-toggle' | 'workspace-switcher';
+  readonly kind?: 'theme-toggle' | 'workspace-switcher';
 };
 
 @Component({
   selector: 'app-sidebar',
+
   imports: [
     FormsModule,
     RouterLink,
@@ -65,25 +75,28 @@ type ProfileMenuItem = MenuItem & {
     ButtonModule,
     WorkspaceSwitcher,
   ],
+
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
+
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Sidebar {
   private readonly themeService = inject(ThemeService);
+
   private readonly keycloakStore = inject(KeycloakStore);
-  private readonly navigationService = inject(NavigationService);
+
   private readonly workspaceStore = inject(WorkspaceStore);
+
+  private readonly navigation = inject(NavigationStore);
+
   private readonly router = inject(Router);
+
   readonly appContext = inject(AppContextStore);
-  readonly shellNavigation = inject(NavigationStore);
+
+  readonly shell = inject(ShellStore);
+
   readonly onboarding = inject(OnboardingStore);
-
-  readonly currentUrl = computed(() => {
-    const lastNavigation = this.router.lastSuccessfulNavigation();
-
-    return this.normalizeUrl(lastNavigation?.finalUrl?.toString() ?? this.router.url);
-  });
 
   readonly profileMenu = viewChild<Menu>('profileMenu');
 
@@ -92,90 +105,75 @@ export class Sidebar {
   readonly activeWorkspace = this.workspaceStore.activeWorkspace;
 
   readonly isDarkTheme = computed(() => this.themeService.isDarkTheme());
-  readonly themeLabel = computed(() => (this.isDarkTheme() ? 'Dark mode' : 'Light mode'));
+
+  readonly themeLabel = computed(() => (this.isDarkTheme() ? 'Mode sombre' : 'Mode clair'));
+
   readonly themeIcon = computed(() => (this.isDarkTheme() ? 'pi pi-moon' : 'pi pi-sun'));
 
-  readonly items = computed<SidebarSection[]>(() => [
-    {
-      label: 'Principal',
-      items: this.navigationService.mainDesktopItems().map((item) => ({
-        id: item.id,
-        label: item.label,
-        icon: item.icon,
-        routerLink: item.route,
-        badge: item.badge,
-        type: item.type,
-        command:
-          item.type === 'button' && item.route
-            ? () => this.navigateAndClose(item.route!)
-            : undefined,
-        children: item.children?.map((child) => ({
-          label: child.label,
-          icon: child.icon,
-          routerLink: child.route,
-          badge: child.badge,
-        })),
-      })),
-    },
-    {
-      label: 'Système',
-      items: this.navigationService.systemDesktopItems().map((item) => ({
-        id: item.id,
-        label: item.label,
-        icon: item.icon,
-        routerLink: item.route,
-        badge: item.badge,
-        type: item.type,
-        command:
-          item.type === 'button' && item.route
-            ? () => this.navigateAndClose(item.route!)
-            : undefined,
-        children: item.children?.map((child) => ({
-          label: child.label,
-          icon: child.icon,
-          routerLink: child.route,
-          badge: child.badge,
-        })),
-      })),
-    },
-  ]);
+  readonly items = computed<SidebarSection[]>(() => {
+    const sections: SidebarSection[] = [
+      this.createSection('main', 'Principal', this.navigation.mainSidebarItems()),
 
-  readonly profileItems = signal<ProfileMenuItem[]>([
-    {
-      kind: 'workspace-switcher',
-      label: 'Workspace',
-    },
-    {
-      separator: true,
-    },
-    {
-      label: 'Profil',
-      icon: 'pi pi-user',
-      routerLink: '/app/profile',
-    },
-    {
-      label: 'Compte',
-      icon: 'pi pi-id-card',
-      routerLink: '/app/account',
-    },
-    {
-      separator: true,
-    },
-    {
-      kind: 'theme-toggle',
-      label: 'Theme',
-    },
-    {
-      separator: true,
-    },
-    {
-      label: 'Logout',
-      icon: 'pi pi-sign-out',
-      command: () => {
-        void this.keycloakStore.logout();
+      this.createSection(
+        'organization',
+        'Organisation',
+        this.navigation.organizationSidebarItems(),
+      ),
+
+      this.createSection('system', 'Système', this.navigation.systemSidebarItems()),
+
+      this.createSection('admin', 'Administration', this.navigation.adminSidebarItems()),
+    ];
+
+    return sections.filter((section) => section.items.length > 0);
+  });
+
+  readonly profileItems = computed<ProfileMenuItem[]>(() => {
+    const navigationItems: ProfileMenuItem[] = this.navigation
+      .profileMenuItems()
+      .filter(
+        (
+          item,
+        ): item is AppNavItem & {
+          readonly route: string;
+        } => typeof item.route === 'string' && item.route.length > 0,
+      )
+      .map(
+        (item): ProfileMenuItem => ({
+          label: item.label,
+          icon: item.icon,
+          routerLink: item.route,
+        }),
+      );
+
+    return [
+      {
+        kind: 'workspace-switcher',
+        label: 'Workspace',
       },
-    },
-  ]);
+      {
+        separator: true,
+      },
+      ...navigationItems,
+      {
+        separator: true,
+      },
+      {
+        kind: 'theme-toggle',
+        label: 'Thème',
+      },
+      {
+        separator: true,
+      },
+      {
+        label: 'Se déconnecter',
+        icon: 'pi pi-sign-out',
+        command: () => {
+          void this.keycloakStore.logout();
+        },
+      },
+    ];
+  });
 
   isChildRouteActive(parent: SidebarNavItem, child: SidebarChildItem): boolean {
     const activeChild = this.getActiveChild(parent);
@@ -188,9 +186,7 @@ export class Sidebar {
       return;
     }
 
-    const itemId = item.id;
-
-    this.openedItemId.update((current) => (current === itemId ? null : itemId));
+    this.openedItemId.update((current) => (current === item.id ? null : (item.id ?? null)));
   }
 
   isOpened(item: SidebarNavItem): boolean {
@@ -202,7 +198,7 @@ export class Sidebar {
   }
 
   isRouteActive(item: SidebarNavItem): boolean {
-    const currentUrl = this.currentUrl();
+    const currentUrl = this.shell.currentUrl();
 
     if (item.children?.length) {
       return item.children.some((child) => this.isRouteMatch(currentUrl, child.routerLink));
@@ -217,6 +213,7 @@ export class Sidebar {
 
   navigateAndClose(route: string): void {
     this.closeOpenedItem();
+
     void this.router.navigateByUrl(route);
   }
 
@@ -228,8 +225,44 @@ export class Sidebar {
     this.profileMenu()?.toggle(event);
   }
 
+  private createSection(key: string, label: string, items: readonly AppNavItem[]): SidebarSection {
+    const menuItems: SidebarNavItem[] = items.map((item): SidebarNavItem => {
+      const children: SidebarChildItem[] = (item.children ?? []).map(
+        (child): SidebarChildItem => ({
+          key: child.id,
+          label: child.label,
+          icon: child.icon,
+          routerLink: child.route,
+          badge: null,
+        }),
+      );
+
+      return {
+        id: item.id,
+        label: item.label,
+        icon: item.icon,
+        routerLink: item.route,
+        badge: undefined,
+        type: item.type === 'button' ? 'button' : 'link',
+
+        command:
+          item.type === 'button' && item.route
+            ? () => this.navigateAndClose(item.route ?? "")
+            : undefined,
+
+        children,
+      };
+    });
+
+    return {
+      key,
+      label,
+      items: menuItems,
+    };
+  }
+
   private getActiveChild(parent: SidebarNavItem): SidebarChildItem | null {
-    const currentUrl = this.currentUrl();
+    const currentUrl = this.shell.currentUrl();
 
     return (
       parent.children
@@ -242,10 +275,6 @@ export class Sidebar {
           return child.routerLink.length > bestMatch.routerLink.length ? child : bestMatch;
         }, null) ?? null
     );
-  }
-
-  private normalizeUrl(url: string): string {
-    return url.split('?')[0]?.split('#')[0] ?? url;
   }
 
   private isRouteMatch(currentUrl: string, route: string): boolean {

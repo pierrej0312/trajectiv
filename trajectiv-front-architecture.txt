@@ -1,6 +1,6 @@
 # Trajectiv Front Architecture Export
 
-Generated at: 2026-07-11T19:58:49.309Z
+Generated at: 2026-07-15T14:24:34.106Z
 
 ## Workspace tree
 
@@ -34,6 +34,11 @@ Generated at: 2026-07-11T19:58:49.309Z
             📄 talking_phone.glb
             📄 thinking.glb
             📄 victory_female.glb
+          📁 clothes/
+            📄 chemise_femme.png
+            📄 female_clothes_01.glb
+            📄 pant_female.png
+            📄 pull.png
           📁 hair/
             📄 hair_long_01_detail.png
             📄 hair_long_01_normal.png
@@ -42,6 +47,11 @@ Generated at: 2026-07-11T19:58:49.309Z
           📁 previews/
             📁 body/
               📄 base_female.png
+            📁 clothes/
+              📄 jeans_01.png
+              📄 shirt_01.png
+              📄 sweater_01.png
+              📄 top_shirt_01_sweat_01.png
             📁 hair/
               📄 long_01.png
             📄 none.png
@@ -66,6 +76,9 @@ Generated at: 2026-07-11T19:58:49.309Z
             📄 me-ready.guard-helper.ts
             📄 onboarding-completed.guard.ts
             📄 onboarding-incomplete.guard.ts
+          📁 interceptors/
+            📄 authDebugInterceptor.ts
+            📄 refresh-token-interceptor.ts
           📁 navigation/
             📄 router-loading.store.ts
         📁 features/
@@ -118,6 +131,8 @@ Generated at: 2026-07-11T19:58:49.309Z
               📄 dashboard-navigation.service.ts
             📁 store/
               📄 dashboard.store.ts
+            📁 utils/
+              📄 dashboard-date.util.ts
             📄 dashboard.routes.ts
           📁 onboarding/
             📁 components/
@@ -255,11 +270,9 @@ Generated at: 2026-07-11T19:58:49.309Z
               📁 utils/
                 📄 keycloak-access-context.mapper.ts
                 📄 keycloak.util.ts
+              📄 keycloak-session-lifecycle.service.ts
               📄 keycloak-store.ts
               📄 keycloak.provider.ts
-          📁 navigation/
-            📄 navigation.service.ts
-            📄 navigation.store.ts
           📁 workspace/
             📁 components/
               📁 workspace-switcher/
@@ -273,6 +286,9 @@ Generated at: 2026-07-11T19:58:49.309Z
         📄 environment.development.ts
         📄 environment.staging.ts
         📄 environment.ts
+      📁 styles/
+        📄 prime-buttons-embers.css
+        📄 step-transitions.css
       📄 index.html
       📄 main.ts
       📄 styles.css
@@ -288,9 +304,16 @@ Generated at: 2026-07-11T19:58:49.309Z
           📄 can-access.util.ts
           📄 workspace-context.model.ts
         📁 navigation/
-          📄 app-navigation.config.ts
-          📄 app-navigation.model.ts
-          📄 can-see-nav-item.util.ts
+          📁 config/
+            📄 app-navigation.config.ts
+          📁 models/
+            📄 app-navigation.model.ts
+          📁 services/
+            📄 navigation.service.ts
+          📁 store/
+            📄 shell.store.ts
+          📁 utils/
+            📄 can-see-nav-item.util.ts
         📁 store/
           📄 app-context.store.ts
           📄 with-loading.feature.ts
@@ -407,33 +430,6 @@ Generated at: 2026-07-11T19:58:49.309Z
       📁 lib/
         📄 shared-api-client.spec.ts
         📄 shared-api-client.ts
-      📄 public-api.ts
-    📄 ng-package.json
-    📄 package.json
-    📄 README.md
-    📄 tsconfig.lib.json
-    📄 tsconfig.lib.prod.json
-    📄 tsconfig.spec.json
-  📁 shared-domain/
-    📁 src/
-      📁 lib/
-        📁 users/
-          📁 catalogs/
-            📄 career-goal.catalog.ts
-            📄 catalog-option.model.ts
-            📄 experience-level.catalog.ts
-            📄 index.ts
-          📁 enums/
-            📄 index.ts
-            📄 onboarding-missing-field.enum.ts
-            📄 onboarding-status.enum.ts
-            📄 subscription-plan.enum.ts
-            📄 subscription-status.enum.ts
-            📄 user-status.enum.ts
-          📁 models/
-            📄 index.ts
-            📄 me-onboarding.model.ts
-          📄 index.ts
       📄 public-api.ts
     📄 ng-package.json
     📄 package.json
@@ -734,6 +730,7 @@ FILE: package.json
     "keycloak-angular": "^21.0.0",
     "keycloak-js": "^26.2.4",
     "leaflet": "^1.9.4",
+    "ng-apexcharts": "^2.4.0",
     "primeicons": "^7.0.0",
     "primeng": "^21.1.8",
     "rxjs": "~7.8.0",
@@ -817,25 +814,6 @@ FILE: projects\shared-api-client\package.json
 
 
 ============================================================
-FILE: projects\shared-domain\package.json
-============================================================
-
-{
-  "name": "shared-domain",
-  "version": "0.0.1",
-  "peerDependencies": {
-    "@angular/common": "^21.2.0",
-    "@angular/core": "^21.2.0"
-  },
-  "dependencies": {
-    "tslib": "^2.3.0"
-  },
-  "sideEffects": false
-}
-
-
-
-============================================================
 FILE: projects\shared-ui\package.json
 ============================================================
 
@@ -883,7 +861,7 @@ FILE: tsconfig.json
       "@shared-ui": ["./projects/shared-ui/src/public-api.ts"],
       "@core": ["./projects/core/src/public-api.ts"],
       "@env": ["./projects/app/src/environments"],
-      "@shared-domain": ["./projects/shared-domain/src/public-api.ts"],
+//      "@shared-domain": ["./projects/shared-domain/src/public-api.ts"],
       "@shared-domain/*": ["./projects/shared-domain/src/lib/*"],
       "@shared-api-client": ["./projects/shared-api-client/src/public-api.ts"],
       "@shared-api-client/*": ["./projects/shared-api-client/src/generated/*"],

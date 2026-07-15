@@ -1,20 +1,38 @@
-import {ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot, UrlTree} from '@angular/router';
-import {inject} from '@angular/core';
-import {AuthGuardData, createAuthGuard} from 'keycloak-angular';
-import Keycloak from 'keycloak-js';
+import { inject } from '@angular/core';
 
-const isAccessAllowed = async (
+import {
+  type ActivatedRouteSnapshot,
+  type CanActivateChildFn,
+  type CanActivateFn,
+  Router,
+  type RouterStateSnapshot,
+  type UrlTree,
+} from '@angular/router';
+
+import { canAccess, type AccessRequirement } from '@core';
+
+import { NavigationStore } from '@app/src/app/core/navigation/navigation.store';
+
+const isAccessAllowed = (
   route: ActivatedRouteSnapshot,
-  _: RouterStateSnapshot,
-  authData: AuthGuardData,
-  role: string,
-): Promise<boolean | UrlTree> => {
-  const $keycloak = inject(Keycloak)
+  _state: RouterStateSnapshot,
+): boolean | UrlTree => {
+  const navigation = inject(NavigationStore);
+  const router = inject(Router);
 
-  if ($keycloak.authenticated && ($keycloak.hasRealmRole(role) || $keycloak.hasResourceRole(role))) {
+  const requirement = route.data['access'] as AccessRequirement | undefined;
+
+  if (canAccess(requirement ?? {}, navigation.accessContext())) {
     return true;
   }
-  return false;
+
+  return router.createUrlTree(['/app', 'dashboard']);
 };
 
-export const isAllowedGuard = (role: string) => createAuthGuard((r,_, authData) => isAccessAllowed(r, _, authData, role))
+export const isAllowedGuard: CanActivateFn = (route, state): boolean | UrlTree => {
+  return isAccessAllowed(route, state);
+};
+
+export const isAllowedChildGuard: CanActivateChildFn = (childRoute, state): boolean | UrlTree => {
+  return isAccessAllowed(childRoute, state);
+};
