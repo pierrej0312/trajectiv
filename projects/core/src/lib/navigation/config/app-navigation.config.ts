@@ -7,6 +7,7 @@ export const APP_NAVIGATION = [
     label: 'Pilotage',
     icon: 'pi pi-chart-line',
     route: '/app/dashboard',
+    workspaceHome: true,
     section: 'main',
 
     placements: ['sidebar', 'bottom-bar', 'drawer'],
@@ -190,5 +191,22 @@ export const APP_NAVIGATION = [
     order: 40,
 
     ariaLabel: 'Ouvrir les paramètres',
+  },
+  {
+    id: 'organization-dashboard',
+    label: 'Organisation',
+    icon: 'pi pi-building',
+    route: '/app/organization',
+    section: 'organization',
+
+    placements: ['sidebar', 'bottom-bar', 'drawer'],
+
+    order: 10,
+    mobileOrder: 10,
+    workspaceHome: true,
+
+    ...APP_ACCESS_REQUIREMENTS.organizationWorkspace,
+
+    ariaLabel: 'Ouvrir le pilotage de l’organisation',
   },
 ] as const satisfies readonly AppNavItem[];

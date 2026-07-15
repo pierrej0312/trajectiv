@@ -10,7 +10,7 @@ import {
 } from '@core';
 
 import { KeycloakStore } from '@shared/module/keycloak/keycloak-store';
-import { WorkspaceStore } from '@shared/workspace/workspace.store';
+import { WorkspaceStore } from '@shared/workspace/stores/workspace.store';
 
 export const NavigationStore = signalStore(
   { providedIn: 'root' },
@@ -67,6 +67,23 @@ export const NavigationStore = signalStore(
 
     return {
       sidebarItems,
+
+      homeItem: computed(() => {
+        const homeItems = store
+          .visibleItems()
+          .filter(
+            (item) => item.workspaceHome && typeof item.route === 'string' && item.route.length > 0,
+          );
+
+        if (homeItems.length > 1) {
+          console.warn(
+            '[NavigationStore] Plusieurs home items visibles',
+            homeItems.map((item) => item.id),
+          );
+        }
+
+        return homeItems[0] ?? null;
+      }),
 
       bottomBarItems: computed(() => {
         return [...filterByPlacement(store.visibleItems(), 'bottom-bar')]

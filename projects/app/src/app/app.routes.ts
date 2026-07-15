@@ -227,6 +227,31 @@ export const routes: Routes = [
               ),
           },
 
+          {
+            path: 'organization',
+
+            data: {
+              pageTitle: 'Organisation',
+              pageSubtitle:
+                'Pilote les activités de ton espace',
+              pageIcon: 'pi pi-building',
+              parentNavItemId:
+                'organization-dashboard',
+
+              access:
+              APP_ACCESS_REQUIREMENTS
+                .organizationWorkspace,
+            } satisfies AppRouteData,
+
+            loadComponent: () =>
+              import(
+                './pages/organization-page/organization-page'
+                ).then(
+                ({ OrganizationPage }) =>
+                  OrganizationPage,
+              ),
+          },
+
           /*
           {
             path: 'organization',
@@ -296,6 +321,24 @@ export const routes: Routes = [
               ),
           },
            */
+
+          {
+            path: 'access-denied',
+
+            data: {
+              shellMode: 'app',
+              pageTitle: 'Accès impossible',
+              hideSearch: true,
+            } satisfies AppRouteData,
+
+            loadComponent: () =>
+              import(
+                './pages/access-denied-page/access-denied-page'
+                ).then(
+                ({ AccessDeniedPage }) =>
+                  AccessDeniedPage,
+              ),
+          },
 
           {
             path: '',

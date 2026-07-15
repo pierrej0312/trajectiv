@@ -3,8 +3,9 @@ import { FormsModule } from '@angular/forms';
 
 import { SelectModule } from 'primeng/select';
 
-import { WorkspaceStore } from '@shared/workspace/workspace.store';
+import { WorkspaceStore } from '@shared/workspace/stores/workspace.store';
 import type { WorkspaceContext } from '@core';
+import { WorkspaceNavigationService } from '@shared/workspace/services/workspace-navigation.service';
 
 export type WorkspaceSwitcherVariant = 'menu' | 'dropdown' | 'compact';
 
@@ -25,6 +26,7 @@ type WorkspaceOption = {
 })
 export class WorkspaceSwitcher {
   private readonly workspaceStore = inject(WorkspaceStore);
+  private readonly workspaceNavigation = inject(WorkspaceNavigationService);
 
   readonly variant = input<WorkspaceSwitcherVariant>('menu');
 
@@ -51,7 +53,7 @@ export class WorkspaceSwitcher {
       return;
     }
 
-    this.workspaceStore.setActiveWorkspace(workspaceId);
+    void this.workspaceNavigation.selectWorkspace(workspaceId);
   }
 
   getIcon(kind: WorkspaceContext['kind']): string {

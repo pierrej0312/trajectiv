@@ -9,7 +9,8 @@ export type AppNavItemId =
   | 'notifications'
   | 'profile'
   | 'account'
-  | 'settings';
+  | 'settings'
+  | 'organization-dashboard';
 
 export type AppNavChildItemId =
   | 'opportunities-all'
@@ -53,6 +54,7 @@ export type AppNavItem = AccessRequirement & {
   readonly section: AppNavSectionId;
 
   readonly route?: string;
+  readonly workspaceHome?: boolean;
   readonly type?: AppNavItemType;
 
   readonly placements: readonly AppNavPlacement[];

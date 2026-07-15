@@ -28,7 +28,7 @@ import { OnboardingStore } from '@features/onboarding/store/onboarding.store';
 
 import { KeycloakStore } from '@shared/module/keycloak/keycloak-store';
 
-import { WorkspaceStore } from '@shared/workspace/workspace.store';
+import { WorkspaceStore } from '@shared/workspace/stores/workspace.store';
 
 import { WorkspaceSwitcher } from '@shared/workspace/components/workspace-switcher/workspace-switcher';
 import { NavigationStore } from '@app/src/app/core/navigation/navigation.store';
