@@ -9,6 +9,7 @@
  */
 import { MeOnboardingApiDto } from './meOnboardingApiDto';
 import { MeProfileApiDto } from './meProfileApiDto';
+import { MeWorkspaceApiDto } from './meWorkspaceApiDto';
 import { MeCreditsApiDto } from './meCreditsApiDto';
 import { MeSubscriptionApiDto } from './meSubscriptionApiDto';
 
@@ -27,6 +28,7 @@ export interface MeResponseApiDto {
     profile?: MeProfileApiDto;
     subscription?: MeSubscriptionApiDto;
     credits?: MeCreditsApiDto;
+    workspaces?: Array<MeWorkspaceApiDto>;
 }
 export namespace MeResponseApiDto {
     export const StatusEnum = {

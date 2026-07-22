@@ -9,14 +9,12 @@
  */
 
 
-export interface MeSubscriptionApiDto { 
-    planCode?: string;
-    status?: MeSubscriptionApiDto.StatusEnum;
-    currentPeriodEnd?: string;
-    cancelAtPeriodEnd?: boolean;
-    trialEnd?: string;
+export interface WorkspacePlanApiDto { 
+    code?: string;
+    label?: string;
+    status?: WorkspacePlanApiDto.StatusEnum;
 }
-export namespace MeSubscriptionApiDto {
+export namespace WorkspacePlanApiDto {
     export const StatusEnum = {
         Active: 'ACTIVE',
         Trialing: 'TRIALING',
