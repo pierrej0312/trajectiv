@@ -9,18 +9,22 @@ import {
   withState,
 } from '@ngrx/signals';
 
-import type { WorkspaceContext } from '@core';
+import {
+  EffectiveEntitlementApiDto,
+  MeWorkspaceApiDto,
+  WorkspacePlanApiDto,
+} from '@shared-api-client';
 
-import { KeycloakStore } from '@shared/module/keycloak/keycloak-store';
+import { AppContextStore } from '@core';
 
 const ACTIVE_WORKSPACE_STORAGE_KEY = 'trajectiv-active-workspace-id';
 
 type WorkspaceState = {
-  readonly activeWorkspaceId: string;
+  readonly activeWorkspaceId: string | null;
 };
 
 const initialState: WorkspaceState = {
-  activeWorkspaceId: 'personal',
+  activeWorkspaceId: null,
 };
 
 export const WorkspaceStore = signalStore(
@@ -28,54 +32,208 @@ export const WorkspaceStore = signalStore(
 
   withState(initialState),
 
-  withComputed((state, keycloakStore = inject(KeycloakStore)) => {
-    const workspaces = computed(() => keycloakStore.accessContext().workspaces);
+  withComputed((store, appContext = inject(AppContextStore)) => {
+    /**
+     * Seuls les workspaces possédant un identifiant
+     * peuvent être sélectionnés.
+     */
+    const workspaces = computed<readonly MeWorkspaceApiDto[]>(() =>
+      appContext.workspaces().filter(hasWorkspaceId),
+    );
 
-    const activeWorkspace = computed<WorkspaceContext | null>(() => {
+    /**
+     * Workspace personnel utilisé comme fallback
+     * quand aucune sélection valide n'existe.
+     */
+    const personalWorkspace = computed<MeWorkspaceApiDto | null>(
+      () =>
+        workspaces().find((workspace) => workspace.kind === MeWorkspaceApiDto.KindEnum.Personal) ??
+        null,
+    );
+
+    /**
+     * Workspace réellement actif.
+     *
+     * Ordre de résolution :
+     * 1. workspace sélectionné encore accessible ;
+     * 2. workspace personnel ;
+     * 3. premier workspace disponible ;
+     * 4. null.
+     */
+    const activeWorkspace = computed<MeWorkspaceApiDto | null>(() => {
       const availableWorkspaces = workspaces();
 
-      return (
-        availableWorkspaces.find((workspace) => workspace.id === state.activeWorkspaceId()) ??
-        availableWorkspaces[0] ??
-        null
-      );
+      const activeWorkspaceId = store.activeWorkspaceId();
+
+      if (activeWorkspaceId) {
+        const selectedWorkspace = availableWorkspaces.find(
+          (workspace) => workspace.id === activeWorkspaceId,
+        );
+
+        if (selectedWorkspace) {
+          return selectedWorkspace;
+        }
+      }
+
+      return personalWorkspace() ?? availableWorkspaces[0] ?? null;
     });
+
+    const activePermissions = computed<readonly MeWorkspaceApiDto.PermissionsEnum[]>(() =>
+      normalizePermissions(activeWorkspace()?.permissions),
+    );
+
+    const activeEntitlements = computed<readonly EffectiveEntitlementApiDto[]>(() =>
+      normalizeEntitlements(activeWorkspace()?.entitlements),
+    );
+
+    const allowedFeatureKeys = computed<readonly string[]>(() =>
+      extractAllowedFeatureKeys(activeEntitlements()),
+    );
+
+    const entitlementsByFeatureKey = computed<ReadonlyMap<string, EffectiveEntitlementApiDto>>(
+      () => {
+        const entries = activeEntitlements().flatMap((entitlement) => {
+          const featureKey = entitlement.featureKey?.trim();
+
+          return featureKey ? [[featureKey, entitlement] as const] : [];
+        });
+
+        return new Map(entries);
+      },
+    );
+
+    const isOrganizationWorkspace = computed(
+      () => activeWorkspace()?.kind === MeWorkspaceApiDto.KindEnum.Organization,
+    );
 
     return {
       workspaces,
+      personalWorkspace,
       activeWorkspace,
 
-      isPersonalWorkspace: computed(() => activeWorkspace()?.kind === 'personal'),
+      isPersonalWorkspace: computed(
+        () => activeWorkspace()?.kind === MeWorkspaceApiDto.KindEnum.Personal,
+      ),
 
-      isOrganizationWorkspace: computed(() => activeWorkspace()?.kind === 'organization'),
+      isOrganizationWorkspace,
 
-      activeOrganizationId: computed(() => {
-        const workspace = activeWorkspace();
+      activeOrganizationId: computed<string | null>(() => {
+        if (!isOrganizationWorkspace()) {
+          return null;
+        }
 
-        return workspace?.kind === 'organization' ? (workspace.organizationId ?? null) : null;
+        return activeWorkspace()?.organizationId ?? null;
       }),
 
-      organizationRole: computed(() => {
-        const workspace = activeWorkspace();
+      organizationRole: computed<MeWorkspaceApiDto.OrganizationRoleEnum | null>(() => {
+        if (!isOrganizationWorkspace()) {
+          return null;
+        }
 
-        return workspace?.kind === 'organization' ? (workspace.organizationRole ?? null) : null;
+        return activeWorkspace()?.organizationRole ?? null;
       }),
+
+      activePlan: computed<WorkspacePlanApiDto | null>(() => activeWorkspace()?.plan ?? null),
+
+      activePermissions,
+      activeEntitlements,
+      allowedFeatureKeys,
+      entitlementsByFeatureKey,
+
+      hasWorkspaces: computed(() => workspaces().length > 0),
+
+      hasOrganizationWorkspaces: computed(() =>
+        workspaces().some(
+          (workspace) => workspace.kind === MeWorkspaceApiDto.KindEnum.Organization,
+        ),
+      ),
     };
   }),
 
-  withMethods((state) => ({
-    setActiveWorkspace(workspaceId: string): void {
-      patchState(state, {
-        activeWorkspaceId: workspaceId,
+  withMethods((store) => ({
+    /**
+     * Sélectionne un workspace accessible.
+     *
+     * Retourne false si l'identifiant ne correspond
+     * à aucun workspace actuellement disponible.
+     */
+    setActiveWorkspace(workspaceId: string): boolean {
+      const normalizedWorkspaceId = workspaceId.trim();
+
+      if (!normalizedWorkspaceId) {
+        return false;
+      }
+
+      const workspaceExists = store
+        .workspaces()
+        .some((workspace) => workspace.id === normalizedWorkspaceId);
+
+      if (!workspaceExists) {
+        return false;
+      }
+
+      patchState(store, {
+        activeWorkspaceId: normalizedWorkspaceId,
       });
 
-      globalThis.localStorage?.setItem(ACTIVE_WORKSPACE_STORAGE_KEY, workspaceId);
+      return true;
+    },
+
+    /**
+     * Revient au workspace personnel.
+     */
+    selectPersonalWorkspace(): boolean {
+      const personalWorkspace = store.personalWorkspace();
+
+      if (!personalWorkspace?.id) {
+        return false;
+      }
+
+      patchState(store, {
+        activeWorkspaceId: personalWorkspace.id,
+      });
+
+      return true;
+    },
+
+    /**
+     * Supprime la sélection manuelle.
+     *
+     * Le computed activeWorkspace retombera
+     * automatiquement sur le workspace personnel.
+     */
+    clearActiveWorkspace(): void {
+      patchState(store, {
+        activeWorkspaceId: null,
+      });
+    },
+
+    hasPermission(permission: MeWorkspaceApiDto.PermissionsEnum): boolean {
+      return store.activePermissions().includes(permission);
+    },
+
+    hasFeature(featureKey: string): boolean {
+      const normalizedFeatureKey = featureKey.trim();
+
+      return (
+        normalizedFeatureKey.length > 0 && store.allowedFeatureKeys().includes(normalizedFeatureKey)
+      );
+    },
+
+    getEntitlement(featureKey: string): EffectiveEntitlementApiDto | null {
+      const normalizedFeatureKey = featureKey.trim();
+
+      if (!normalizedFeatureKey) {
+        return null;
+      }
+
+      return store.entitlementsByFeatureKey().get(normalizedFeatureKey) ?? null;
     },
   })),
 
   withHooks((store) => ({
     onInit(): void {
-      const storedWorkspaceId = globalThis.localStorage?.getItem(ACTIVE_WORKSPACE_STORAGE_KEY);
+      const storedWorkspaceId = readStoredWorkspaceId();
 
       if (storedWorkspaceId) {
         patchState(store, {
@@ -83,23 +241,98 @@ export const WorkspaceStore = signalStore(
         });
       }
 
+      /**
+       * L'effet ne sert qu'à synchroniser la sélection
+       * valide vers localStorage.
+       *
+       * Il ne propage pas d'état dérivé entre signals.
+       */
       effect(() => {
-        const activeWorkspace = store.activeWorkspace();
+        const activeWorkspaceId = store.activeWorkspace()?.id;
 
-        if (!activeWorkspace) {
+        if (!activeWorkspaceId) {
+          removeStoredWorkspaceId();
+
           return;
         }
 
-        if (store.activeWorkspaceId() === activeWorkspace.id) {
-          return;
-        }
-
-        patchState(store, {
-          activeWorkspaceId: activeWorkspace.id,
-        });
-
-        globalThis.localStorage?.setItem(ACTIVE_WORKSPACE_STORAGE_KEY, activeWorkspace.id);
+        writeStoredWorkspaceId(activeWorkspaceId);
       });
     },
   })),
 );
+
+function hasWorkspaceId(workspace: MeWorkspaceApiDto): workspace is MeWorkspaceApiDto & {
+  readonly id: string;
+} {
+  return typeof workspace.id === 'string' && workspace.id.trim().length > 0;
+}
+
+function normalizePermissions(
+  permissions:
+    | Set<MeWorkspaceApiDto.PermissionsEnum>
+    | readonly MeWorkspaceApiDto.PermissionsEnum[]
+    | undefined,
+): readonly MeWorkspaceApiDto.PermissionsEnum[] {
+  if (!permissions) {
+    return [];
+  }
+
+  const values = permissions instanceof Set ? [...permissions] : permissions;
+
+  return [...new Set(values)];
+}
+
+function normalizeEntitlements(
+  entitlements: Set<EffectiveEntitlementApiDto> | readonly EffectiveEntitlementApiDto[] | undefined,
+): readonly EffectiveEntitlementApiDto[] {
+  if (!entitlements) {
+    return [];
+  }
+
+  return entitlements instanceof Set ? [...entitlements] : entitlements;
+}
+
+function extractAllowedFeatureKeys(
+  entitlements: readonly EffectiveEntitlementApiDto[],
+): readonly string[] {
+  const featureKeys = entitlements.flatMap((entitlement) => {
+    const featureKey = entitlement.featureKey?.trim();
+
+    if (!featureKey || entitlement.allowed !== true) {
+      return [];
+    }
+
+    return [featureKey];
+  });
+
+  return [...new Set(featureKeys)];
+}
+
+function readStoredWorkspaceId(): string | null {
+  try {
+    const value = globalThis.localStorage?.getItem(ACTIVE_WORKSPACE_STORAGE_KEY);
+
+    const normalizedValue = value?.trim();
+
+    return normalizedValue ? normalizedValue : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredWorkspaceId(workspaceId: string): void {
+  try {
+    globalThis.localStorage?.setItem(ACTIVE_WORKSPACE_STORAGE_KEY, workspaceId);
+  } catch {
+    // Le stockage local est optionnel.
+  }
+}
+
+function removeStoredWorkspaceId(): void {
+  try {
+    globalThis.localStorage?.removeItem(ACTIVE_WORKSPACE_STORAGE_KEY);
+  } catch {
+    // Le stockage local est optionnel.
+  }
+}

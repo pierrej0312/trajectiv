@@ -9,13 +9,16 @@ import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType } from 'keycloak-angular';
 })
 export class KeycloakSessionLifecycleService {
   private readonly keycloak = inject(Keycloak);
+
   private readonly keycloakEvent = inject(KEYCLOAK_EVENT_SIGNAL);
+
+  private reauthenticationPending = false;
 
   constructor() {
     effect(() => {
       const event = this.keycloakEvent();
 
-      if (event.type !== KeycloakEventType.AuthRefreshError) {
+      if (event.type !== KeycloakEventType.AuthRefreshError || this.reauthenticationPending) {
         return;
       }
 
@@ -24,10 +27,16 @@ export class KeycloakSessionLifecycleService {
   }
 
   private async reauthenticate(): Promise<void> {
-    this.keycloak.clearToken();
+    this.reauthenticationPending = true;
 
-    await this.keycloak.login({
-      redirectUri: window.location.href,
-    });
+    try {
+      this.keycloak.clearToken();
+
+      await this.keycloak.login({
+        redirectUri: window.location.href,
+      });
+    } finally {
+      this.reauthenticationPending = false;
+    }
   }
 }

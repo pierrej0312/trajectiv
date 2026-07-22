@@ -17,6 +17,8 @@ api/organizationInvitationAcceptanceController.service.ts
 api/organizationInvitationAcceptanceController.serviceInterface.ts
 api/organizationInvitationController.service.ts
 api/organizationInvitationController.serviceInterface.ts
+api/organizationMemberController.service.ts
+api/organizationMemberController.serviceInterface.ts
 api/profileController.service.ts
 api/profileController.serviceInterface.ts
 api/securityDebugController.service.ts
@@ -43,10 +45,12 @@ model/meWorkspaceApiDto.ts
 model/models.ts
 model/organizationInvitationAcceptanceResponseApiDto.ts
 model/organizationInvitationResponseApiDto.ts
+model/organizationMemberResponseApiDto.ts
 model/organizationResponseApiDto.ts
 model/patchAvatarCustomizationRequestApiDto.ts
 model/profileCompletionResponseApiDto.ts
 model/updateMeProfileRequestApiDto.ts
+model/updateOrganizationMemberRoleRequestApiDto.ts
 model/updateOrganizationRequestApiDto.ts
 model/updatedMeProfileResponseApiDto.ts
 model/workspacePlanApiDto.ts

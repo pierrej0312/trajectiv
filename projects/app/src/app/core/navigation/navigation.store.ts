@@ -1,4 +1,5 @@
 import { computed, inject } from '@angular/core';
+
 import { signalStore, withComputed } from '@ngrx/signals';
 
 import {
@@ -9,41 +10,48 @@ import {
   type AccessContext,
 } from '@core';
 
+import { MeWorkspaceApiDto } from '@shared-api-client';
+
 import { KeycloakStore } from '@shared/module/keycloak/keycloak-store';
+
 import { WorkspaceStore } from '@shared/workspace/stores/workspace.store';
 
 export const NavigationStore = signalStore(
   { providedIn: 'root' },
 
   withComputed(
-    (_, keycloakStore = inject(KeycloakStore), workspaceStore = inject(WorkspaceStore)) => {
+    (
+      _,
+      keycloakStore = inject(KeycloakStore),
+
+      workspaceStore = inject(WorkspaceStore),
+    ) => {
       const accessContext = computed<AccessContext>(() => {
-        const identityContext = keycloakStore.accessContext();
+        const identityContext = keycloakStore.identityContext();
 
         const activeWorkspace = workspaceStore.activeWorkspace();
 
-        const isOrganizationWorkspace = activeWorkspace?.kind === 'organization';
+        const isOrganizationWorkspace =
+          activeWorkspace?.kind === MeWorkspaceApiDto.KindEnum.Organization;
 
         return {
-          ...identityContext,
+          authenticated: identityContext.authenticated,
 
-          activeWorkspace,
+          platformRoles: identityContext.platformRoles,
 
-          activeOrganizationId: isOrganizationWorkspace
-            ? (activeWorkspace.organizationId ?? null)
-            : null,
+          workspaces: workspaceStore.workspaces(),
 
-          organizationRole: isOrganizationWorkspace
-            ? (activeWorkspace.organizationRole ?? null)
-            : null,
+          activeWorkspace: workspaceStore.activeWorkspace(),
 
-          permissions: isOrganizationWorkspace
-            ? (activeWorkspace.permissions ?? identityContext.permissions)
-            : identityContext.permissions,
+          activeOrganizationId: workspaceStore.activeOrganizationId(),
 
-          entitlements: isOrganizationWorkspace
-            ? (activeWorkspace.entitlements ?? identityContext.entitlements)
-            : identityContext.entitlements,
+          organizationRole: workspaceStore.organizationRole(),
+
+          permissions: workspaceStore.activePermissions(),
+
+          entitlements: workspaceStore.allowedFeatureKeys(),
+
+          activeWorkspacePlan: workspaceStore.activePlan(),
         };
       });
 
@@ -77,7 +85,7 @@ export const NavigationStore = signalStore(
 
         if (homeItems.length > 1) {
           console.warn(
-            '[NavigationStore] Plusieurs home items visibles',
+            '[NavigationStore] Plusieurs pages d’accueil sont visibles.',
             homeItems.map((item) => item.id),
           );
         }
@@ -85,13 +93,13 @@ export const NavigationStore = signalStore(
         return homeItems[0] ?? null;
       }),
 
-      bottomBarItems: computed(() => {
-        return [...filterByPlacement(store.visibleItems(), 'bottom-bar')]
+      bottomBarItems: computed(() =>
+        [...filterByPlacement(store.visibleItems(), 'bottom-bar')]
           .sort(
             (left, right) => (left.mobileOrder ?? left.order) - (right.mobileOrder ?? right.order),
           )
-          .slice(0, 5);
-      }),
+          .slice(0, 5),
+      ),
 
       drawerItems: computed(() => filterByPlacement(store.visibleItems(), 'drawer')),
 

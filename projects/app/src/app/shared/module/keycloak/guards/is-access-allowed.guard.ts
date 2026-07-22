@@ -1,5 +1,7 @@
 import { inject } from '@angular/core';
 
+import { toObservable } from '@angular/core/rxjs-interop';
+
 import {
   type ActivatedRouteSnapshot,
   type CanActivateChildFn,
@@ -9,20 +11,57 @@ import {
   type UrlTree,
 } from '@angular/router';
 
-import { canAccess, type AccessRequirement } from '@core';
+import { filter, map, take, type Observable } from 'rxjs';
+
+import { AppContextStore, canAccess, type AccessRequirement } from '@core';
 
 import { NavigationStore } from '@app/src/app/core/navigation/navigation.store';
 
-const DEFAULT_FALLBACK_URL = '/app/dashboard';
+type AccessGuardResult = boolean | UrlTree;
 
-const isAccessAllowed = (
+function resolveAccess(
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot,
-): boolean | UrlTree => {
+): AccessGuardResult | Observable<AccessGuardResult> {
+  const appContext = inject(AppContextStore);
+
   const navigation = inject(NavigationStore);
 
   const router = inject(Router);
 
+  if (appContext.isIdle()) {
+    appContext.loadMe();
+  }
+
+  if (appContext.isReady()) {
+    return evaluateAccess(route, state, navigation, router);
+  }
+
+  if (appContext.hasError()) {
+    return router.parseUrl('/app/access-denied');
+  }
+
+  return toObservable(appContext.status).pipe(
+    filter((status) => status === 'ready' || status === 'error'),
+
+    take(1),
+
+    map((status) => {
+      if (status === 'error') {
+        return router.parseUrl('/app/access-denied');
+      }
+
+      return evaluateAccess(route, state, navigation, router);
+    }),
+  );
+}
+
+function evaluateAccess(
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot,
+  navigation: InstanceType<typeof NavigationStore>,
+  router: Router,
+): AccessGuardResult {
   const requirement = route.data['access'] as AccessRequirement | undefined;
 
   if (canAccess(requirement ?? {}, navigation.accessContext())) {
@@ -41,15 +80,12 @@ const isAccessAllowed = (
       );
 
   return router.parseUrl(fallbackItem?.route ?? '/app/access-denied');
-};
+}
 
-export const isAllowedGuard: CanActivateFn = (route, state): boolean | UrlTree => {
-  return isAccessAllowed(route, state);
-};
+export const isAllowedGuard: CanActivateFn = (route, state) => resolveAccess(route, state);
 
-export const isAllowedChildGuard: CanActivateChildFn = (childRoute, state): boolean | UrlTree => {
-  return isAccessAllowed(childRoute, state);
-};
+export const isAllowedChildGuard: CanActivateChildFn = (route, state) =>
+  resolveAccess(route, state);
 
 function isSameUrl(currentUrl: string, targetUrl: string): boolean {
   const currentPath = currentUrl.split(/[?#]/, 1)[0];

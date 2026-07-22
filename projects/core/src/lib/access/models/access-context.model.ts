@@ -1,52 +1,23 @@
-import type { OrganizationRole, PlatformRole } from './app-role.model';
+import type { MeWorkspaceApiDto, WorkspacePlanApiDto } from '@shared-api-client';
 
-import type { WorkspaceContext } from './workspace-context.model';
+import type { PlatformRole } from './app-role.model';
 
 export type AccessContext = {
   readonly authenticated: boolean;
 
-  /**
-   * Rôles globaux venant de l’identité Keycloak.
-   */
   readonly platformRoles: readonly PlatformRole[];
 
-  /**
-   * Permissions effectives du contexte actif.
-   */
-  readonly permissions: readonly string[];
+  readonly permissions: readonly MeWorkspaceApiDto.PermissionsEnum[];
 
-  /**
-   * Entitlements effectifs du contexte actif.
-   */
   readonly entitlements: readonly string[];
 
-  /**
-   * Tous les workspaces accessibles.
-   */
-  readonly workspaces: readonly WorkspaceContext[];
+  readonly workspaces: readonly MeWorkspaceApiDto[];
 
-  /**
-   * Workspace personnel ou organisation actuellement sélectionné.
-   */
-  readonly activeWorkspace: WorkspaceContext | null;
+  readonly activeWorkspace: MeWorkspaceApiDto | null;
 
   readonly activeOrganizationId: string | null;
 
-  readonly organizationRole: OrganizationRole | null;
+  readonly organizationRole: MeWorkspaceApiDto.OrganizationRoleEnum | null;
+
+  readonly activeWorkspacePlan: WorkspacePlanApiDto | null;
 };
-
-/* TODO
-  export type OrganizationContext = {
-    readonly id: string;
-    readonly name: string;
-    readonly roles: readonly AppRole[];
-    readonly plan?: 'free' | 'pro' | 'enterprise';
-  };
-
-  export type AccessContext = {
-    readonly isAuthenticated: boolean;
-    readonly roles: readonly AppRole[];
-    readonly organizations: readonly OrganizationContext[];
-    readonly activeOrganizationId: string | null;
-  };
-*/

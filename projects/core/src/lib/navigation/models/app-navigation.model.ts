@@ -10,7 +10,8 @@ export type AppNavItemId =
   | 'profile'
   | 'account'
   | 'settings'
-  | 'organization-dashboard';
+  | 'organization-dashboard'
+  | 'organization-members';
 
 export type AppNavChildItemId =
   | 'opportunities-all'

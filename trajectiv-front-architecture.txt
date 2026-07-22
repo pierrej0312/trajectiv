@@ -1,6 +1,6 @@
 # Trajectiv Front Architecture Export
 
-Generated at: 2026-07-15T14:24:34.106Z
+Generated at: 2026-07-22T12:56:03.825Z
 
 ## Workspace tree
 
@@ -13,9 +13,6 @@ Generated at: 2026-07-15T14:24:34.106Z
   📄 copilot-instructions.md
 📁 .junie/
   📄 guidelines.md
-📁 docker/
-  📁 keycloak/
-    📁 themes/
 📁 projects/
   📁 app/
     📁 public/
@@ -80,6 +77,7 @@ Generated at: 2026-07-15T14:24:34.106Z
             📄 authDebugInterceptor.ts
             📄 refresh-token-interceptor.ts
           📁 navigation/
+            📄 navigation.store.ts
             📄 router-loading.store.ts
         📁 features/
           📁 dashboard/
@@ -193,6 +191,10 @@ Generated at: 2026-07-15T14:24:34.106Z
               📄 sidebar.html
               📄 sidebar.ts
         📁 pages/
+          📁 access-denied-page/
+            📄 access-denied-page.css
+            📄 access-denied-page.html
+            📄 access-denied-page.ts
           📁 account-page/
             📄 account-page.css
             📄 account-page.html
@@ -213,6 +215,10 @@ Generated at: 2026-07-15T14:24:34.106Z
             📄 opportunity-create-page.css
             📄 opportunity-create-page.html
             📄 opportunity-create-page.ts
+          📁 organization-page/
+            📄 organization-page.css
+            📄 organization-page.html
+            📄 organization-page.ts
           📁 profile-page/
             📄 profile-page.css
             📄 profile-page.html
@@ -279,7 +285,10 @@ Generated at: 2026-07-15T14:24:34.106Z
                 📄 workspace-switcher.css
                 📄 workspace-switcher.html
                 📄 workspace-switcher.ts
-            📄 workspace.store.ts
+            📁 services/
+              📄 workspace-navigation.service.ts
+            📁 stores/
+              📄 workspace.store.ts
         📄 app.config.ts
         📄 app.routes.ts
       📁 environments/
@@ -299,21 +308,31 @@ Generated at: 2026-07-15T14:24:34.106Z
     📁 src/
       📁 lib/
         📁 access/
-          📄 access-context.model.ts
-          📄 app-role.model.ts
-          📄 can-access.util.ts
-          📄 workspace-context.model.ts
+          📁 config/
+            📄 app-access-requirements.config.ts
+          📁 models/
+            📄 access-context.model.ts
+            📄 app-role.model.ts
+            📄 workspace-context.model.ts
+          📁 utils/
+            📄 can-access.util.ts
         📁 navigation/
           📁 config/
             📄 app-navigation.config.ts
           📁 models/
             📄 app-navigation.model.ts
-          📁 services/
-            📄 navigation.service.ts
+          📁 utils/
+            📄 can-see-nav-item.util.ts
+        📁 routing/
+          📁 models/
+            📄 app-route-data.model.ts
+        📁 shell/
+          📁 models/
+            📄 shell.model.ts
           📁 store/
             📄 shell.store.ts
           📁 utils/
-            📄 can-see-nav-item.util.ts
+            📄 shell-route.util.ts
         📁 store/
           📄 app-context.store.ts
           📄 with-loading.feature.ts
@@ -325,59 +344,6 @@ Generated at: 2026-07-15T14:24:34.106Z
     📄 tsconfig.lib.json
     📄 tsconfig.lib.prod.json
     📄 tsconfig.spec.json
-  📁 keycloak-theme/
-    📁 dist_keycloak/
-      📄 .gitignore
-      📄 keycloak-theme-for-kc-22-to-25.jar
-      📄 keycloak-theme-for-kc-all-other-versions.jar
-    📁 public/
-      📁 keycloakify-dev-resources/
-        📁 account/
-          📁 css/
-            📄 account.css
-          📁 img/
-            📄 icon-sidebar-active.png
-            📄 keycloak-logo.png
-            📄 logo.png
-          📁 resources-common/
-            📁 img/
-              📄 favicon.ico
-        📁 login/
-          📁 css/
-            📄 login.css
-          📁 img/
-            📄 feedback-error-arrow-down.png
-            📄 feedback-error-sign.png
-            📄 feedback-success-arrow-down.png
-            📄 feedback-success-sign.png
-            📄 feedback-warning-arrow-down.png
-            📄 feedback-warning-sign.png
-            📄 keycloak-bg.png
-            📄 keycloak-logo-text.png
-            📄 keycloak-logo.png
-          📁 js/
-            📄 authChecker.js
-            📄 common.js
-            📄 kcMultivalued.js
-            📄 kcNumberFormat.js
-            📄 kcNumberUnFormat.js
-            📄 menu-button-links.js
-            📄 passkeysConditionalAuth.js
-            📄 passwordVisibility.js
-            📄 rfc4648.js
-            📄 userProfile.js
-            📄 webauthnAuthenticate.js
-            📄 webauthnRegister.js
-          📁 resources-common/
-            📁 img/
-              📄 favicon.ico
-            📁 lib/
-              📁 pficon/
-                📄 pficon.css
-                📄 pficon.woff2
-        📄 .gitignore
-        📄 keycloakify.buildinfo
-        📄 README.txt
   📁 shared-api-client/
     📁 src/
       📁 generated/
@@ -394,14 +360,26 @@ Generated at: 2026-07-15T14:24:34.106Z
           📄 meController.serviceInterface.ts
           📄 onboardingController.service.ts
           📄 onboardingController.serviceInterface.ts
+          📄 organizationController.service.ts
+          📄 organizationController.serviceInterface.ts
+          📄 organizationInvitationAcceptanceController.service.ts
+          📄 organizationInvitationAcceptanceController.serviceInterface.ts
+          📄 organizationInvitationController.service.ts
+          📄 organizationInvitationController.serviceInterface.ts
+          📄 organizationMemberController.service.ts
+          📄 organizationMemberController.serviceInterface.ts
           📄 profileController.service.ts
           📄 profileController.serviceInterface.ts
           📄 securityDebugController.service.ts
           📄 securityDebugController.serviceInterface.ts
         📁 model/
+          📄 acceptOrganizationInvitationRequestApiDto.ts
           📄 authenticatedUserClaims.ts
           📄 avatarCustomizationResponseApiDto.ts
           📄 createAvatarCustomizationRequestApiDto.ts
+          📄 createOrganizationInvitationRequestApiDto.ts
+          📄 createOrganizationRequestApiDto.ts
+          📄 effectiveEntitlementApiDto.ts
           📄 jobRoleSuggestionApiDto.ts
           📄 meAvatarApiDto.ts
           📄 meCreditsApiDto.ts
@@ -409,11 +387,19 @@ Generated at: 2026-07-15T14:24:34.106Z
           📄 meProfileApiDto.ts
           📄 meResponseApiDto.ts
           📄 meSubscriptionApiDto.ts
+          📄 meWorkspaceApiDto.ts
           📄 models.ts
+          📄 organizationInvitationAcceptanceResponseApiDto.ts
+          📄 organizationInvitationResponseApiDto.ts
+          📄 organizationMemberResponseApiDto.ts
+          📄 organizationResponseApiDto.ts
           📄 patchAvatarCustomizationRequestApiDto.ts
           📄 profileCompletionResponseApiDto.ts
           📄 updatedMeProfileResponseApiDto.ts
           📄 updateMeProfileRequestApiDto.ts
+          📄 updateOrganizationMemberRoleRequestApiDto.ts
+          📄 updateOrganizationRequestApiDto.ts
+          📄 workspacePlanApiDto.ts
         📄 .gitignore
         📄 .openapi-generator-ignore
         📄 api.base.service.ts

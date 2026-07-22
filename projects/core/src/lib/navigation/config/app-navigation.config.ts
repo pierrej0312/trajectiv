@@ -209,4 +209,19 @@ export const APP_NAVIGATION = [
 
     ariaLabel: 'Ouvrir le pilotage de l’organisation',
   },
+  {
+    id: 'organization-members',
+    label: 'Équipe',
+    icon: 'pi pi-users',
+    route: '/app/organization/team',
+    section: 'organization',
+
+    placements: ['sidebar', 'drawer'],
+
+    order: 20,
+
+    ...APP_ACCESS_REQUIREMENTS.memberRead,
+
+    ariaLabel: 'Gérer les membres de l’organisation',
+  },
 ] as const satisfies readonly AppNavItem[];

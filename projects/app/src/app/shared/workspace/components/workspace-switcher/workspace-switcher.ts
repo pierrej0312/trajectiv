@@ -1,52 +1,60 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
 
 import { SelectModule } from 'primeng/select';
 
-import { WorkspaceStore } from '@shared/workspace/stores/workspace.store';
-import type { WorkspaceContext } from '@core';
-import { WorkspaceNavigationService } from '@shared/workspace/services/workspace-navigation.service';
+import { MeWorkspaceApiDto } from '@shared-api-client';
+
+import { WorkspaceNavigationService } from '../../services/workspace-navigation.service';
+
+import { WorkspaceStore } from '../../stores/workspace.store';
 
 export type WorkspaceSwitcherVariant = 'menu' | 'dropdown' | 'compact';
 
 type WorkspaceOption = {
   readonly label: string;
   readonly value: string;
-  readonly kind: WorkspaceContext['kind'];
+  readonly kind: MeWorkspaceApiDto.KindEnum;
+
   readonly organizationId?: string;
-  readonly organizationRole?: string;
+
+  readonly organizationRole?: MeWorkspaceApiDto.OrganizationRoleEnum;
 };
 
 @Component({
   selector: 'app-workspace-switcher',
+
   imports: [FormsModule, SelectModule],
+
   templateUrl: './workspace-switcher.html',
+
   styleUrl: './workspace-switcher.css',
+
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkspaceSwitcher {
   private readonly workspaceStore = inject(WorkspaceStore);
+
   private readonly workspaceNavigation = inject(WorkspaceNavigationService);
 
   readonly variant = input<WorkspaceSwitcherVariant>('menu');
 
-  readonly activeWorkspace = this.workspaceStore.activeWorkspace;
-
   readonly options = computed<WorkspaceOption[]>(() =>
-    this.workspaceStore.workspaces().map(
-      (workspace): WorkspaceOption => ({
-        label: workspace.label,
-        value: workspace.id,
-        kind: workspace.kind,
-        organizationId: workspace.organizationId,
-        organizationRole: workspace.organizationRole,
-      }),
-    ),
+    this.workspaceStore.workspaces().map((workspace) => ({
+      label: workspace.label ?? 'Workspace',
+
+      value: workspace.id!,
+
+      kind: workspace.kind ?? MeWorkspaceApiDto.KindEnum.Personal,
+
+      organizationId: workspace.organizationId,
+
+      organizationRole: workspace.organizationRole,
+    })),
   );
 
-  readonly selectedWorkspaceId = computed(() => {
-    return this.activeWorkspace()?.id ?? 'personal';
-  });
+  readonly selectedWorkspaceId = computed(() => this.workspaceStore.activeWorkspace()?.id ?? null);
 
   setActiveWorkspace(workspaceId: string | null | undefined): void {
     if (!workspaceId) {
@@ -56,15 +64,39 @@ export class WorkspaceSwitcher {
     void this.workspaceNavigation.selectWorkspace(workspaceId);
   }
 
-  getIcon(kind: WorkspaceContext['kind']): string {
-    return kind === 'organization' ? 'pi pi-building' : 'pi pi-user';
+  getIcon(kind: MeWorkspaceApiDto.KindEnum): string {
+    return kind === MeWorkspaceApiDto.KindEnum.Organization ? 'pi pi-building' : 'pi pi-user';
   }
 
   getMeta(option: WorkspaceOption): string {
-    if (option.kind === 'personal') {
+    if (option.kind === MeWorkspaceApiDto.KindEnum.Personal) {
       return 'Personnel';
     }
 
-    return option.organizationRole ? `Organisation · ${option.organizationRole}` : 'Organisation';
+    return option.organizationRole
+      ? `Organisation · ${formatOrganizationRole(option.organizationRole)}`
+      : 'Organisation';
+  }
+}
+
+function formatOrganizationRole(role: MeWorkspaceApiDto.OrganizationRoleEnum): string {
+  switch (role) {
+    case MeWorkspaceApiDto.OrganizationRoleEnum.OrganizationOwner:
+      return 'Propriétaire';
+
+    case MeWorkspaceApiDto.OrganizationRoleEnum.OrganizationAdmin:
+      return 'Administrateur';
+
+    case MeWorkspaceApiDto.OrganizationRoleEnum.Recruiter:
+      return 'Recruteur';
+
+    case MeWorkspaceApiDto.OrganizationRoleEnum.Coach:
+      return 'Coach';
+
+    case MeWorkspaceApiDto.OrganizationRoleEnum.Trainer:
+      return 'Formateur';
+
+    case MeWorkspaceApiDto.OrganizationRoleEnum.Learner:
+      return 'Apprenant';
   }
 }

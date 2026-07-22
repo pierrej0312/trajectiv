@@ -322,14 +322,10 @@
 
                 <span
                   class="sidebar__plan-chip"
-                  [class.sidebar__plan-chip--premium]="
-                    appContext.isPremium()
-                  "
-                  [class.sidebar__plan-chip--free]="
-                    !appContext.isPremium()
-                  "
+                  [class.sidebar__plan-chip--premium]="isPersonalPremium()"
+                  [class.sidebar__plan-chip--free]="!isPersonalPremium()"
                 >
-                  {{ appContext.planLabel() }}
+                  {{ appContext.personalPlanLabel() }}
                 </span>
               </span>
 

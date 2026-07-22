@@ -3,8 +3,14 @@ import { patchState, signalStore, withComputed, withMethods, withState } from '@
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, EMPTY, exhaustMap, pipe, tap } from 'rxjs';
 
-import { MeControllerService, MeResponseApiDto } from '@shared-api-client';
-import { withLoadingFeature } from './with-loading.feature';
+import {
+  MeControllerService,
+  MeResponseApiDto,
+  MeSubscriptionApiDto,
+  MeWorkspaceApiDto,
+} from '@shared-api-client';
+
+import { getSubscriptionPlanLabel } from '../subscriptions/utils/getSubscriptionPlanLabel.util';
 
 export type AppContextStatus = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -25,15 +31,13 @@ export const AppContextStore = signalStore(
 
   withState(initialState),
 
-  withLoadingFeature(),
-
   withComputed((store) => ({
     isIdle: computed(() => store.status() === 'idle'),
     isLoading: computed(() => store.status() === 'loading'),
     isReady: computed(() => store.status() === 'ready'),
     hasError: computed(() => store.status() === 'error'),
 
-    isDisabled: computed(() => store.me()?.status === 'DISABLED'),
+    isDisabled: computed(() => store.me()?.status === MeResponseApiDto.StatusEnum.Disabled),
 
     displayName: computed(() => {
       const me = store.me();
@@ -67,7 +71,7 @@ export const AppContextStore = signalStore(
         return false;
       }
 
-      if (me.status !== 'ACTIVE') {
+      if (me.status !== MeResponseApiDto.StatusEnum.Active) {
         return false;
       }
 
@@ -76,15 +80,61 @@ export const AppContextStore = signalStore(
 
     emailVerified: computed(() => store.me()?.emailVerified ?? false),
 
-    isPremium: computed(() => store.me()?.subscription?.plan === 'PREMIUM'),
+    personalSubscription: computed<MeSubscriptionApiDto | null>(
+      () => store.me()?.subscription ?? null,
+    ),
+
+    personalPlanCode: computed<string | null>(() => store.me()?.subscription?.planCode ?? null),
+
+    personalSubscriptionStatus: computed<MeSubscriptionApiDto.StatusEnum | null>(
+      () => store.me()?.subscription?.status ?? null,
+    ),
+
+    isPersonalSubscriptionActive: computed(
+      () => store.me()?.subscription?.status === MeSubscriptionApiDto.StatusEnum.Active,
+    ),
+
+    isPersonalSubscriptionTrialing: computed(
+      () => store.me()?.subscription?.status === MeSubscriptionApiDto.StatusEnum.Trialing,
+    ),
+
+    isPersonalSubscriptionPastDue: computed(
+      () => store.me()?.subscription?.status === MeSubscriptionApiDto.StatusEnum.PastDue,
+    ),
+
+    isPersonalSubscriptionCanceled: computed(
+      () => store.me()?.subscription?.status === MeSubscriptionApiDto.StatusEnum.Canceled,
+    ),
+
+    personalPlanLabel: computed(() => getSubscriptionPlanLabel(store.me()?.subscription?.planCode)),
+
+    cancelAtPeriodEnd: computed(() => store.me()?.subscription?.cancelAtPeriodEnd ?? false),
+
+    currentPeriodEnd: computed(() => store.me()?.subscription?.currentPeriodEnd ?? null),
+
+    trialEnd: computed(() => store.me()?.subscription?.trialEnd ?? null),
 
     creditsRemaining: computed(() => store.me()?.credits?.remaining ?? 0),
 
-    planLabel: computed(() => {
-      const plan = store.me()?.subscription?.plan;
+    workspaces: computed<readonly MeWorkspaceApiDto[]>(() => store.me()?.workspaces ?? []),
 
-      return plan === 'PREMIUM' ? 'Premium' : 'Free';
-    }),
+    personalWorkspace: computed<MeWorkspaceApiDto | null>(
+      () =>
+        store
+          .me()
+          ?.workspaces?.find(
+            (workspace) => workspace.kind === MeWorkspaceApiDto.KindEnum.Personal,
+          ) ?? null,
+    ),
+
+    organizationWorkspaces: computed<readonly MeWorkspaceApiDto[]>(
+      () =>
+        store
+          .me()
+          ?.workspaces?.filter(
+            (workspace) => workspace.kind === MeWorkspaceApiDto.KindEnum.Organization,
+          ) ?? [],
+    ),
   })),
 
   withMethods((store, meApi = inject(MeControllerService)) => {
@@ -102,10 +152,12 @@ export const AppContextStore = signalStore(
             error: null,
           });
 
-          return meApi.getMe('body', false, {
+          return meApi
+            .getMe('body', false, {
               httpHeaderAccept: 'application/json',
               transferCache: false,
-            }).pipe(
+            })
+            .pipe(
               tap((me) => {
                 patchState(store, {
                   me,

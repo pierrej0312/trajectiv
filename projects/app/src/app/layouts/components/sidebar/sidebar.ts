@@ -19,7 +19,7 @@ import { Menu, MenuModule } from 'primeng/menu';
 import { RippleModule } from 'primeng/ripple';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 
-import { AppContextStore, ShellStore, type AppNavItem } from '@core';
+import { AppContextStore, type AppNavItem, ShellStore } from '@core';
 
 import { TrajectivLogo } from '@shared-ui';
 import { ThemeService } from '@themes/theme.service';
@@ -103,6 +103,8 @@ export class Sidebar {
   readonly openedItemId = signal<string | null>(null);
 
   readonly activeWorkspace = this.workspaceStore.activeWorkspace;
+
+  readonly isPersonalPremium = computed(() => this.appContext.personalPlanCode() === 'PREMIUM');
 
   readonly isDarkTheme = computed(() => this.themeService.isDarkTheme());
 
@@ -247,7 +249,7 @@ export class Sidebar {
 
         command:
           item.type === 'button' && item.route
-            ? () => this.navigateAndClose(item.route ?? "")
+            ? () => this.navigateAndClose(item.route ?? '')
             : undefined,
 
         children,

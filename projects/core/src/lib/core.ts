@@ -1,7 +1,7 @@
 export * from './access/models/app-role.model';
 export * from './access/models/access-context.model';
+export * from './access/models/identity-access-context.model';
 export * from './access/utils/can-access.util';
-export * from './access/models/workspace-context.model';
 export * from './access/config/app-access-requirements.config';
 
 export * from './store/app-context.store';

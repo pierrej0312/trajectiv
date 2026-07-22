@@ -70,12 +70,10 @@ export const DashboardStore = signalStore(
       };
     });
 
-    const subscription = computed<DashboardSubscriptionVm>(() => {
-      return {
-        label: appContext.planLabel(),
-        premium: appContext.isPremium(),
-      };
-    });
+    const subscription = computed<DashboardSubscriptionVm>(() => ({
+      label: appContext.personalPlanLabel(),
+      premium: appContext.personalPlanCode() === 'PREMIUM',
+    }));
 
     const credits = computed<DashboardCreditsVm>(() => {
       const creditDto = appContext.me()?.credits;

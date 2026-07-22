@@ -1,59 +1,80 @@
+import { MeWorkspaceApiDto } from '@shared-api-client';
+
 import type { AccessRequirement } from '@core';
 
 export const APP_ACCESS_REQUIREMENTS = {
-  /**
-   * Fonctionnalités utilisables depuis le workspace personnel.
-   */
   personalWorkspace: {
-    requiredWorkspaceKinds: ['personal'],
+    requiredWorkspaceKinds: [MeWorkspaceApiDto.KindEnum.Personal],
   },
 
-  /**
-   * Fonctionnalités générales d’un workspace organisation.
-   */
   organizationWorkspace: {
-    requiredWorkspaceKinds: ['organization'],
+    requiredWorkspaceKinds: [MeWorkspaceApiDto.KindEnum.Organization],
   },
 
-  /**
-   * Administration d’une organisation.
-   */
   organizationAdministration: {
-    requiredWorkspaceKinds: ['organization'],
+    requiredWorkspaceKinds: [MeWorkspaceApiDto.KindEnum.Organization],
 
-    requiredOrganizationRoles: ['organization_owner', 'organization_admin'],
+    requiredOrganizationRoles: [
+      MeWorkspaceApiDto.OrganizationRoleEnum.OrganizationOwner,
+
+      MeWorkspaceApiDto.OrganizationRoleEnum.OrganizationAdmin,
+    ],
   },
 
-  /**
-   * Espace recrutement d’une organisation.
-   */
   organizationRecruitment: {
-    requiredWorkspaceKinds: ['organization'],
+    requiredWorkspaceKinds: [MeWorkspaceApiDto.KindEnum.Organization],
 
-    requiredOrganizationRoles: ['organization_owner', 'organization_admin', 'recruiter'],
+    requiredOrganizationRoles: [
+      MeWorkspaceApiDto.OrganizationRoleEnum.OrganizationOwner,
+
+      MeWorkspaceApiDto.OrganizationRoleEnum.OrganizationAdmin,
+
+      MeWorkspaceApiDto.OrganizationRoleEnum.Recruiter,
+    ],
   },
 
-  /**
-   * Espace coaching.
-   */
   organizationCoaching: {
-    requiredWorkspaceKinds: ['organization'],
+    requiredWorkspaceKinds: [MeWorkspaceApiDto.KindEnum.Organization],
 
-    requiredOrganizationRoles: ['organization_owner', 'organization_admin', 'coach'],
+    requiredOrganizationRoles: [
+      MeWorkspaceApiDto.OrganizationRoleEnum.OrganizationOwner,
+
+      MeWorkspaceApiDto.OrganizationRoleEnum.OrganizationAdmin,
+
+      MeWorkspaceApiDto.OrganizationRoleEnum.Coach,
+    ],
   },
 
-  /**
-   * Espace formation.
-   */
   organizationTraining: {
-    requiredWorkspaceKinds: ['organization'],
+    requiredWorkspaceKinds: [MeWorkspaceApiDto.KindEnum.Organization],
 
-    requiredOrganizationRoles: ['organization_owner', 'organization_admin', 'trainer'],
+    requiredOrganizationRoles: [
+      MeWorkspaceApiDto.OrganizationRoleEnum.OrganizationOwner,
+
+      MeWorkspaceApiDto.OrganizationRoleEnum.OrganizationAdmin,
+
+      MeWorkspaceApiDto.OrganizationRoleEnum.Trainer,
+    ],
   },
 
-  /**
-   * Administration globale de Trajectiv.
-   */
+  memberRead: {
+    requiredWorkspaceKinds: [MeWorkspaceApiDto.KindEnum.Organization],
+
+    requiredPermissions: [MeWorkspaceApiDto.PermissionsEnum.MemberRead],
+  },
+
+  memberInvite: {
+    requiredWorkspaceKinds: [MeWorkspaceApiDto.KindEnum.Organization],
+
+    requiredPermissions: [MeWorkspaceApiDto.PermissionsEnum.MemberInvite],
+  },
+
+  memberManage: {
+    requiredWorkspaceKinds: [MeWorkspaceApiDto.KindEnum.Organization],
+
+    requiredPermissions: [MeWorkspaceApiDto.PermissionsEnum.MemberRead],
+  },
+
   platformAdministration: {
     requiredRoles: ['app_admin'],
   },

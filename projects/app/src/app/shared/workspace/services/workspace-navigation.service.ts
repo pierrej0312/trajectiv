@@ -1,20 +1,31 @@
 import { inject, Injectable } from '@angular/core';
+
 import { Router } from '@angular/router';
-import { WorkspaceStore } from '@shared/workspace/stores/workspace.store';
+
+import type { AppNavItem } from '@core';
+
 import { NavigationStore } from '@app/src/app/core/navigation/navigation.store';
+
+import { WorkspaceStore } from '../stores/workspace.store';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WorkspaceNavigationService {
   private readonly router = inject(Router);
+
   private readonly workspaceStore = inject(WorkspaceStore);
+
   private readonly navigationStore = inject(NavigationStore);
 
   async selectWorkspace(workspaceId: string): Promise<void> {
-    this.workspaceStore.setActiveWorkspace(workspaceId);
+    const workspaceSelected = this.workspaceStore.setActiveWorkspace(workspaceId);
 
-    const currentUrl = this.router.url;
+    if (!workspaceSelected) {
+      return;
+    }
+
+    const currentUrl = normalizeUrl(this.router.url);
 
     const currentRouteStillVisible = this.navigationStore
       .visibleItems()
@@ -24,30 +35,24 @@ export class WorkspaceNavigationService {
       return;
     }
 
-    const fallback = this.navigationStore
-      .visibleItems()
-      .find((item) => typeof item.route === 'string' && item.route.length > 0);
+    const fallback = this.navigationStore.homeItem();
 
     await this.router.navigateByUrl(fallback?.route ?? '/app/dashboard');
   }
 
-  private matchesItemOrChild(
-    currentUrl: string,
-    item: {
-      readonly route?: string;
-      readonly children?: readonly {
-        readonly route: string;
-      }[];
-    },
-  ): boolean {
-    if (item.route && this.matchesRoute(currentUrl, item.route)) {
+  private matchesItemOrChild(currentUrl: string, item: AppNavItem): boolean {
+    if (item.route && matchesRoute(currentUrl, item.route)) {
       return true;
     }
 
-    return item.children?.some((child) => this.matchesRoute(currentUrl, child.route)) ?? false;
+    return item.children?.some((child) => matchesRoute(currentUrl, child.route)) ?? false;
   }
+}
 
-  private matchesRoute(currentUrl: string, route: string): boolean {
-    return currentUrl === route || currentUrl.startsWith(`${route}/`);
-  }
+function normalizeUrl(url: string): string {
+  return url.split('?')[0]?.split('#')[0] ?? url;
+}
+
+function matchesRoute(currentUrl: string, route: string): boolean {
+  return currentUrl === route || currentUrl.startsWith(`${route}/`);
 }

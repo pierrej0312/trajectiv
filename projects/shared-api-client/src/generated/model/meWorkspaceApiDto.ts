@@ -44,6 +44,7 @@ export namespace MeWorkspaceApiDto {
         MemberRead: 'MEMBER_READ',
         MemberInvite: 'MEMBER_INVITE',
         MemberUpdateRole: 'MEMBER_UPDATE_ROLE',
+        MemberUpdateStatus: 'MEMBER_UPDATE_STATUS',
         MemberSuspend: 'MEMBER_SUSPEND',
         MemberRemove: 'MEMBER_REMOVE',
         CohortRead: 'COHORT_READ',
