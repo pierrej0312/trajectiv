@@ -1,0 +1,278 @@
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+.member-table {
+  width: 100%;
+  min-width: 0;
+}
+
+.organization-team-metric {
+  height: 100%;
+}
+
+.organization-team-metric__content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.organization-team-metric__icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+
+  width: 3rem;
+  height: 3rem;
+
+  border-radius: 1rem;
+
+  color: var(--p-primary-color);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--p-primary-color) 12%,
+      var(--p-surface-0)
+    );
+
+  box-shadow:
+    inset 0 0 0 1px
+    color-mix(
+      in srgb,
+      var(--p-primary-color) 14%,
+      transparent
+    );
+}
+
+.organization-team-metric__icon--active {
+  color: var(--p-green-500);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--p-green-500) 12%,
+      var(--p-surface-0)
+    );
+}
+
+.organization-team-metric__icon--suspended {
+  color: var(--p-orange-500);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--p-orange-500) 12%,
+      var(--p-surface-0)
+    );
+}
+
+.organization-team-metric__label,
+.organization-team-metric__hint {
+  display: block;
+}
+
+.organization-team-metric__label {
+  color: var(--p-text-muted-color);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.organization-team-metric__value {
+  display: block;
+  margin-block: 0.15rem;
+
+  color: var(--p-text-color);
+
+  font-size: clamp(
+    1.6rem,
+    3vw,
+    2.2rem
+  );
+
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.organization-team-metric__hint {
+  color: var(--p-text-muted-color);
+  font-size: 0.75rem;
+}
+
+.organization-team-panel,
+.organization-role-panel {
+  height: 100%;
+}
+
+.organization-team-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1rem;
+}
+
+.organization-team-panel__title {
+  margin: 0;
+
+  color: var(--p-text-color);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.organization-team-panel__description {
+  margin: 0.25rem 0 0;
+
+  color: var(--p-text-muted-color);
+  font-size: 0.8125rem;
+}
+
+.organization-team-panel__count {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+
+  min-width: 2rem;
+  height: 2rem;
+  padding-inline: 0.5rem;
+
+  border-radius: 999px;
+
+  color: var(--p-primary-color);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--p-primary-color) 12%,
+      transparent
+    );
+
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.organization-team-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.organization-team-tab__badge {
+  min-width: 1.4rem;
+  padding: 0.125rem 0.35rem;
+
+  border-radius: 999px;
+
+  background:
+    var(--p-surface-200);
+
+  color:
+    var(--p-text-muted-color);
+
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.organization-team-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 16rem;
+  padding: 2rem;
+
+  gap: 1rem;
+
+  border-radius: 1.25rem;
+
+  color: var(--p-text-muted-color);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--p-surface-100) 72%,
+      transparent
+    );
+
+  text-align: center;
+}
+
+.organization-team-state strong {
+  display: block;
+  color: var(--p-text-color);
+}
+
+.organization-team-state p {
+  max-width: 30rem;
+  margin: 0.35rem 0 0;
+}
+
+.organization-team-state--error {
+  flex-direction: column;
+}
+
+.organization-role-placeholder {
+  display: grid;
+  place-items: center;
+
+  min-height: 18rem;
+  padding: 2rem;
+
+  color: var(--p-text-muted-color);
+  text-align: center;
+}
+
+.organization-role-placeholder__visual {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+
+  height: 6rem;
+  margin-bottom: 1rem;
+}
+
+.organization-role-placeholder__visual span {
+  display: block;
+  width: 1.5rem;
+
+  border-radius: 999px 999px 0.5rem 0.5rem;
+
+  background:
+    linear-gradient(
+      180deg,
+      var(--p-primary-color),
+      color-mix(
+        in srgb,
+        var(--p-primary-color) 40%,
+        transparent
+      )
+    );
+}
+
+.organization-role-placeholder__visual span:nth-child(1) {
+  height: 45%;
+}
+
+.organization-role-placeholder__visual span:nth-child(2) {
+  height: 85%;
+}
+
+.organization-role-placeholder__visual span:nth-child(3) {
+  height: 62%;
+}
+
+@media (width < 48rem) {
+  .organization-team-panel__header {
+    align-items: center;
+  }
+
+  .organization-team-state {
+    flex-direction: column;
+  }
+}
+.member-table__identity {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

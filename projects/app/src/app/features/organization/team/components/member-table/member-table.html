@@ -1,0 +1,88 @@
+<div class="member-table">
+  <p-table
+    [value]="members()"
+    dataKey="id"
+    stripedRows
+    [rowHover]="true"
+    [tableStyle]="{
+      'width': '100%'
+    }"
+  >
+    <ng-template #header>
+      <tr>
+        <th>Membre</th>
+        <th>Rôle</th>
+        <th>Statut</th>
+        <th>Arrivée</th>
+
+        <th class="member-table__actions-heading">
+          <span class="sr-only">
+            Actions
+          </span>
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template
+      #body
+      let-member
+    >
+      <tr
+        [class.member-table__row--mutating]="
+          isMutating(member.id)
+        "
+      >
+        <td>
+          <div class="member-table__identity">
+            <p-avatar
+              [label]="getInitials(member)"
+              shape="circle"
+            />
+
+            <div class="member-table__identity-copy">
+              <strong>
+                {{ getDisplayName(member) }}
+              </strong>
+
+              <span>
+                {{ member.email || 'Email non renseigné' }}
+              </span>
+            </div>
+          </div>
+        </td>
+
+        <td>
+          {{ getRoleLabel(member.role) }}
+        </td>
+
+        <td>
+          <p-tag
+            [value]="getStatusLabel(member.status)"
+            [severity]="
+              getStatusSeverity(member.status)
+            "
+          />
+        </td>
+
+        <td>
+          @if (member.joinedAt) {
+            {{ member.joinedAt | date: 'dd/MM/yyyy' }}
+          } @else {
+            —
+          }
+        </td>
+
+        <td class="member-table__actions">
+          <p-button
+            severity="secondary"
+            text
+            rounded
+            icon="pi pi-ellipsis-v"
+            ariaLabel="Actions du membre"
+            [disabled]="isMutating(member.id)"
+          />
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

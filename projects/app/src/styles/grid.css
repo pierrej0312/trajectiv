@@ -1,0 +1,82 @@
+.tr-page-grid {
+  --tr-page-grid-columns: 12;
+  --tr-page-grid-gap: clamp(1rem, 1.8vw, 1.5rem);
+  --tr-page-grid-row-gap: var(--tr-page-grid-gap);
+  --tr-page-grid-min-row: auto;
+
+  display: grid;
+  grid-template-columns:
+    repeat(
+      var(--tr-page-grid-columns),
+      minmax(0, 1fr)
+    );
+
+  grid-auto-rows:
+    minmax(var(--tr-page-grid-min-row), auto);
+
+  column-gap: var(--tr-page-grid-gap);
+  row-gap: var(--tr-page-grid-row-gap);
+
+  align-items: stretch;
+}
+
+.tr-page-grid--compact {
+  --tr-page-grid-gap: 0.875rem;
+}
+.tr-page-grid-item {
+  min-width: 0;
+  grid-column: 1 / -1;
+}
+
+.tr-page-grid-item--full {
+  grid-column: span 12;
+}
+
+.tr-page-grid-item--primary {
+  grid-column: span 8;
+}
+
+.tr-page-grid-item--secondary {
+  grid-column: span 4;
+}
+
+.tr-page-grid-item--half {
+  grid-column: span 6;
+}
+
+.tr-page-grid-item--third {
+  grid-column: span 4;
+}
+
+.tr-page-grid-item--quarter,
+.tr-page-grid-item--metric {
+  grid-column: span 3;
+}
+
+.tr-page-grid-item--tall {
+  grid-row: span 2;
+}
+
+.tr-page-grid-item--feature {
+  grid-row: span 3;
+}
+
+@media (width < 75rem) {
+  .tr-page-grid-item--primary,
+  .tr-page-grid-item--secondary {
+    grid-column: span 12;
+  }
+
+  .tr-page-grid-item--quarter,
+  .tr-page-grid-item--metric,
+  .tr-page-grid-item--third {
+    grid-column: span 6;
+  }
+}
+
+@media (width < 48rem) {
+  .tr-page-grid-item {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+}

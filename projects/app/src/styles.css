@@ -5,7 +5,9 @@
 @import "primeicons/primeicons.css";
 @import "./styles/step-transitions.css";
 @import "./styles/prime-buttons-embers.css";
-
+@import "./styles/grid.css";
+@import "./styles/prime-cards.css";
+@import "./styles/prime-tables.css";
 
 :root {
   --font-sans:

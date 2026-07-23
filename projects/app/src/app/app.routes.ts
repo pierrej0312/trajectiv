@@ -231,25 +231,40 @@ export const routes: Routes = [
             path: 'organization',
 
             data: {
-              pageTitle: 'Organisation',
-              pageSubtitle:
-                'Pilote les activités de ton espace',
-              pageIcon: 'pi pi-building',
-              parentNavItemId:
-                'organization-dashboard',
+              breadcrumb: {
+                label: 'Organisation',
+                icon: 'pi pi-building',
+              },
 
-              access:
-              APP_ACCESS_REQUIREMENTS
-                .organizationWorkspace,
+              access: APP_ACCESS_REQUIREMENTS.organizationWorkspace,
             } satisfies AppRouteData,
 
-            loadComponent: () =>
-              import(
-                './pages/organization-page/organization-page'
-                ).then(
-                ({ OrganizationPage }) =>
-                  OrganizationPage,
-              ),
+            children: [
+              {
+                path: '',
+
+                data: {
+                  pageTitle: 'Organisation',
+                  pageSubtitle: 'Pilote les activités de ton espace',
+                  pageIcon: 'pi pi-building',
+                  parentNavItemId: 'organization-dashboard',
+                } satisfies AppRouteData,
+
+                loadComponent: () =>
+                  import('./pages/organization-page/organization-page').then(
+                    ({ OrganizationPage }) => OrganizationPage,
+                  ),
+              },
+
+              {
+                path: 'team',
+
+                loadChildren: () =>
+                  import('@features/organization/team/ organization-team.routes').then(
+                    (m) => m.organizationTeamRoutes,
+                  ),
+              },
+            ],
           },
 
           /*
@@ -332,11 +347,8 @@ export const routes: Routes = [
             } satisfies AppRouteData,
 
             loadComponent: () =>
-              import(
-                './pages/access-denied-page/access-denied-page'
-                ).then(
-                ({ AccessDeniedPage }) =>
-                  AccessDeniedPage,
+              import('./pages/access-denied-page/access-denied-page').then(
+                ({ AccessDeniedPage }) => AccessDeniedPage,
               ),
           },
 

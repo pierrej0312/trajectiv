@@ -1,0 +1,10 @@
+@reference 'tailwindcss';
+.team-summary-card {
+  @apply flex items-stretch flex-1 h-full min-h-fit;
+}
+::ng-deep .team-summary-card .p-card {
+  @apply w-full;
+}
+.team-summary-card__metric-row {
+  @apply flex items-center justify-between;
+}

@@ -144,6 +144,7 @@ export const APP_NAVIGATION = [
     placements: ['sidebar', 'drawer', 'top-navigation'],
 
     order: 10,
+    mobileOrder: 40,
 
     badgeKey: 'notifications',
 
@@ -216,9 +217,10 @@ export const APP_NAVIGATION = [
     route: '/app/organization/team',
     section: 'organization',
 
-    placements: ['sidebar', 'drawer'],
+    placements: ['sidebar', 'bottom-bar', 'drawer'],
 
     order: 20,
+    mobileOrder: 20,
 
     ...APP_ACCESS_REQUIREMENTS.memberRead,
 

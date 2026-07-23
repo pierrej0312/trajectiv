@@ -22,6 +22,8 @@ export type ShellState = {
   readonly currentUrl: string;
   readonly navigating: boolean;
   readonly routeData: ShellRouteData;
+
+  readonly breadcrumbs: readonly ShellBreadcrumbItem[];
 };
 
 /**
@@ -30,6 +32,12 @@ export type ShellState = {
  * Elles décrivent le contexte visuel d'une page, mais pas les
  * permissions ni les éléments de navigation accessibles.
  */
+
+export type BreadcrumbRouteData = {
+  readonly label: string;
+  readonly icon?: string;
+  readonly clickable?: boolean;
+};
 
 export type ShellRouteData = {
   readonly shellMode?: ShellMode;
@@ -42,4 +50,11 @@ export type ShellRouteData = {
 
   readonly hideSearch?: boolean;
   readonly showBackButton?: boolean;
+  readonly breadcrumb?: BreadcrumbRouteData | false;
+};
+export type ShellBreadcrumbItem = {
+  readonly label: string;
+  readonly route: string | null;
+  readonly icon: string | null;
+  readonly current: boolean;
 };

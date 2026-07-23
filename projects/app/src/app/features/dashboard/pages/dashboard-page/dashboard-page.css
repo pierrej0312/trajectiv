@@ -21,9 +21,3 @@
 ::ng-deep .dashboard-page__summary-card .p-card {
   @apply w-full;
 }
-::ng-deep .p-card-header > div {
-  @apply flex items-center gap-6;
-  padding-left: var(--p-card-body-padding);
-  padding-right: var(--p-card-body-padding);
-  padding-top: var(--p-card-body-padding);
-}

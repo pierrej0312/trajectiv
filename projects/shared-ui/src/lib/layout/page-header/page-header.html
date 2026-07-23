@@ -1,0 +1,50 @@
+<header class="tr-page-header__root">
+  @if (shouldShowBreadcrumb()) {
+    <p-breadcrumb
+      class="tr-page-header__breadcrumb"
+      [model]="breadcrumbModel()"
+    />
+  }
+
+  <div class="tr-page-header__main">
+    <div class="tr-page-header__identity">
+      @if (icon(); as pageIcon) {
+        <span
+          class="tr-page-header__icon"
+          aria-hidden="true"
+        >
+          <i [class]="pageIcon"></i>
+        </span>
+      }
+
+      <div class="tr-page-header__copy">
+        @if (eyebrow(); as pageEyebrow) {
+          <span class="tr-page-header__eyebrow">
+            {{ pageEyebrow }}
+          </span>
+        }
+
+        <h1 class="tr-page-header__title">
+          {{ title() }}
+        </h1>
+
+        @if (description(); as pageDescription) {
+          <p class="tr-page-header__description">
+            {{ pageDescription }}
+          </p>
+        }
+      </div>
+    </div>
+
+    <div
+      class="tr-page-header__actions"
+      aria-label="Actions de la page"
+    >
+      <ng-content select="[pageHeaderActions]" />
+    </div>
+  </div>
+
+  <div class="tr-page-header__secondary">
+    <ng-content />
+  </div>
+</header>

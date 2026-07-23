@@ -20,7 +20,11 @@ import type {
   SidebarVariant,
 } from '../models/shell.model';
 
-import { normalizeShellUrl, resolveShellRouteData } from '../utils/shell-route.util';
+import {
+  normalizeShellUrl,
+  resolveShellBreadcrumbs,
+  resolveShellRouteData,
+} from '../utils/shell-route.util';
 
 const SHELL_LAYOUT_BY_MODE: Readonly<Record<ShellMode, ShellLayoutConfig>> = {
   app: {
@@ -46,56 +50,34 @@ const initialState: ShellState = {
   currentUrl: '/',
   navigating: false,
   routeData: {},
+  breadcrumbs: [],
 };
 
-/**
- * État transverse du shell applicatif.
- *
- * La configuration visuelle est résolue depuis les données
- * déclarées dans l’arbre des routes Angular.
- */
 export const ShellStore = signalStore(
-
   { providedIn: 'root' },
 
   withState(initialState),
 
   withComputed((store) => {
-    const shellMode = computed<ShellMode>(() => {
-      return store.routeData().shellMode ?? 'app';
-    });
+    const shellMode = computed<ShellMode>(() => store.routeData().shellMode ?? 'app');
 
-    const layoutConfig = computed<ShellLayoutConfig>(() => {
-      return SHELL_LAYOUT_BY_MODE[shellMode()];
-    });
+    const layoutConfig = computed<ShellLayoutConfig>(() => SHELL_LAYOUT_BY_MODE[shellMode()]);
 
     return {
       shellMode,
       layoutConfig,
 
-      sidebarVariant: computed<SidebarVariant>(() => {
-        return layoutConfig().sidebarVariant;
-      }),
+      sidebarVariant: computed<SidebarVariant>(() => layoutConfig().sidebarVariant),
 
-      navbarVariant: computed<NavbarVariant>(() => {
-        return layoutConfig().navbarVariant;
-      }),
+      navbarVariant: computed<NavbarVariant>(() => layoutConfig().navbarVariant),
 
-      bottomBarVariant: computed<BottomBarVariant>(() => {
-        return layoutConfig().bottomBarVariant;
-      }),
+      bottomBarVariant: computed<BottomBarVariant>(() => layoutConfig().bottomBarVariant),
 
-      showSidebar: computed(() => {
-        return layoutConfig().sidebarVariant !== 'hidden';
-      }),
+      showSidebar: computed(() => layoutConfig().sidebarVariant !== 'hidden'),
 
-      showNavbar: computed(() => {
-        return layoutConfig().navbarVariant !== 'hidden';
-      }),
+      showNavbar: computed(() => layoutConfig().navbarVariant !== 'hidden'),
 
-      showBottomBar: computed(() => {
-        return layoutConfig().bottomBarVariant !== 'hidden';
-      }),
+      showBottomBar: computed(() => layoutConfig().bottomBarVariant !== 'hidden'),
 
       isAuthBridgePage: computed(() => {
         const url = store.currentUrl();
@@ -103,55 +85,38 @@ export const ShellStore = signalStore(
         return url.startsWith('/sign-in') || url.startsWith('/sign-up');
       }),
 
-      isOnboardingNavigation: computed(() => {
-        return shellMode() === 'onboarding';
-      }),
+      isOnboardingNavigation: computed(() => shellMode() === 'onboarding'),
 
-      isAppShell: computed(() => {
-        return shellMode() === 'app';
-      }),
+      isAppShell: computed(() => shellMode() === 'app'),
 
-      isOnboardingShell: computed(() => {
-        return shellMode() === 'onboarding';
-      }),
+      isOnboardingShell: computed(() => shellMode() === 'onboarding'),
 
-      isImmersiveShell: computed(() => {
-        return shellMode() === 'immersive';
-      }),
+      isImmersiveShell: computed(() => shellMode() === 'immersive'),
 
-      pageTitle: computed(() => {
-        return store.routeData().pageTitle ?? null;
-      }),
+      pageTitle: computed(() => store.routeData().pageTitle ?? null),
 
-      pageSubtitle: computed(() => {
-        return store.routeData().pageSubtitle ?? null;
-      }),
+      pageSubtitle: computed(() => store.routeData().pageSubtitle ?? null),
 
-      pageIcon: computed(() => {
-        return store.routeData().pageIcon ?? null;
-      }),
+      pageIcon: computed(() => store.routeData().pageIcon ?? null),
 
-      parentNavItemId: computed(() => {
-        return store.routeData().parentNavItemId ?? null;
-      }),
+      parentNavItemId: computed(() => store.routeData().parentNavItemId ?? null),
 
-      showSearch: computed(() => {
-        return layoutConfig().navbarVariant === 'app' && store.routeData().hideSearch !== true;
-      }),
+      showSearch: computed(
+        () => layoutConfig().navbarVariant === 'app' && store.routeData().hideSearch !== true,
+      ),
 
-      showBackButton: computed(() => {
-        return store.routeData().showBackButton === true;
-      }),
+      showBackButton: computed(() => store.routeData().showBackButton === true),
+
+      hasBreadcrumbs: computed(() => store.breadcrumbs().length > 0),
     };
   }),
 
   withHooks((store, router = inject(Router), destroyRef = inject(DestroyRef)) => ({
     onInit(): void {
-      patchState(store, {
-        currentUrl: normalizeShellUrl(router.url),
-        navigating: router.currentNavigation() !== null,
-        routeData: resolveShellRouteData(router.routerState.snapshot),
-      });
+      patchState(
+        store,
+        resolveRouterShellState(router, router.url, router.currentNavigation() !== null),
+      );
 
       router.events.pipe(takeUntilDestroyed(destroyRef)).subscribe((event) => {
         if (event instanceof NavigationStart) {
@@ -163,23 +128,33 @@ export const ShellStore = signalStore(
         }
 
         if (event instanceof NavigationEnd) {
-          patchState(store, {
-            currentUrl: normalizeShellUrl(event.urlAfterRedirects),
-            navigating: false,
-            routeData: resolveShellRouteData(router.routerState.snapshot),
-          });
+          patchState(store, resolveRouterShellState(router, event.urlAfterRedirects, false));
 
           return;
         }
 
         if (event instanceof NavigationCancel || event instanceof NavigationError) {
-          patchState(store, {
-            currentUrl: normalizeShellUrl(router.url),
-            navigating: false,
-            routeData: resolveShellRouteData(router.routerState.snapshot),
-          });
+          patchState(store, resolveRouterShellState(router, router.url, false));
         }
       });
     },
   })),
 );
+
+function resolveRouterShellState(
+  router: Router,
+  currentUrl: string,
+  navigating: boolean,
+): Partial<ShellState> {
+  const routerState = router.routerState.snapshot;
+
+  return {
+    currentUrl: normalizeShellUrl(currentUrl),
+
+    navigating,
+
+    routeData: resolveShellRouteData(routerState),
+
+    breadcrumbs: resolveShellBreadcrumbs(routerState),
+  };
+}

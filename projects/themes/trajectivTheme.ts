@@ -106,6 +106,11 @@ export const TrajectivTheme = definePreset(Aura, {
     }
   `,
   components: {
+    breadcrumb: {
+      root: {
+        background: 'none',
+      }
+    },
     button: {
       root: {
         borderRadius: '999px',

@@ -1,0 +1,6 @@
+.p-card-header > div {
+  @apply flex items-center gap-6;
+  padding-left: var(--p-card-body-padding);
+  padding-right: var(--p-card-body-padding);
+  padding-top: var(--p-card-body-padding);
+}

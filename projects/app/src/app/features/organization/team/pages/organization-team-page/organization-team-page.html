@@ -1,0 +1,470 @@
+<lib-page-layout width="wide">
+  <lib-page-header
+    pageHeader
+    eyebrow="Organisation"
+    title="Équipe"
+    [description]="
+      'Gère les membres, leurs rôles et les invitations de ' +
+      activeWorkspaceLabel() +
+      '.'
+    "
+    icon="pi pi-users"
+    [showBreadcrumb]="true"
+  >
+    @if (membersStore.canInviteMembers()) {
+      <p-button
+        pageHeaderActions
+        icon="pi pi-user-plus"
+        label="Inviter un membre"
+        pTooltip="Inviter une personne dans cette organisation"
+        tooltipPosition="bottom"
+        (onClick)="openInviteDialog()"
+      />
+    }
+  </lib-page-header>
+
+  <section
+    libPageGrid
+    aria-label="Gestion de l’équipe"
+  >
+    <div libPageGridItem="third">
+      <p-card
+        class="
+      team-summary-card
+      team-summary-card--members
+    "
+      >
+        <ng-template #header>
+          <div class="team-summary-card__header">
+        <span class="team-summary-card__icon">
+          <i
+            class="pi pi-users"
+            aria-hidden="true"
+          ></i>
+        </span>
+
+            <div class="team-summary-card__heading">
+          <span class="team-summary-card__eyebrow">
+            Équipe
+          </span>
+
+              <h2 class="team-summary-card__title">
+                Membres
+              </h2>
+            </div>
+          </div>
+        </ng-template>
+
+        <div class="team-summary-card__metric">
+          <strong class="team-summary-card__value">
+            {{ membersStore.memberCount() }}
+          </strong>
+
+          <span class="team-summary-card__unit">
+        personnes
+      </span>
+        </div>
+
+        <p class="team-summary-card__description">
+          Membres enregistrés dans
+          {{ activeWorkspaceLabel() }}.
+        </p>
+
+        <ng-template #footer>
+          <div class="team-summary-card__footer">
+        <span class="team-summary-card__footer-icon">
+          <i
+            class="pi pi-check-circle"
+            aria-hidden="true"
+          ></i>
+        </span>
+
+            <span>
+          {{ membersStore.activeMemberCount() }}
+              membre(s) actif(s)
+        </span>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+    <div libPageGridItem="third">
+      <p-card
+        class="
+      team-summary-card
+      team-summary-card--active
+    "
+      >
+        <ng-template #header>
+          <div class="team-summary-card__header">
+        <span class="team-summary-card__icon">
+          <i
+            class="pi pi-shield"
+            aria-hidden="true"
+          ></i>
+        </span>
+
+            <div class="team-summary-card__heading">
+          <span class="team-summary-card__eyebrow">
+            Accès
+          </span>
+
+              <h2 class="team-summary-card__title">
+                Membres actifs
+              </h2>
+            </div>
+          </div>
+        </ng-template>
+
+        <div class="team-summary-card__metric-row">
+          <div class="team-summary-card__metric">
+            <strong class="team-summary-card__value">
+              {{ membersStore.activeMemberCount() }}
+            </strong>
+
+            <span class="team-summary-card__unit">
+              actifs
+            </span>
+          </div>
+
+          <strong class="team-summary-card__percentage">
+            {{ activeMemberPercentage() }} %
+          </strong>
+        </div>
+
+        <p class="team-summary-card__description">
+          Membres disposant actuellement d’un accès opérationnel.
+        </p>
+
+        <p-progressbar
+          [value]="activeMemberPercentage()"
+          [showValue]="false"
+          [pt]="{
+        root: 'h-1.5! rounded-full!',
+        value: 'rounded-full!'
+      }"
+          aria-label="Part des membres actifs"
+        ></p-progressbar>
+
+        <ng-template #footer>
+          <div class="team-summary-card__footer">
+        <span class="team-summary-card__footer-icon">
+          <i
+            class="pi pi-sparkles"
+            aria-hidden="true"
+          ></i>
+        </span>
+
+            <span>
+          Accès organisationnels opérationnels
+        </span>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+    <div libPageGridItem="third">
+      <p-card
+        class="
+      team-summary-card
+      team-summary-card--suspended
+    "
+        [class.team-summary-card-host--attention]="
+      membersStore.suspendedMemberCount() > 0
+    "
+      >
+        <ng-template #header>
+          <div class="team-summary-card__header">
+        <span class="team-summary-card__icon">
+          <i
+            class="pi pi-pause-circle"
+            aria-hidden="true"
+          ></i>
+        </span>
+
+            <div class="team-summary-card__heading">
+          <span class="team-summary-card__eyebrow">
+            Surveillance
+          </span>
+
+              <h2 class="team-summary-card__title">
+                Accès suspendus
+              </h2>
+            </div>
+          </div>
+        </ng-template>
+
+        <div class="team-summary-card__metric">
+          <strong class="team-summary-card__value">
+            {{ membersStore.suspendedMemberCount() }}
+          </strong>
+
+          <span class="team-summary-card__unit">
+        suspendu(s)
+      </span>
+        </div>
+
+        <p class="team-summary-card__description">
+          Accès temporairement bloqués ou nécessitant une vérification.
+        </p>
+
+        <ng-template #footer>
+          @if (membersStore.suspendedMemberCount() > 0) {
+            <button
+              type="button"
+              class="team-summary-card__footer-action"
+              (click)="showSuspendedMembers()"
+            >
+              <i
+                class="pi pi-arrow-right"
+                aria-hidden="true"
+              ></i>
+
+              Voir les accès suspendus
+            </button>
+          } @else {
+            <div class="team-summary-card__footer">
+          <span class="team-summary-card__footer-icon">
+            <i
+              class="pi pi-check"
+              aria-hidden="true"
+            ></i>
+          </span>
+
+              <span>
+            Aucun accès à vérifier
+          </span>
+            </div>
+          }
+        </ng-template>
+      </p-card>
+    </div>
+
+    <div libPageGridItem="primary">
+      <p-panel
+        class="
+          tr-content-panel
+          organization-team-panel
+        "
+      >
+        <ng-template #header>
+          <div class="organization-team-panel__header">
+            <div>
+              <h2 class="organization-team-panel__title">
+                Gestion de l’équipe
+              </h2>
+
+              <p class="organization-team-panel__description">
+                Consulte les membres, leurs rôles et leurs accès.
+              </p>
+            </div>
+          </div>
+        </ng-template>
+
+        <p-tabs
+          [value]="activeTab()"
+          (valueChange)="setActiveTab($event!)"
+        >
+          <p-tablist>
+            <p-tab value="members">
+              <span class="organization-team-tab">
+                <i
+                  class="pi pi-users"
+                  aria-hidden="true"
+                ></i>
+
+                Membres
+
+                <span class="organization-team-tab__badge">
+                  {{ membersStore.memberCount() }}
+                </span>
+              </span>
+            </p-tab>
+
+            <p-tab value="invitations">
+              <span class="organization-team-tab">
+                <i
+                  class="pi pi-envelope"
+                  aria-hidden="true"
+                ></i>
+
+                Invitations
+              </span>
+            </p-tab>
+          </p-tablist>
+
+          <p-tabpanels>
+            <p-tabpanel value="members">
+              @if (membersStore.isLoading()) {
+                <div
+                  class="organization-team-state"
+                  aria-live="polite"
+                >
+                  <i
+                    class="
+                      pi
+                      pi-spin
+                      pi-spinner
+                    "
+                    aria-hidden="true"
+                  ></i>
+
+                  <span>
+                    Chargement des membres…
+                  </span>
+                </div>
+              } @else if (membersStore.hasError()) {
+                <div
+                  class="
+                    organization-team-state
+                    organization-team-state--error
+                  "
+                >
+                  <div>
+                    <strong>
+                      Impossible de charger l’équipe.
+                    </strong>
+
+                    <p>
+                      Une erreur est survenue pendant la récupération
+                      des membres.
+                    </p>
+                  </div>
+
+                  <p-button
+                    severity="secondary"
+                    outlined
+                    icon="pi pi-refresh"
+                    label="Réessayer"
+                    (onClick)="membersStore.reloadMembers()"
+                  />
+                </div>
+              } @else if (membersStore.isEmpty()) {
+                <div class="organization-team-state">
+                  <i
+                    class="pi pi-user-plus"
+                    aria-hidden="true"
+                  ></i>
+
+                  <div>
+                    <strong>
+                      Aucun membre pour le moment
+                    </strong>
+
+                    <p>
+                      Invite une première personne pour commencer à
+                      structurer l’équipe.
+                    </p>
+                  </div>
+
+                  @if (membersStore.canInviteMembers()) {
+                    <p-button
+                      icon="pi pi-user-plus"
+                      label="Inviter un membre"
+                      (onClick)="openInviteDialog()"
+                    />
+                  }
+                </div>
+              } @else {
+                @if (membersStore.statusFilter(); as statusFilter) {
+                  <div class="organization-team-filter">
+                    <div class="organization-team-filter__content">
+                      <i
+                        class="pi pi-filter"
+                        aria-hidden="true"
+                      ></i>
+
+                      <span>
+                        @switch (statusFilter) {
+                          @case (memberStatus.Active) {
+                            Affichage des membres actifs
+                          }
+
+                          @case (memberStatus.Suspended) {
+                            Affichage des accès suspendus
+                          }
+                        }
+                      </span>
+                    </div>
+
+                    <p-button
+                      severity="secondary"
+                      text
+                      size="small"
+                      icon="pi pi-times"
+                      label="Voir tous les membres"
+                      (onClick)="showAllMembers()"
+                    />
+                  </div>
+                }
+                <app-member-table
+                  [members]="membersStore.filteredMembers()"
+                  [mutatingMemberIds]="membersStore.mutatingMemberIds()"
+                  [canUpdateRole]="membersStore.canUpdateMemberRole()"
+                  [canUpdateStatus]="membersStore.canUpdateMemberStatus()"
+                  [canRemove]="membersStore.canRemoveMember()"
+                />
+              }
+            </p-tabpanel>
+
+            <p-tabpanel value="invitations">
+              <div class="organization-team-state">
+                <i
+                  class="pi pi-envelope"
+                  aria-hidden="true"
+                ></i>
+
+                <div>
+                  <strong>
+                    Invitations bientôt disponibles
+                  </strong>
+
+                  <p>
+                    La gestion des invitations sera ajoutée dans le
+                    prochain incrément.
+                  </p>
+                </div>
+              </div>
+            </p-tabpanel>
+          </p-tabpanels>
+        </p-tabs>
+      </p-panel>
+    </div>
+
+    <div libPageGridItem="secondary">
+      <p-panel
+        class="
+          tr-content-panel
+          organization-role-panel
+        "
+      >
+        <ng-template #header>
+          <div class="organization-team-panel__header">
+            <div>
+              <h2 class="organization-team-panel__title">
+                Répartition des rôles
+              </h2>
+
+              <p class="organization-team-panel__description">
+                Composition actuelle de l’équipe.
+              </p>
+            </div>
+          </div>
+        </ng-template>
+
+        <div class="organization-role-placeholder">
+          <div class="organization-role-placeholder__visual">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+          <p>
+            La répartition détaillée sera branchée après la table des
+            membres.
+          </p>
+        </div>
+      </p-panel>
+    </div>
+  </section>
+</lib-page-layout>

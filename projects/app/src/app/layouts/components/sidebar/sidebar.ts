@@ -32,6 +32,7 @@ import { WorkspaceStore } from '@shared/workspace/stores/workspace.store';
 
 import { WorkspaceSwitcher } from '@shared/workspace/components/workspace-switcher/workspace-switcher';
 import { NavigationStore } from '@app/src/app/core/navigation/navigation.store';
+import { ApplicationSessionService } from '@app/src/app/core/session/ApplicationSessionService';
 
 type SidebarChildItem = {
   readonly key: string;
@@ -84,11 +85,11 @@ type ProfileMenuItem = MenuItem & {
 export class Sidebar {
   private readonly themeService = inject(ThemeService);
 
-  private readonly keycloakStore = inject(KeycloakStore);
-
   private readonly workspaceStore = inject(WorkspaceStore);
 
   private readonly navigation = inject(NavigationStore);
+
+  private readonly session = inject(ApplicationSessionService);
 
   private readonly router = inject(Router);
 
@@ -171,7 +172,7 @@ export class Sidebar {
         label: 'Se déconnecter',
         icon: 'pi pi-sign-out',
         command: () => {
-          void this.keycloakStore.logout();
+          void this.session.logout();
         },
       },
     ];
